@@ -1,0 +1,31 @@
+the Configuration used is:
+ghost_genetic_on: true
+target_offset_freightned: true
+fitness_on: false
+
+pill_genetic_on: true
+pill_precise_crossover: false
+
+n_ghosts: 24
+n_pills: 6
+pill_time: 2.7
+ghost_chase_time: 3.99
+ghost_scatter_time: 2
+
+the grid is: 56 x 31
+player's start grid is: 28, 18
+stats_on: true
+reporter_duty_cycle: 20
+ghost_speed_max_factor: 1.5
+player_speed_grid_size_factor: 6
+grid_size is: 34
+player's speed: 204
+ghost_speed: 224.4
+grid_size is: 34
+Error: pill.lua:57: attempt to compare number with nil
+stack traceback:
+	[string "boot.lua"]:637: in function '__lt'
+	pill.lua:57: in function 'update'
+	main.lua:345: in function 'update'
+	[string "boot.lua"]:509: in function <[string "boot.lua"]:493>
+	[C]: in function 'xpcall'
