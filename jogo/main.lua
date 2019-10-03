@@ -11,6 +11,9 @@ local resizer = require "resizer"
 
 -- to dos
 
+  	-- detector de emboscada
+  	--ver se tem outro tile com mais de uma opcao antes de uma pilula ou do player
+
 -- controlador fuzzy para o  target_offset do fantasma, seria dinamico
 	-- entradas player is moving ou speed
 	-- distancia do player para a pilula mais proxima
@@ -29,7 +32,6 @@ local ghost_fitness_on = true             	-- desliga a funcao fitness
 local ghost_target_offset_freightned_on = true -- desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
-
 local pill_genetic_on = true			-- liga e desliga o GA para pilulas
 local pill_precise_crossover_on = false	-- controla o forma de crossover dos pilulas
 
