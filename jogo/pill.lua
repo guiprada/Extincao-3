@@ -99,8 +99,7 @@ function pill.selection(pills)
         end
     end
 
-
-    return living_stack[love.math.random(1, #living_stack)], living_stack[love.math.random(1, #living_stack)]
+    return living_stack[love.math.random(1, math.ceil(#living_stack/2))], living_stack[love.math.random( math.floor(#living_stack/2), #living_stack)]
     --return utils.tables_get_highest(living_stack, "fitness"), living_stack[love.math.random(1, #living_stack)]
 end
 
@@ -112,9 +111,6 @@ function pill.crossover(value, pills, pill_time)
         son.x = math.floor((mom.x + dad.x)/2) --+ love.math.random(1, 8)j
         son.y = math.floor((mom.y + dad.y)/2) --+ love.math.random(1, 8)
         local temp_grid_pos = grid.get_grid_pos(son)
-
-        --print(temp_grid_pos.x .. " " .. temp_grid_pos.y)
-        --print(son.x .. " " .. son.y)
 
         son.grid_pos = {}
 
@@ -171,8 +167,9 @@ function pill.crossover(value, pills, pill_time)
                 son.pos_index = #grid.grid_valid_pos
             end
         end
+        son.grid_pos = grid.grid_valid_pos[son.pos_index ]
     end
-    son.grid_pos = grid.grid_valid_pos[son.pos_index ]
+
     pill.reset(value, pill_time, son.grid_pos)
 end
 

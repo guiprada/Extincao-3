@@ -28,9 +28,9 @@ local ghost_genetic_on = true  	-- liga e desliga e GA
 local ghost_fitness_on = true             	-- desliga a funcao fitness
 local ghost_target_offset_freightned_on = true -- desliga e gene target_offset_freightned
 local ghost_migration_on = true
-local ghost_selective_migration_on = true
+local ghost_selective_migration_on = false
 
-local pill_genetic_on = false			-- liga e desliga o GA para pilulas
+local pill_genetic_on = true			-- liga e desliga o GA para pilulas
 local pill_precise_crossover_on = false	-- controla o forma de crossover dos pilulas
 
 local stats_on = true -- controla a exibicao de informacao do GA na tela
@@ -47,8 +47,8 @@ local n_ghosts = 16 --at least 3
 local n_pills = 5	-- at least 2
 
 local pill_time = 2.7	-- tempo de duracao da pilula
-local ghost_chase_time = 3.99 -- testado
-local ghost_scatter_time = 2 --testado
+local ghost_chase_time = 15 -- testado 3.99
+local ghost_scatter_time = 7.5 --testado com 2
 local ghost_respawn_time = 5 --15--20 testado
 
 
@@ -200,6 +200,14 @@ function love.load()
 	for i=1,n_ghosts,1 do
 		-- encontra posicao valida, gene pos_index
 		local pos_index = love.math.random(1, #grid.grid_valid_pos)
+
+		local pilgrin_gene
+		if ( love.math.random(0, 1) == 1) then
+			pilgrin_gene = true
+		else
+			pilgrin_gene = false
+		end
+
 		local target_offset = love.math.random(-10, 10)
 		local target_offset_freightned = love.math.random(-10, 10)
 		-- faz um gene try_order valido
@@ -208,7 +216,7 @@ function love.load()
 			try_order[i] = i
 		end
 		utils.array_shuffler(try_order)
-	    ghosts[i] = ghost.new(pos_index, target_offset, target_offset_freightned, try_order, ghost_speed, pills)
+	    ghosts[i] = ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, ghost_speed, pills)
 	end
 	--print("some ghosts for you to catch :)")
     -- cria o canvas para o maze

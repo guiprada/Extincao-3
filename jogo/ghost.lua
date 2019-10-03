@@ -25,7 +25,7 @@ function ghost.init( ghost_fitness_on, ghost_target_offset_freightned_on, ghost_
     ghost.lookahead = lookahead
 end
 
-function ghost.new(pos_index, target_offset, target_offset_freightned, try_order, speed, pills)
+function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, speed, pills)
     local value = {}
     value.is_active = false
     value.x = 0
@@ -46,7 +46,8 @@ function ghost.new(pos_index, target_offset, target_offset_freightned, try_order
     value.speed_boost = 0
     value.dist_to_group = 0
 
-    value.pos_index = pos_index --gene
+    value.pos_index = pos_index --gene, but is not effective because the spawning system
+    value.pilgrin_gene = pilgrin_gene
     value.target_offset = target_offset -- gene
     value.target_offset_freightned = target_offset_freightned
     value.home = {} -- determinado por pos_index, e um fenotipo
@@ -56,12 +57,12 @@ function ghost.new(pos_index, target_offset, target_offset_freightned, try_order
     value.last_grid_pos = {}
     value.front = {}
 
-    ghost.reset(value, pos_index, target_offset, target_offset_freightned, try_order, speed, pills)
+    ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, speed, pills)
 
     return  value
 end
 
-function ghost.reset(value, pos_index, target_offset, target_offset_freightned, try_order, speed, pills, spawn_grid_pos)
+function ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, speed, pills, spawn_grid_pos)
     value.is_active = true
     value.n_updates = 0
     value.n_chase_updates = 0
@@ -74,6 +75,8 @@ function ghost.reset(value, pos_index, target_offset, target_offset_freightned, 
     value.home_pill_fitness = 0
     value.speed_boost = 0
     value.dist_to_group = 0
+
+    value.pilgrin_gene = pilgrin_gene
     value.target_offset = target_offset
     value.target_offset_freightned = target_offset_freightned
 
@@ -163,6 +166,19 @@ function ghost.crossover (value, speed, ghosts, pills, spawn_grid_pos)
     mom, dad = ghost.selection(ghosts)
 
     local son = {}
+
+    -- dominante para o gene peregrino
+    if( mom.pilgrin_gene == dad.pilgrin_gene ) then
+        son.pilgrin_gene = mom.pilgrin_gene
+    else
+
+        if ( love.math.random(0, 3) == 1 ) then
+            son.pilgrin_gene = false
+        else
+            son.pilgrin_gene = true
+        end
+    end
+
     son.pos_index = math.floor((mom.pos_index + dad.pos_index)/2)
     if (love.math.random(0, 10)<=9) then -- mutate
         son.pos_index = son.pos_index + math.floor(love.math.random(-50, 50))
@@ -202,11 +218,11 @@ function ghost.crossover (value, speed, ghosts, pills, spawn_grid_pos)
         end
     end
 
-    ghost.reset(value, son.pos_index, son.target_offset, son.target_offset_freightned, son.try_order, speed, pills, spawn_grid_pos)
+    ghost.reset(value, son.pos_index, son.pilgrin_gene, son.target_offset, son.target_offset_freightned, son.try_order, speed, pills, spawn_grid_pos)
 end
 
 function ghost.reactivate (value, speed, pills, spawn_grid_pos)
-    ghost.reset(value, value.pos_index, value.target_offset, value.target_offset_freightned, value.try_order, speed, pills, spawn_grid_pos)
+    ghost.reset(value, value.pos_index, value.pilgrin_gene, value.target_offset, value.target_offset_freightned, value.try_order, speed, pills, spawn_grid_pos)
 end
 
 function ghost.draw(value, state)
@@ -232,9 +248,11 @@ function ghost.draw(value, state)
         love.graphics.circle("fill", midle_midle_midle.x, midle_midle_midle.y, ghost.grid_size/4)
         --love.graphics.circle("fill", value.x, value.y, grid_size/6)
 
-        -- front line, mesma cor
-        -- love.graphics.setColor(1, 0, 1)
-        --love.graphics.line(value.x, value.y, value.front.x, value.front.y)
+        if ( value.pilgrin_gene ) then
+            love.graphics.setColor(1, 0, 0)
+            love.graphics.circle("fill", midle.x, midle.y, ghost.grid_size/5)
+            --love.graphics.line(value.x, value.y, value.front.x, value.front.y)
+        end
     end
 end
 
@@ -304,15 +322,22 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
                 end
 
                 if ( ghost.ghost_migration_on ) then
-                    print("old home: " .. value.home.x .. " " .. value.home.y)
+                    --print("old home: " .. value.home.x .. " " .. value.home.y)
+
                     if ( ghost.ghost_selective_migration_on ) then
-                        if ( value.home_pill_fitness < pills[i].fitness ) then
-                            value.home = pills[i].grid_pos
+                        if ( value.pilgrin_gene ) then
+                            if ( value.home_pill_fitness <= pills[i].fitness ) then
+                                value.home = pills[i].grid_pos
+                            end
+                        else
+                            if ( value.home_pill_fitness >= pills[i].fitness ) then
+                                value.home = pills[i].grid_pos
+                            end
                         end
                     else
                         value.home = pills[i].grid_pos
                     end
-                    print("new home: " .. value.home.x .. " " .. value.home.y)
+                    --print("new home: " .. value.home.x .. " " .. value.home.y)
                 end
 
                 pills[i].fitness = pills[i].fitness + 1
