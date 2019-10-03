@@ -22,8 +22,8 @@ function utils.array_shuffler(array)
 	end
 end
 
-function utils.tables_average( tables, indexer)
-	-- returns the avorage of parameter indexer of a list of tables
+function utils.average( tables, indexer)
+	-- returns the average of parameter indexer of a list of tables
 	local lenght = #tables
 	local average = 0
 	for  i=1, lenght, 1 do
@@ -32,7 +32,18 @@ function utils.tables_average( tables, indexer)
 	return average
 end
 
-function utils.tables_get_highest( tables, indexer)
+function utils.std_deviation(tables, indexer)
+	local lenght = #tables
+	local sum = 0
+	local average = utils.average( tables, indexer )
+	for  i=1, lenght, 1 do
+		sum = sum + ( tables[i][indexer] - average )^2
+	end
+	local std_dev = sum^(1/2)
+	return std_dev
+end
+
+function utils.get_highest( tables, indexer)
 	local lenght = #tables
 	local highest = 1
 	for i=1, lenght, 1 do
@@ -43,7 +54,7 @@ function utils.tables_get_highest( tables, indexer)
 	return tables[highest]
 end
 
-function utils.tables_get_highest_index( tables, indexer)
+function utils.get_highest_index( tables, indexer)
 	local lenght = #tables
 	local highest = 1
 	for i=1, lenght, 1 do
@@ -54,7 +65,7 @@ function utils.tables_get_highest_index( tables, indexer)
 	return highest
 end
 
-function utils.table_remove_key( table, key)
+function utils.remove_key( table, key)
 	for i=1,#table, 1 do
 		if (table[i]== key) then
 			table.remove(tables, i)
@@ -62,7 +73,7 @@ function utils.table_remove_key( table, key)
 	end
 end
 
-function utils.tables_get_n_best( tables, indexer, n)
+function utils.get_n_best( tables, indexer, n)
 	local copy = {}
 	for i=1, #tables, 1 do
 		copy[i]= tables[i]
@@ -74,7 +85,7 @@ function utils.tables_get_n_best( tables, indexer, n)
 		limit = #tables
 	end
 	for i=1, limit, 1 do
-		local new_top_index = utils.tables_get_highest_index(copy, indexer)
+		local new_top_index = utils.get_highest_index(copy, indexer)
 		table.insert(highest_stack, tables[new_top_index])
 		table.remove(copy, index)
 	end

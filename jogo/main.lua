@@ -32,11 +32,12 @@ local ghost_fitness_on = true             	-- desliga a funcao fitness
 local ghost_target_offset_freightned_on = true -- desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
+local ghost_target_spread = 5
 local pill_genetic_on = true			-- liga e desliga o GA para pilulas
 local pill_precise_crossover_on = false	-- controla o forma de crossover dos pilulas
 
 local stats_on = true -- controla a exibicao de informacao do GA na tela
-local reporter_duty_cycle = 20        -- frequecia, em fantasmas nascidos, que o repoter printa uma notificacao no console
+--local reporter_duty_cycle = 20        -- frequecia, em fantasmas nascidos, que o reporter printa uma notificacao no console
 
 local grid_width_n = 56
 local grid_height_n = 31
@@ -53,7 +54,6 @@ local ghost_chase_time = 15 -- testado 3.99
 local ghost_scatter_time = 7.5 --testado com 2
 local ghost_respawn_time = 5 --15--20 testado
 
-
 local ghost_speed_max_factor = 1.5 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
 local speed_boost_on = false
 local speed = 0 -- will be set in love.load(), needs grid_size being set
@@ -63,10 +63,11 @@ local ghost_speed = 0 -- will be set in love.load(), needs speed being set
 print("the Configuration used is:")
 print()
 print("ghost_genetic_on: " .. tostring(ghost_genetic_on))
+print("ghost_fitness_on: " .. tostring(ghost_fitness_on) )
 print("ghost_target_offset_freightned_on: " .. tostring(ghost_target_offset_freightned_on))
 print("ghost_migration_on: " .. tostring(ghost_migration_on))
 print("ghost_selective_migration_on: " .. tostring(ghost_selective_migration_on))
-print("ghost_fitness_on: " .. tostring(ghost_fitness_on) )
+print("ghost_target_spread: " .. ghost_target_spread)
 print()
 print("pill_genetic_on: " .. tostring(pill_genetic_on))
 print("pill_precise_crossover_on: " .. tostring(pill_precise_crossover_on))
@@ -84,7 +85,7 @@ print()
 print("the grid is: " .. grid_width_n .. " x " .. grid_height_n)
 print("player's start grid is: " .. player_start_grid.x .. ", " .. player_start_grid.y)
 print("stats_on: " .. tostring(stats_on) )
-print("reporter_duty_cycle: " .. reporter_duty_cycle )
+--print("reporter_duty_cycle: " .. reporter_duty_cycle )
 print("ghost_speed_max_factor: " .. ghost_speed_max_factor )
 print("player_speed_grid_size_factor: " .. player_speed_grid_size_factor )
 
@@ -130,10 +131,30 @@ local pause_text = 	"Jogo da extinção\n\n"
 					.. "'q' para sair\n"
 					.. "'p' para pausar/despausar\n"
 
+
+-- medicao
 local average_ghost_fitness = 0
 local average_pill_fitness  =0
+local active_ghost_counter = 0
+local reporter_counter = 0
+local player_catched_counter = 0
 
 --------------------------------------------------------------------------------
+
+function reporter()
+
+	print(	"ghosts catched: " .. reporter_counter .. " <> " ..
+			"player_catched_counter: " .. player_catched_counter .. " <> " ..
+			"av ghost fitness: " .. utils.average(ghosts, "fitness") .. " <> " ..--average_ghost_fitness .. "  " ..
+			"std_dev ghost fitness: " .. utils.std_deviation(ghosts, "fitness") .. " <> " ..
+			"max ghost fitness: " .. utils.get_highest(ghosts, "fitness").fitness .. " <> " ..
+			"av target_offset: " .. utils.average(ghosts, "target_offset") .. " <> " ..--(total_target/active_ghost_counter) .. " " ..
+			"std_dev target_offset: " .. utils.std_deviation(ghosts, "target_offset") .. " <> " ..
+			"average age: " .. utils.average(ghosts, "n_updates")
+			"av-pill-fitness: " .. utils.average()
+	)
+end
+
 --------------------------------------------------------------------------------
 
 local red_shader = love.graphics.newShader[[
@@ -210,8 +231,8 @@ function love.load()
 			pilgrin_gene = false
 		end
 
-		local target_offset = love.math.random(-20, 20)
-		local target_offset_freightned = love.math.random(-20, 20)
+		local target_offset = love.math.random(-ghost_target_spread, ghost_target_spread)
+		local target_offset_freightned = love.math.random(-ghost_target_spread, ghost_target_spread)
 		-- faz um gene try_order valido
 		local try_order = {}
 		for i=1, 4, 1 do
@@ -248,10 +269,11 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 function love.draw()
-	local total_target = 0
+	total_target = 0
+	active_ghost_counter = 0 -- usado no hud
+
 	resizer.draw_fix()
 
-	local active_ghost_counter = 0 -- usado no hud
 	local w = love.graphics.getWidth()-- atualiza
 	local h = love.graphics.getHeight() -- atualiza
 
@@ -313,7 +335,7 @@ function love.draw()
 		--love.graphics.setColor(1, 0, 0)
 		love.graphics.print(tostring(love.timer.getFPS( )), 5, h -3*font_size -10)
 		love.graphics.print("av-ghost-fit: " .. utils.round_2_dec(average_ghost_fitness), 10, h -font_size -10)
-		local best_specime = utils.tables_get_highest(ghosts, "fitness")
+		local best_specime = utils.get_highest(ghosts, "fitness")
 		love.graphics.print("max-fit: " .. utils.round_2_dec(best_specime.fitness), w/4, h -font_size -10)
 		love.graphics.print("av-target_offset: " .. utils.round_2_dec(total_target/active_ghost_counter), 2*w/4, h -font_size -10)
 		love.graphics.print("av-pill-fit: " .. utils.round_2_dec(average_pill_fitness), 3*w/4, h -font_size -10)
@@ -344,8 +366,8 @@ function love.update(dt)
 	if ( not paused and (dt<0.06)) then --  dt tem que ser baixo para nao bugar a fisica
 		-- calcula posicao media dos fantasmas
 		local average_ghost_pos = {}
-		average_ghost_pos.x = utils.tables_average(pills, "x")
-		average_ghost_pos.y = utils.tables_average(pills, "y")
+		average_ghost_pos.x = utils.average(pills, "x")
+		average_ghost_pos.y = utils.average(pills, "y")
 		local total_dist_to_group = 0
 		local total_pill_fitness = 0
 		local active_pill_count = 0
@@ -386,7 +408,12 @@ function love.update(dt)
 		end
 
 		-- player
+		local player_active_before_update = come_come.is_active
 	    player.update(come_come, dt, grid_size, lookahead)
+		if (come_come == false and player_active_before_update == true) then
+			player_catched_counter = player_catched_counter + 1
+		end
+
 		-- pilula de reset
 		if(timer.update(freightened_on_restart_timer, dt) and just_restarted) then
 			ghost_state = "scattering"
@@ -432,6 +459,9 @@ function love.update(dt)
 						end
 						game_on = false
 					end
+
+
+
 				end
 			end
 

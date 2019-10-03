@@ -149,7 +149,7 @@ function ghost.selection(in_table)
         --mom = utils.tables_get_highest(living_stack, "fitness")
         --dad = living_stack[love.math.random(1, #living_stack)]
 
-        local best_stack = utils.tables_get_n_best(living_stack, "fitness", math.ceil(#living_stack/2))
+        local best_stack = utils.get_n_best(living_stack, "fitness", math.ceil(#living_stack/2))
         mom = best_stack[love.math.random(1, #best_stack)]
         dad = best_stack[love.math.random(1, #best_stack)]
     else
