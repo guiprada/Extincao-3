@@ -13,18 +13,20 @@ end
 
 function player.new(grid_pos, speed)
     local value = {}
-    value.is_active = false
-    value.x = 0
-    value.y = 0
-    value.speed = 0
-    value.direction = "idle"
+    -- value.is_active = false
+    -- value.x = 0
+    -- value.y = 0
+    -- value.speed = 0
+    -- value.direction = "idle"
+
+    -- value.next_direction = "idle"
+    -- value.relay_x_counter = 0
+    -- value.relay_y_counter = 0
+    -- value.relay_x = 0
+    -- value.relay_y = 0
+    -- value.relay_times = 0
+
     value.grid_pos = {}
-    value.next_direction = "idle"
-    value.relay_x_counter = 0
-    value.relay_y_counter = 0
-    value.relay_x = 0
-    value.relay_y = 0
-    value.relay_times = 0
     value.enabled = {}
     value.last_grid_pos = {}
     value.front = {}
@@ -41,7 +43,8 @@ function player.draw(value)
 
         -- front dot
         love.graphics.setColor(1, 0, 1)
-        love.graphics.circle("fill", value.front.x, value.front.y, player.grid_size/6)
+        --love.graphics.setColor(138/255,43/255,226/255, 0.9)
+        love.graphics.circle("fill", value.front.x, value.front.y, player.grid_size/5)
         -- front line, mesma cor
         -- love.graphics.setColor(1, 0, 1)
         love.graphics.line(value.x, value.y, value.front.x, value.front.y)

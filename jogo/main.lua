@@ -45,7 +45,7 @@ local player_start_grid = {}
 player_start_grid.x = 28
 player_start_grid.y = 18
 
-local n_ghosts = 16 --at least 3
+local n_ghosts = 20 --at least 3
 local n_pills = 5	-- at least 2
 
 local pill_time = 2.7	-- tempo de duracao da pilula
@@ -190,7 +190,7 @@ function love.load()
 	--assert(come_come, "no player created")
 	--print("you are up...")
 	-- timer  de estado freightened no restart
-	freightened_on_restart_timer = timer.new(4.5)
+	freightened_on_restart_timer = timer.new(pill_time)
 
 	-- pilulas
 	for i=1, n_pills, 1 do
@@ -210,8 +210,8 @@ function love.load()
 			pilgrin_gene = false
 		end
 
-		local target_offset = love.math.random(-10, 10)
-		local target_offset_freightned = love.math.random(-10, 10)
+		local target_offset = love.math.random(-20, 20)
+		local target_offset_freightned = love.math.random(-20, 20)
 		-- faz um gene try_order valido
 		local try_order = {}
 		for i=1, 4, 1 do

@@ -27,29 +27,29 @@ end
 
 function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, speed, pills)
     local value = {}
-    value.is_active = false
-    value.x = 0
-    value.y = 0
-    value.speed = 0
-    value.direction = "idle"
+    -- value.is_active = false
+    -- value.x = 0
+    -- value.y = 0
+    -- value.speed = 0
+    -- value.direction = "idle"
     value.grid_pos = {} -- fenotipo de pos_index
-    value.n_updates = 0
-    value.n_chase_updates = 0
-    value.n_freightened_updates = 0
-    value.acc_chase_dist = 0
-    value.acc_freightened_dist = 0
-    value.n_catches = 0
-    value.n_pills = 0
+    -- value.n_updates = 0
+    -- value.n_chase_updates = 0
+    -- value.n_freightened_updates = 0
+    -- value.acc_chase_dist = 0
+    -- value.acc_freightened_dist = 0
+    -- value.n_catches = 0
+    -- value.n_pills = 0
     value.pill_debounce = {}
-    value.fitness = 0
-    value.home_pill_fitness = 0
-    value.speed_boost = 0
-    value.dist_to_group = 0
+    -- value.fitness = 0
+    -- value.home_pill_fitness = 0
+    -- value.speed_boost = 0
+    -- value.dist_to_group = 0
 
-    value.pos_index = pos_index --gene, but is not effective because the spawning system
-    value.pilgrin_gene = pilgrin_gene
-    value.target_offset = target_offset -- gene
-    value.target_offset_freightned = target_offset_freightned
+    -- value.pos_index = pos_index --gene, but is not effective because the spawning system
+    -- value.pilgrin_gene = pilgrin_gene
+    -- value.target_offset = target_offset -- gene
+    -- value.target_offset_freightned = target_offset_freightned
     value.home = {} -- determinado por pos_index, e um fenotipo
     value.try_order = {} -- gene
 

@@ -34,21 +34,22 @@ end
 
 function pill.new(pos_index, pill_time)
     local value = {}
-    value.is_active = false
-    value.x = 0
-    value.y = 0
-    value.fitness = 0
+    -- value.is_active = false
+    -- value.x = 0
+    -- value.y = 0
+    -- value.fitness = 0
+
     value.pos_index = pos_index
-    value.grid_pos = grid.grid_valid_pos[value.pos_index]
+    value.grid_pos = grid.grid_valid_pos[pos_index]
     value.timer = {}
-    pill.reset(value, pill_time)
+    pill.reset(value, pill_time, grid_pos)
     return value
 end
 
 function pill.draw(value)
     if (value.is_active) then
         love.graphics.setColor(138/255,43/255,226/255, 0.9)
-        love.graphics.circle("fill", value.x, value.y, pill.grid_size*0.39)
+        love.graphics.circle("fill", value.x, value.y, pill.grid_size*0.3)
     end
 end
 
@@ -85,8 +86,8 @@ function pill.reset( value, pill_time, grid_pos )
     value.grid_pos.y = this_grid_pos.y
 
     local this_pos = grid.get_grid_center(value)
-    value.x = this_pos.x
-    value.y = this_pos.y
+    value.x = this_pos.x + love.math.random(-pill.grid_size*0.17, pill.grid_size*0.17)
+    value.y = this_pos.y + love.math.random(-pill.grid_size*0.17, pill.grid_size*0.17)
     value.is_active = true
 end
 
@@ -113,6 +114,7 @@ function pill.crossover(value, pills, pill_time)
         local temp_grid_pos = grid.get_grid_pos(son)
 
         son.grid_pos = {}
+        son.pos_index = {}
 
         temp_grid_pos.x = temp_grid_pos.x + love.math.random(-5,5)
         if( temp_grid_pos.x < 2) then temp_grid_pos.x = 2 end
