@@ -8,10 +8,15 @@ local timer = require "timer"
 local pill = require "pill"
 local resizer = require "resizer"
 --------------------------------------------------------------------------------
-
+-- not quite games
 -- to dos
 
 	-- variaveis para o mutation rate e spread
+
+	-- fazer um chasing melhor, que altere o target por contexto, um controlador de grupo
+	-- mais perto mira no player, medio na frente e longe atras, teriamos o gene de grupo com
+	-- esses valores, oque e longe e oque e perto. talvez possamos usar a distancia do centro do grupo
+	-- ai teriamos uma tabela fuzzy
 
 	--controlador de medo usando as informacoes que o algoritmo original usa, para nao desrespeitar
 	--o sistema "sensitivo inicial"
@@ -51,7 +56,7 @@ local resizer = require "resizer"
 
 local ghost_genetic_on = true  	-- liga e desliga e GA
 local ghost_fitness_on = true             	-- desliga a funcao fitness
-local ghost_target_offset_freightned_on = true -- desliga e gene target_offset_freightned
+local ghost_target_offset_freightned_on = false -- desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
 local ghost_target_spread = 10
