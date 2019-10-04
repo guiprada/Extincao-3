@@ -179,7 +179,8 @@ function reporter()
 			"std_dev target_offset: " .. utils.round_2_dec( utils.std_deviation(ghosts, "target_offset") ).. " <>  " ..
 			"av target_offset_freightned: " .. utils.round_2_dec( utils.average(ghosts, "target_offset_freightned") ) .. "  <>  " ..
 			"std_dev target_offset_freightned: " .. utils.round_2_dec( utils.std_deviation(ghosts, "target_offset_freightned") ).. "  <>  " ..
-			"average age: " .. utils.average(ghosts, "n_updates") .. " <> " ..
+			"average age: " .. utils.round_2_dec( utils.average(ghosts, "n_updates") ).. " <> " ..
+			"std_dev age: " .. utils.round_2_dec( utils.std_deviation( ghosts, "n_updates" ) ) .. " <> " ..
 			"av-pill-fitness: " .. utils.round_2_dec( utils.average(pills, "fitness") )	)
 end
 
