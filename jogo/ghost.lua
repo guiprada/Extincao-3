@@ -335,7 +335,7 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
                     --print("old home: " .. value.home.x .. " " .. value.home.y)
                     if ( ghost.ghost_selective_migration_on ) then
                         if ( value.pilgrin_gene ) then
-                            if (utils.get_highest(pills, "fitness").fitness < value.home_pill_fitness ) then
+                            if (utils.get_highest(pills, "fitness").fitness <= value.home_pill_fitness ) then
                                 -- impede que o fantasma fique preso numa pilula morta
                                 value.home = pills[i].grid_pos
                                 value.home_pill_fitness = pills[i].fitness
@@ -344,7 +344,7 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
                                 value.home_pill_fitness = pills[i].fitness
                             end
                         else
-                            if (utils.get_lowest(pills, "fitness").fitness > value.home_pill_fitness ) then
+                            if (utils.get_lowest(pills, "fitness").fitness >= value.home_pill_fitness ) then
                                 -- impede que o fantasma fique preso numa pilula morta
                                 value.home = pills[i].grid_pos
                                 value.home_pill_fitness = pills[i].fitness
