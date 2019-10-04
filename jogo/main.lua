@@ -11,6 +11,28 @@ local resizer = require "resizer"
 
 -- to dos
 
+	-- variaveis para o mutation rate e spread
+
+	--controlador de medo usando as informacoes que o algoritmo original usa, para nao desrespeitar
+	--o sistema "sensitivo inicial"
+	-- posicao e direcao do player, sabe calcular distancias e sua propria direcao e distancia de casa
+	-- vamos criar o medo :)
+	-- e fazer o spawning na posicao da mae
+	-- tempo de respawn deveria ser proporcional a populacao
+
+	-- e se as pilulas se exitnguissem
+
+	-- o pill ghost_selective_migration_on buga pois a home pill pode sumir
+	-- criar um teto baseado no pill max fitness
+
+
+	-- o fitness da pilula tem que diminuir com o tempo
+	-- o do ghost tambem
+	-- e fazer a duracao da pilula de fitness baixo menor?
+	-- fazer o ghost nao distanciar de sua home se ela tiver fitness alto?
+
+	-- testes com handicaps diferentes
+
   	-- detector de emboscada
   	--ver se tem outro tile com mais de uma opcao antes de uma pilula ou do player
 
@@ -32,8 +54,9 @@ local ghost_fitness_on = true             	-- desliga a funcao fitness
 local ghost_target_offset_freightned_on = true -- desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
-local ghost_target_spread = 5
-local pill_genetic_on = true			-- liga e desliga o GA para pilulas
+local ghost_target_spread = 10
+
+local pill_genetic_on = false			-- liga e desliga o GA para pilulas
 local pill_precise_crossover_on = false	-- controla o forma de crossover dos pilulas
 
 local stats_on = true -- controla a exibicao de informacao do GA na tela
@@ -54,8 +77,9 @@ local ghost_chase_time = 15 -- testado 3.99
 local ghost_scatter_time = 7.5 --testado com 2
 local ghost_respawn_time = 5 --15--20 testado
 
-local ghost_speed_max_factor = 1.5 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
 local speed_boost_on = false
+local ghost_speed_max_factor = 1.5 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
+
 local speed = 0 -- will be set in love.load(), needs grid_size being set
 local player_speed_grid_size_factor = 6 -- speed = player_speed_grid_size_factor* grid_size
 local ghost_speed = 0 -- will be set in love.load(), needs speed being set
@@ -110,7 +134,7 @@ local game_on = true -- e falsa caso o jogador tenha vencido :)
 local paused = true  -- para pausar e despausar
 local restarts = 0 -- contador de reinicios
 local resets = 0 -- contador de resets
-local eaten = 0 -- contador de comidos
+local ghosts_catched = 0 -- contador de comidos
 local to_be_respawned = {} -- fila para armazenar os indices dos objetos a serem reiniciados
 
 
@@ -136,23 +160,27 @@ local pause_text = 	"Jogo da extinção\n\n"
 local average_ghost_fitness = 0
 local average_pill_fitness  =0
 local active_ghost_counter = 0
-local reporter_counter = 0
+-- local reporter_counter = 0
 local player_catched_counter = 0
+local last_killed_target = 0
 
 --------------------------------------------------------------------------------
 
 function reporter()
-
-	print(	"ghosts catched: " .. reporter_counter .. " <> " ..
-			"player_catched_counter: " .. player_catched_counter .. " <> " ..
-			"av ghost fitness: " .. utils.average(ghosts, "fitness") .. " <> " ..--average_ghost_fitness .. "  " ..
-			"std_dev ghost fitness: " .. utils.std_deviation(ghosts, "fitness") .. " <> " ..
-			"max ghost fitness: " .. utils.get_highest(ghosts, "fitness").fitness .. " <> " ..
-			"av target_offset: " .. utils.average(ghosts, "target_offset") .. " <> " ..--(total_target/active_ghost_counter) .. " " ..
-			"std_dev target_offset: " .. utils.std_deviation(ghosts, "target_offset") .. " <> " ..
-			"average age: " .. utils.average(ghosts, "n_updates")
-			"av-pill-fitness: " .. utils.average()
-	)
+	-- reporter_counter = reporter_counter + 1
+	print(	"ghosts catched: " .. ghosts_catched .. "  <>  " ..
+			"last_killed_target: " .. last_killed_target .. "  <>  " ..
+			"player_catched_counter: " .. player_catched_counter .. "  <>  " ..
+			"av ghost fitness: " .. utils.round_2_dec(utils.average( ghosts, "fitness") ) .. "  <>  " ..
+			"std_dev ghost fitness: " .. utils.round_2_dec( utils.std_deviation(ghosts, "fitness") ).. "  <> " ..
+			"max ghost fitness: " .. utils.round_2_dec( utils.get_highest(ghosts, "fitness").fitness ).. "  <>  " ..
+			"max ghost fitness's target: " .. utils.get_highest(ghosts, "fitness").target_offset  .. "  <>  " ..
+			"av target_offset: " .. utils.round_2_dec( utils.average(ghosts, "target_offset") ) .. "  <>  " ..
+			"std_dev target_offset: " .. utils.round_2_dec( utils.std_deviation(ghosts, "target_offset") ).. " <>  " ..
+			"av target_offset_freightned: " .. utils.round_2_dec( utils.average(ghosts, "target_offset_freightned") ) .. "  <>  " ..
+			"std_dev target_offset_freightned: " .. utils.round_2_dec( utils.std_deviation(ghosts, "target_offset_freightned") ).. "  <>  " ..
+			"average age: " .. utils.average(ghosts, "n_updates") .. " <> " ..
+			"av-pill-fitness: " .. utils.round_2_dec( utils.average(pills, "fitness") )	)
 end
 
 --------------------------------------------------------------------------------
@@ -328,7 +356,7 @@ function love.draw()
 	love.graphics.setColor(1, 0, 0)
 	love.graphics.print( "reinicios: " .. restarts, 10,  font_size - 22)
 	love.graphics.print( "resets: " .. resets, w/5,  font_size -22)
-	love.graphics.print( "capturados: " .. eaten, 2*w/5,  font_size - 22)
+	love.graphics.print( "capturados: " .. ghosts_catched, 2*w/5,  font_size - 22)
 	love.graphics.print( "ativos: " .. active_ghost_counter, 3*w/5,  font_size -22)
 
 	if (stats_on) then
@@ -371,6 +399,8 @@ function love.update(dt)
 		local total_dist_to_group = 0
 		local total_pill_fitness = 0
 		local active_pill_count = 0
+		local player_active_before_update = come_come.is_active -- tem que ser antes do update dos ghosts
+		--print("in" .. tostring(come_come.is_active) )
 
 		-- controlador do ghost_state
 		-- o pill update  tbem faz modificoes no ghost_state
@@ -392,7 +422,7 @@ function love.update(dt)
 				active_pill_count = active_pill_count + 1
 				total_pill_fitness = total_pill_fitness + pills[i].fitness
 			end
-			if (	is_active_before_update == true and
+			if (is_active_before_update == true and
 					pills[i].is_active == false ) then
 				ghost_state =  "freightened"
 				come_come.speed = ghost_speed
@@ -405,13 +435,6 @@ function love.update(dt)
 		end
 		if(active_pill_count > 0) then
 			average_pill_fitness = total_pill_fitness/active_pill_count
-		end
-
-		-- player
-		local player_active_before_update = come_come.is_active
-	    player.update(come_come, dt, grid_size, lookahead)
-		if (come_come == false and player_active_before_update == true) then
-			player_catched_counter = player_catched_counter + 1
 		end
 
 		-- pilula de reset
@@ -441,7 +464,7 @@ function love.update(dt)
 
 				if ( is_active_before_update==true and
 						ghosts[i].is_active == false) then -- foi pego
-					eaten = eaten + 1
+					ghosts_catched = ghosts_catched + 1
 					local len_respawn =  #to_be_respawned
 					local len_ghosts = #ghosts
 					if ( len_respawn ==0 ) then
@@ -459,9 +482,8 @@ function love.update(dt)
 						end
 						game_on = false
 					end
-
-
-
+					last_killed_target = ghosts[i].target_offset
+					reporter()
 				end
 			end
 
@@ -476,23 +498,30 @@ function love.update(dt)
 					--print("respawned")
 
 					-- encontra posicao de spawn
-					local spawn_grid_pos = {}
-					if ( come_come.grid_pos.x > (grid_width_n/2) ) then
-						spawn_grid_pos = {x=7, y= 21}
-					else
-						spawn_grid_pos = {x=50, y= 21}
-					end
+					-- local spawn_grid_pos = {}
+					-- if ( come_come.grid_pos.x > (grid_width_n/2) ) then
+					-- 	spawn_grid_pos = {x=7, y= 21}
+					-- else
+					-- 	spawn_grid_pos = {x=50, y= 21}
+					-- end
 
 					-- e spawna
 					local i = table.remove(to_be_respawned, 1)
 					if ( ghost_genetic_on) then
-						ghost.crossover(ghosts[i], ghost_speed, ghosts, pills, spawn_grid_pos)
+						ghost.crossover(ghosts[i], ghost_speed, ghosts, pills)--, spawn_grid_pos)
 					else
-						ghost.reactivate(ghosts[i], ghost_speed, pills, spawn_grid_pos)
+						ghost.reactivate(ghosts[i], ghost_speed, pills)
 					end
 
 				end
 			end
+		end
+
+		-- player, depois de ghosts, para pegar a mudanca de estado
+
+		player.update(come_come, dt)
+		if ( player_active_before_update == true and come_come.is_active == false ) then -- player killed
+			player_catched_counter = player_catched_counter + 1
 		end
 
 	end
@@ -523,9 +552,9 @@ function love.keypressed(key, scancode, isrepeat)
 			for i=1, #ghosts, 1 do
 				ghosts[i].is_active = true
 				if ( ghost_genetic_on) then
-					ghost.crossover(ghosts[i], ghost_speed, ghosts, pills, spawn_grid_pos)
+					ghost.crossover(ghosts[i], ghost_speed, ghosts, pills)
 				else
-					ghost.reactivate(ghosts[i], ghost_speed, pills, spawn_grid_pos)
+					ghost.reactivate(ghosts[i], ghost_speed, pills)
 				end
 			end
 			to_be_respawned = {}

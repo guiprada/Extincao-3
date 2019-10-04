@@ -167,15 +167,22 @@ function ghost.crossover (value, speed, ghosts, pills, spawn_grid_pos)
 
     local son = {}
 
-    -- dominante para o gene peregrino
+    local this_spawn_grid_pos = {}
+    if (spawn_grid_pos) then
+        this_spawn_grid_pos = spawn_grid_pos
+    else -- nasce com a mae
+        this_spawn_grid_pos.x = mom.grid_pos.x
+        this_spawn_grid_pos.y = mom.grid_pos.y
+    end
+
+    -- recessivo para o gene peregrino
     if( mom.pilgrin_gene == dad.pilgrin_gene ) then
         son.pilgrin_gene = mom.pilgrin_gene
     else
-
         if ( love.math.random(0, 3) == 1 ) then
-            son.pilgrin_gene = false
-        else
             son.pilgrin_gene = true
+        else
+            son.pilgrin_gene = false
         end
     end
 
@@ -218,11 +225,12 @@ function ghost.crossover (value, speed, ghosts, pills, spawn_grid_pos)
         end
     end
 
-    ghost.reset(value, son.pos_index, son.pilgrin_gene, son.target_offset, son.target_offset_freightned, son.try_order, speed, pills, spawn_grid_pos)
+    ghost.reset(value, son.pos_index, son.pilgrin_gene, son.target_offset, son.target_offset_freightned, son.try_order, speed, pills, this_spawn_grid_pos)
 end
 
 function ghost.reactivate (value, speed, pills, spawn_grid_pos)
-    ghost.reset(value, value.pos_index, value.pilgrin_gene, value.target_offset, value.target_offset_freightned, value.try_order, speed, pills, spawn_grid_pos)
+    local this_spawn_grid_pos = spawn_grid_pos or value.grid_pos
+    ghost.reset(value, value.pos_index, value.pilgrin_gene, value.target_offset, value.target_offset_freightned, value.try_order, speed, pills, this_spawn_grid_pos)
 end
 
 function ghost.draw(value, state)
@@ -260,6 +268,8 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
 
     if (value.is_active) then
         value.n_updates = value.n_updates + 1
+        value.fitness = value.n_catches + (value.n_pills*0.001)/value.n_updates
+
         -- atualiza distacia_media do player, poderiamos usar para colisao
         local dist_to_target = utils.dist(target, value)
         value.dist_to_group = utils.dist(average_ghost_pos, value)
@@ -299,7 +309,7 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
             --if ( value.grid_pos.x == target.grid_pos.x and value.grid_pos.y == target.grid_pos.y) then
             if (dist_to_target < ghost.lookahead) then
                 if (state~="freightened") then
-                    --print("you loose")
+                    print("you loose, my target is: " .. value.target_offset)
                     if(ghost.speed_boost_on) then
                         value.speed_boost = value.speed_boost  + 0.1
                     end
@@ -323,19 +333,29 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
 
                 if ( ghost.ghost_migration_on ) then
                     --print("old home: " .. value.home.x .. " " .. value.home.y)
-
                     if ( ghost.ghost_selective_migration_on ) then
                         if ( value.pilgrin_gene ) then
-                            if ( value.home_pill_fitness <= pills[i].fitness ) then
+                            if (utils.get_highest(pills, "fitness").fitness < value.home_pill_fitness ) then
+                                -- impede que o fantasma fique preso numa pilula morta
                                 value.home = pills[i].grid_pos
+                                value.home_pill_fitness = pills[i].fitness
+                            elseif ( value.home_pill_fitness <= pills[i].fitness ) then
+                                value.home = pills[i].grid_pos
+                                value.home_pill_fitness = pills[i].fitness
                             end
                         else
-                            if ( value.home_pill_fitness >= pills[i].fitness ) then
+                            if (utils.get_lowest(pills, "fitness").fitness > value.home_pill_fitness ) then
+                                -- impede que o fantasma fique preso numa pilula morta
                                 value.home = pills[i].grid_pos
+                                value.home_pill_fitness = pills[i].fitness
+                            elseif ( value.home_pill_fitness >= pills[i].fitness ) then
+                                value.home = pills[i].grid_pos
+                                value.home_pill_fitness = pills[i].fitness
                             end
                         end
                     else
                         value.home = pills[i].grid_pos
+                        value.home_pill_fitness = pills[i].fitness
                     end
                     --print("new home: " .. value.home.x .. " " .. value.home.y)
                 end
@@ -347,8 +367,6 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
                 value.pill_debounce[i] = false
             end
         end
-
-        value.fitness = value.n_catches + value.n_pills*0.001
 
         -- check collision with wall
         local front_grid_pos = grid.get_grid_pos(value.front)

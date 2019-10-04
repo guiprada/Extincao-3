@@ -54,6 +54,17 @@ function utils.get_highest( tables, indexer)
 	return tables[highest]
 end
 
+function utils.get_lowest( tables, indexer)
+	local lenght = #tables
+	local lowest = 1
+	for i=1, lenght, 1 do
+		if(tables[i][indexer] < tables[lowest][indexer])then
+			lowest = i
+		end
+	end
+	return tables[lowest]
+end
+
 function utils.get_highest_index( tables, indexer)
 	local lenght = #tables
 	local highest = 1
