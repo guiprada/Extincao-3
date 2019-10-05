@@ -1,0 +1,196 @@
+the Configuration used is:
+
+ghost_genetic_on: true
+ghost_fitness_on: true
+ghost_target_offset_freightned_on: false
+ghost_migration_on: true
+ghost_selective_migration_on: false
+ghost_target_spread: 15
+
+pill_genetic_on: false
+pill_precise_crossover_on: false
+speed_boost_on: false
+
+n_ghosts: 20
+n_pills: 5
+pill_time: 2.7
+ghost_chase_time: 15
+ghost_scatter_time: 7.5
+ghost_respawn_time: 5
+
+the grid is: 56 x 31
+player's start grid is: 28, 18
+stats_on: true
+ghost_speed_max_factor: 1.5
+player_speed_grid_size_factor: 6
+grid_size is: 34
+player's speed: 204
+ghost_speed: 204
+grid_size is: 34
+catched
+distrib_catched_target[-20]: 0
+distrib_catched_target[-19]: 0
+distrib_catched_target[-18]: 0
+distrib_catched_target[-17]: 0
+distrib_catched_target[-16]: 0
+distrib_catched_target[-15]: 0
+distrib_catched_target[-14]: 0
+distrib_catched_target[-13]: 0
+distrib_catched_target[-12]: 0
+distrib_catched_target[-11]: 0
+distrib_catched_target[-10]: 0
+distrib_catched_target[-9]: 0
+distrib_catched_target[-8]: 0
+distrib_catched_target[-7]: 0
+distrib_catched_target[-6]: 0
+distrib_catched_target[-5]: 0
+distrib_catched_target[-4]: 0
+distrib_catched_target[-3]: 0
+distrib_catched_target[-2]: 0
+distrib_catched_target[-1]: 0
+distrib_catched_target[0]: 0
+distrib_catched_target[1]: 0
+distrib_catched_target[2]: 0
+distrib_catched_target[3]: 0
+distrib_catched_target[4]: 0
+distrib_catched_target[5]: 0
+distrib_catched_target[6]: 0
+distrib_catched_target[7]: 0
+distrib_catched_target[8]: 0
+distrib_catched_target[9]: 0
+distrib_catched_target[10]: 0
+distrib_catched_target[11]: 0
+distrib_catched_target[12]: 0
+distrib_catched_target[13]: 0
+distrib_catched_target[14]: 0
+distrib_catched_target[15]: 0
+distrib_catched_target[16]: 0
+distrib_catched_target[17]: 0
+distrib_catched_target[18]: 0
+distrib_catched_target[19]: 0
+distrib_catched_target[20]: 0
+catcher
+
+distrib_catcher_target[-20]: 0
+
+distrib_catcher_target[-19]: 0
+
+distrib_catcher_target[-18]: 0
+
+distrib_catcher_target[-17]: 0
+
+distrib_catcher_target[-16]: 0
+
+distrib_catcher_target[-15]: 0
+
+distrib_catcher_target[-14]: 0
+
+distrib_catcher_target[-13]: 0
+
+distrib_catcher_target[-12]: 0
+
+distrib_catcher_target[-11]: 0
+
+distrib_catcher_target[-10]: 0
+
+distrib_catcher_target[-9]: 0
+
+distrib_catcher_target[-8]: 0
+
+distrib_catcher_target[-7]: 0
+
+distrib_catcher_target[-6]: 0
+
+distrib_catcher_target[-5]: 0
+
+distrib_catcher_target[-4]: 0
+
+distrib_catcher_target[-3]: 0
+
+distrib_catcher_target[-2]: 0
+
+distrib_catcher_target[-1]: 0
+
+distrib_catcher_target[0]: 0
+
+distrib_catcher_target[1]: 0
+
+distrib_catcher_target[2]: 0
+
+distrib_catcher_target[3]: 0
+
+distrib_catcher_target[4]: 0
+
+distrib_catcher_target[5]: 0
+
+distrib_catcher_target[6]: 0
+
+distrib_catcher_target[7]: 0
+
+distrib_catcher_target[8]: 0
+
+distrib_catcher_target[9]: 0
+
+distrib_catcher_target[10]: 0
+
+distrib_catcher_target[11]: 0
+
+distrib_catcher_target[12]: 0
+
+distrib_catcher_target[13]: 0
+
+distrib_catcher_target[14]: 0
+
+distrib_catcher_target[15]: 0
+
+distrib_catcher_target[16]: 0
+
+distrib_catcher_target[17]: 0
+
+distrib_catcher_target[18]: 0
+
+distrib_catcher_target[19]: 0
+
+distrib_catcher_target[20]: 0
+population's target distribution
+distrib_catcher_target_offset[-20]: 0
+distrib_catcher_target_offset[-19]: 0
+distrib_catcher_target_offset[-18]: 0
+distrib_catcher_target_offset[-17]: 0
+distrib_catcher_target_offset[-16]: 0
+distrib_catcher_target_offset[-15]: 2
+distrib_catcher_target_offset[-14]: 2
+distrib_catcher_target_offset[-13]: 1
+distrib_catcher_target_offset[-12]: 0
+distrib_catcher_target_offset[-11]: 0
+distrib_catcher_target_offset[-10]: 0
+distrib_catcher_target_offset[-9]: 0
+distrib_catcher_target_offset[-8]: 0
+distrib_catcher_target_offset[-7]: 1
+distrib_catcher_target_offset[-6]: 0
+distrib_catcher_target_offset[-5]: 2
+distrib_catcher_target_offset[-4]: 0
+distrib_catcher_target_offset[-3]: 0
+distrib_catcher_target_offset[-2]: 1
+distrib_catcher_target_offset[-1]: 0
+distrib_catcher_target_offset[0]: 1
+distrib_catcher_target_offset[1]: 2
+distrib_catcher_target_offset[2]: 0
+distrib_catcher_target_offset[3]: 1
+distrib_catcher_target_offset[4]: 1
+distrib_catcher_target_offset[5]: 1
+distrib_catcher_target_offset[6]: 0
+distrib_catcher_target_offset[7]: 0
+distrib_catcher_target_offset[8]: 1
+distrib_catcher_target_offset[9]: 0
+distrib_catcher_target_offset[10]: 1
+distrib_catcher_target_offset[11]: 1
+distrib_catcher_target_offset[12]: 0
+distrib_catcher_target_offset[13]: 1
+distrib_catcher_target_offset[14]: 1
+distrib_catcher_target_offset[15]: 0
+distrib_catcher_target_offset[16]: 0
+distrib_catcher_target_offset[17]: 0
+distrib_catcher_target_offset[18]: 0
+distrib_catcher_target_offset[19]: 0
+distrib_catcher_target_offset[20]: 0

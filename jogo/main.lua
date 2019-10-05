@@ -11,7 +11,7 @@ local resizer = require "resizer"
 -- not quite games
 -- to dos
 
-	-- variaveis para o mutation rate e spread
+	-- variaveis para o mutation rate
 
 	-- fazer um chasing melhor, que altere o target por contexto, um controlador de grupo
 	-- mais perto mira no player, medio na frente e longe atras, teriamos o gene de grupo com
@@ -28,7 +28,7 @@ local resizer = require "resizer"
 	-- e se as pilulas se exitnguissem
 
 	-- o pill ghost_selective_migration_on buga pois a home pill pode sumir
-	-- criar um teto baseado no pill max fitness
+	-- criar um teto baseado no pill max fitness, ainda e bugado
 
 
 	-- o fitness da pilula tem que diminuir com o tempo
@@ -51,6 +51,8 @@ local resizer = require "resizer"
 -- fix crossover selection and turn of elitism
 -- automatic grid from map
 
+--
+
 ------------------------------------------------------------------------ Configuracao
 -- kitten killing globals
 
@@ -59,7 +61,7 @@ local ghost_fitness_on = true             	-- desliga a funcao fitness
 local ghost_target_offset_freightned_on = false -- desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
-local ghost_target_spread = 10
+local ghost_target_spread = 15
 
 local pill_genetic_on = false			-- liga e desliga o GA para pilulas
 local pill_precise_crossover_on = false	-- controla o forma de crossover dos pilulas
@@ -166,15 +168,24 @@ local average_ghost_fitness = 0
 local average_pill_fitness  =0
 local active_ghost_counter = 0
 -- local reporter_counter = 0
+
 local player_catched_counter = 0
-local last_killed_target = 0
+
+local last_catched_target_offset = 0
+last_catcher_target_offset = 0 -- tem que ser global pois é setada por ghost.update()
+local distrib_catched_target_offset = {}
+local distrib_catcher_target_offset = {}
+for i=-20, 20, 1 do
+	distrib_catched_target_offset[i] = 0
+	distrib_catcher_target_offset[i] = 0
+end
 
 --------------------------------------------------------------------------------
 
 function reporter()
 	-- reporter_counter = reporter_counter + 1
 	print(	"ghosts catched: " .. ghosts_catched .. "  <>  " ..
-			"last_killed_target: " .. last_killed_target .. "  <>  " ..
+			"last_catched_target_offset: " .. last_catched_target_offset .. "  <>  " ..
 			"player_catched_counter: " .. player_catched_counter .. "  <>  " ..
 			"av ghost fitness: " .. utils.round_2_dec(utils.average( ghosts, "fitness") ) .. "  <>  " ..
 			"std_dev ghost fitness: " .. utils.round_2_dec( utils.std_deviation(ghosts, "fitness") ).. "  <> " ..
@@ -488,7 +499,8 @@ function love.update(dt)
 						end
 						game_on = false
 					end
-					last_killed_target = ghosts[i].target_offset
+					last_catched_target_offset = ghosts[i].target_offset
+					distrib_catched_target_offset[ ghosts[i].target_offset ] = distrib_catched_target_offset[ ghosts[i].target_offset ] + 1
 					reporter()
 				end
 			end
@@ -523,11 +535,12 @@ function love.update(dt)
 			end
 		end
 
-		-- player, depois de ghosts, para pegar a mudanca de estado
+		-- player, depois de ghosts, para pegar a mudanca de estado( player catched)
 
 		player.update(come_come, dt)
 		if ( player_active_before_update == true and come_come.is_active == false ) then -- player killed
 			player_catched_counter = player_catched_counter + 1
+			distrib_catcher_target_offset[ last_catcher_target_offset ] = distrib_catcher_target_offset[ last_catcher_target_offset] + 1
 		end
 
 	end
@@ -541,6 +554,7 @@ function love.keypressed(key, scancode, isrepeat)
 		has_shown_menu = true
 	   	if (paused) then paused = false
 	   	else paused = true end
+
 	elseif (key == "r" and come_come.is_active==false and (not paused)) then
 		--print("restarting")
 		restarts = restarts + 1
@@ -551,6 +565,7 @@ function love.keypressed(key, scancode, isrepeat)
 		pill.pills_active = false
 		local grid_pos = {x=player_start_grid.x, y=player_start_grid.y}
 		player.reset( come_come, grid_pos, speed, grid_size, lookahead)
+
 	elseif (key == "r" and game_on==false and (not paused)) then
 		--print("reset")
 		resets = resets + 1
@@ -571,6 +586,32 @@ function love.keypressed(key, scancode, isrepeat)
 		timer.reset(ghost_state_timer)
 
    	elseif (key == "q") then
+
+		print("\ncatched")
+		for i=-20, 20, 1 do
+			print("distrib_catched_target_offset[" .. i .. "]: " .. distrib_catched_target_offset[i])
+		end
+
+		print("\ncatcher")
+		for i=-20, 20, 1 do
+			print("distrib_catcher_target_offset[" .. i .. "]: " .. distrib_catcher_target_offset[i])
+		end
+
+		-------------
+
+		local distrib_target_offset = {}
+		for i=-20, 20, 1 do
+			distrib_target_offset[i] = 0
+		end
+		for i=1, #ghosts, 1 do
+			distrib_target_offset[ ghosts[i].target_offset ] = distrib_target_offset[ ghosts[i].target_offset ] + 1
+		end
+
+		print("\npopulation's target distribution")
+		for i=-20, 20, 1 do
+			print("distrib_target_offset[" .. i .. "]: " .. distrib_target_offset[i])
+		end
+
 	   	love.event.quit(0)
    	end
 end

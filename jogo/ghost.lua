@@ -198,12 +198,12 @@ function ghost.crossover (value, speed, ghosts, pills, spawn_grid_pos)
     --print(son.pos_index)
 
     son.target_offset = math.floor((mom.target_offset + dad.target_offset)/2)
-    if (love.math.random(0, 10)<=1) then -- mutate
+    if (love.math.random(0, 10)<=3) then -- mutate
         son.target_offset = son.target_offset + math.floor(love.math.random(-2, 2))
     end
 
     son.target_offset_freightned = math.floor((mom.target_offset_freightned + dad.target_offset_freightned)/2)
-    if (love.math.random(0, 10)<=1) then -- mutate
+    if (love.math.random(0, 10)<=3) then -- mutate
         son.target_offset_freightned = son.target_offset_freightned + math.floor(love.math.random(-2, 2))
     end
 
@@ -310,6 +310,7 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
             if (dist_to_target < ghost.lookahead) then
                 if (state~="freightened") then
                     print("you loose, my target is: " .. value.target_offset)
+                    last_catcher_target_offset = value.target_offset
                     if(ghost.speed_boost_on) then
                         value.speed_boost = value.speed_boost  + 0.1
                     end
