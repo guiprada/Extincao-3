@@ -300,7 +300,7 @@ function ghost.draw(value, state)
 end
 
 function ghost.update(value, target, pills, average_ghost_pos, dt, state)
-    print(value.fear_group)
+    --print(value.fear_group)
     if (value.is_active) then
         value.n_updates = value.n_updates + 1
         value.fitness = value.n_catches + (value.n_pills*0.001)/value.n_updates

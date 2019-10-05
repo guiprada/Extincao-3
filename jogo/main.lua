@@ -73,7 +73,7 @@ local ghost_fear_on = true
 local ghost_target_spread = 15
 local ghost_fear_spread = 50
 
-local pill_genetic_on = true-- liga e desliga o GA para pilulas
+local pill_genetic_on = false-- liga e desliga o GA para pilulas
 local pill_precise_crossover_on = false	-- controla o forma de crossover dos pilulas
 
 local stats_on = false -- controla a exibicao de informacao do GA na tela
@@ -256,7 +256,7 @@ function reporter()
 	io.output(fear_group_file)
 	--print("population's target distribution")
 	for i=1, #distrib_fear_group, 1 do
-		if ( distrib_fear_group[i] == 0 or distrib_fear_group == nil ) then
+		if ( distrib_fear_group[i] == 0 or distrib_fear_group[i] == nil ) then
 			io.write(" _ ")
 		else
 			io.write(" " .. distrib_fear_group[i] .. " ")
@@ -284,7 +284,7 @@ function reporter()
 	io.output(fear_target_file)
 	--print("population's target distribution")
 	for i=1, #distrib_fear_target, 1 do
-		if ( distrib_fear_target[i] == 0 or distrib_fear_target == nil ) then
+		if ( distrib_fear_target[i] == 0 or distrib_fear_target[i] == nil ) then
 			io.write(" _ ")
 		else
 			io.write(" " .. distrib_fear_target[i] .. " ")
