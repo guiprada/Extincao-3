@@ -168,11 +168,6 @@ local pause_text = 	"Jogo da extinção\n\n"
 					.. "'q' para sair\n"
 					.. "'p' para pausar/despausar\n"
 
-
--- medicao
---local average_ghost_fitness = 0
---local average_pill_fitness  =0
-
 local active_ghost_counter = 0
 -- local reporter_counter = 0
 

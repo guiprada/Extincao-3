@@ -22,9 +22,6 @@ pill.pill_precise_crossover_on = false
 pill.grid_size = 0
 pill.lookahead = 0
 
---local pill_size = 5
-
-
 function pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookahead)
     pill.pill_genetic_on = pill_genetic_on
     pill.pill_precise_crossover_on = pill_precise_crossover_on
