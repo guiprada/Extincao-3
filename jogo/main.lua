@@ -29,6 +29,7 @@ local resizer = require "resizer"
 
 	-- o pill ghost_selective_migration_on buga pois a home pill pode sumir
 	-- criar um teto baseado no pill max fitness, ainda e bugado
+	-- fazer o ghost_selective_migration_on baseado em pos_index
 
 
 	-- o fitness da pilula tem que diminuir com o tempo
@@ -63,8 +64,8 @@ local ghost_migration_on = true
 local ghost_selective_migration_on = false
 local ghost_target_spread = 15
 
-local pill_genetic_on = false			-- liga e desliga o GA para pilulas
-local pill_precise_crossover_on = false	-- controla o forma de crossover dos pilulas
+local pill_genetic_on = true			-- liga e desliga o GA para pilulas
+local pill_precise_crossover_on = true	-- controla o forma de crossover dos pilulas
 
 local stats_on = true -- controla a exibicao de informacao do GA na tela
 --local reporter_duty_cycle = 20        -- frequecia, em fantasmas nascidos, que o reporter printa uma notificacao no console
@@ -164,8 +165,9 @@ local pause_text = 	"Jogo da extinção\n\n"
 
 
 -- medicao
-local average_ghost_fitness = 0
-local average_pill_fitness  =0
+--local average_ghost_fitness = 0
+--local average_pill_fitness  =0
+
 local active_ghost_counter = 0
 -- local reporter_counter = 0
 
@@ -379,11 +381,11 @@ function love.draw()
 	if (stats_on) then
 		--love.graphics.setColor(1, 0, 0)
 		love.graphics.print(tostring(love.timer.getFPS( )), 5, h -3*font_size -10)
-		love.graphics.print("av-ghost-fit: " .. utils.round_2_dec(average_ghost_fitness), 10, h -font_size -10)
+		love.graphics.print("av-ghost-fit: " .. utils.round_2_dec(utils.average( ghosts, "fitness")), 10, h -font_size -10)
 		local best_specime = utils.get_highest(ghosts, "fitness")
 		love.graphics.print("max-fit: " .. utils.round_2_dec(best_specime.fitness), w/4, h -font_size -10)
 		love.graphics.print("av-target_offset: " .. utils.round_2_dec(total_target/active_ghost_counter), 2*w/4, h -font_size -10)
-		love.graphics.print("av-pill-fit: " .. utils.round_2_dec(average_pill_fitness), 3*w/4, h -font_size -10)
+		love.graphics.print("av-pill-fit: " .. utils.round_2_dec( utils.average(pills, "fitness")), 3*w/4, h -font_size -10)
 	end
 	if ( not come_come.is_active ) then
 		love.graphics.print( "'r' para ir de novo", 3*w/4 -5, font_size - 22)
@@ -411,8 +413,9 @@ function love.update(dt)
 	if ( not paused and (dt<0.06)) then --  dt tem que ser baixo para nao bugar a fisica
 		-- calcula posicao media dos fantasmas
 		local average_ghost_pos = {}
-		average_ghost_pos.x = utils.average(pills, "x")
-		average_ghost_pos.y = utils.average(pills, "y")
+		average_ghost_pos.x = utils.average(ghosts, "x")
+		average_ghost_pos.y = utils.average(ghosts, "y")
+
 		local total_dist_to_group = 0
 		local total_pill_fitness = 0
 		local active_pill_count = 0
@@ -450,9 +453,10 @@ function love.update(dt)
 				timer.reset(ghost_state_timer)
 			end
 		end
-		if(active_pill_count > 0) then
-			average_pill_fitness = total_pill_fitness/active_pill_count
-		end
+
+		-- if(active_pill_count > 0) then
+		-- 	average_pill_fitness = total_pill_fitness/active_pill_count
+		-- end
 
 		-- pilula de reset
 		if(timer.update(freightened_on_restart_timer, dt) and just_restarted) then
@@ -505,10 +509,10 @@ function love.update(dt)
 				end
 			end
 
-			if (active_ghost_counter ~=0) then
-				average_ghost_fitness = total_fitness/ active_ghost_counter
-				average_dist_group = total_dist_to_group/ active_ghost_counter
-			end
+			-- if (active_ghost_counter ~=0) then
+			-- 	average_ghost_fitness = total_fitness/ active_ghost_counter
+			-- 	average_dist_group = total_dist_to_group/ active_ghost_counter
+			-- end
 
 			--respawns
 			if ( game_on and timer.update(ghost_respawn_timer,dt)) then -- continua respawnando mesma sem player
