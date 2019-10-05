@@ -502,8 +502,8 @@ function ghost.find_next_dir(value, target, state)
             local fear = false
             local dist_to_home = utils.dist(value, value.home)
             if( ghost.ghost_fear_on) then
-                if (value.dist_to_target < 20*ghost.grid_size  and
-                    value.dist_to_group > 20*ghost.grid_size
+                if (value.dist_to_target < value.fear_group*ghost.grid_size  and
+                    value.dist_to_group > value.fear_group*ghost.grid_size
                     --dist_to_home > 10*ghost.grid_size
                     --value.direction == "idle"
                     )then
@@ -514,11 +514,11 @@ function ghost.find_next_dir(value, target, state)
             if ( state == "chasing" ) then
 
                 if(fear)then
-                    --print("feared")
+                    print("feared")
                     destination.x = value.home.x
                     destination.y = value.home.y
                 else
-                    --print("not feared")
+                    print("not feared")
                     if (target.direction == "up") then
                         destination.x =  target.grid_pos.x
                         destination.y = -value.target_offset + target.grid_pos.y
@@ -538,7 +538,7 @@ function ghost.find_next_dir(value, target, state)
                 end
             elseif ( state == "scattering") then
                 if(fear)then
-                    --print("feared")
+                    print("feared")
                     if ( not ghost.target_offset_freightned_on ) then
                         value.target_offset_freightned = value.target_offset
                     end
@@ -560,7 +560,7 @@ function ghost.find_next_dir(value, target, state)
                     end
 
                 else
-                    --print("feared")
+                    print("not feared")
                     destination.x = value.home.x
                     destination.y = value.home.y
                 end
