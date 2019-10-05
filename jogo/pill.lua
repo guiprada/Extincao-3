@@ -31,6 +31,7 @@ end
 
 function pill.new(pos_index, pill_time)
     local value = {}
+    --value.fitness = 0
     -- value.is_active = false
     -- value.x = 0
     -- value.y = 0
@@ -52,6 +53,8 @@ end
 
 
 function pill.update(value, pills, target, dt, pill_time)
+    value.n_updates = value.n_updates + 1
+    value.fitness = value.n_ghost_pass/value.n_updates
     if (value.is_active == false) then
         if (timer.update(value.timer, dt)) then
             if(pill.pill_genetic_on)then
@@ -77,6 +80,8 @@ end
 function pill.reset( value, pill_time, grid_pos )
     value.timer = timer.new(pill_time)
     value.fitness = 0
+    value.n_ghost_pass = 0
+    value.n_updates = 0
 
     local this_grid_pos = grid_pos or value.grid_pos
     value.grid_pos.x = this_grid_pos.x

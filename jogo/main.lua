@@ -57,6 +57,8 @@ local resizer = require "resizer"
 ------------------------------------------------------------------------ Configuracao
 
 local target_offset_distribution_file = io.open("target_offset_distribution.run", "w")
+local fear_target_file = io.open("fear_target.run", "w")
+local fear_group_file = io.open("fear_group.run", "w")
 local stats_file = io.open("stats.run", "w")
 --local config_file = io.open("config.run")
 
@@ -67,12 +69,14 @@ local ghost_fitness_on = true             	-- desliga a funcao fitness
 local ghost_target_offset_freightned_on = false -- liga e desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
+local ghost_fear_on = true
 local ghost_target_spread = 15
+local ghost_fear_spread = 50
 
 local pill_genetic_on = true-- liga e desliga o GA para pilulas
 local pill_precise_crossover_on = false	-- controla o forma de crossover dos pilulas
 
-local stats_on = true -- controla a exibicao de informacao do GA na tela
+local stats_on = false -- controla a exibicao de informacao do GA na tela
 --local reporter_duty_cycle = 20        -- frequecia, em fantasmas nascidos, que o reporter printa uma notificacao no console
 
 local grid_width_n = 56
@@ -104,6 +108,7 @@ print("ghost_fitness_on: " .. tostring(ghost_fitness_on) )
 print("ghost_target_offset_freightned_on: " .. tostring(ghost_target_offset_freightned_on))
 print("ghost_migration_on: " .. tostring(ghost_migration_on))
 print("ghost_selective_migration_on: " .. tostring(ghost_selective_migration_on))
+print("ghost_fear_on: " .. tostring(ghost_fear_on))
 print("ghost_target_spread: " .. ghost_target_spread)
 print()
 print("pill_genetic_on: " .. tostring(pill_genetic_on))
@@ -175,6 +180,7 @@ local player_catched_counter = 0
 
 local last_catched_target_offset = 0
 last_catcher_target_offset = 0 -- tem que ser global pois é setada por ghost.update()
+
 local distrib_catched_target_offset = {}
 local distrib_catcher_target_offset = {}
 for i=-ghost_target_spread, ghost_target_spread, 1 do
@@ -204,14 +210,18 @@ function reporter()
 			"std_dev age: " .. utils.round_2_dec( utils.std_deviation( ghosts, "n_updates" ) ) .. " <> " ..
 			"av-pill-fitness: " .. utils.round_2_dec( utils.average(pills, "fitness") ) .. "\n"	)
 
-
+--------------------------------------------------------------------------------
 	local distrib_target_offset = {}
-	for i=-20, 20, 1 do
+	for i=-ghost_target_spread, ghost_target_spread, 1 do
 		distrib_target_offset[i] = 0
 	end
 	for i=1, #ghosts, 1 do
-		if( ghosts[i].is_active == true) then
-			distrib_target_offset[ ghosts[i].target_offset ] = distrib_target_offset[ ghosts[i].target_offset ] + 1
+		if( ghosts[i].is_active == true) then -- para criar novos valores
+			if ( distrib_target_offset[ ghosts[i].target_offset ] ~= nil ) then
+				distrib_target_offset[ ghosts[i].target_offset ] = distrib_target_offset[ ghosts[i].target_offset ] + 1
+			else
+				distrib_target_offset[ ghosts[i].target_offset ] = 1
+			end
 		end
 	end
 
@@ -226,6 +236,63 @@ function reporter()
 	end
 	io.write("\n")
 	--print()
+
+--------------------------------------------------------------------------------
+
+	local distrib_fear_group = {}
+	for i=1, ghost_fear_spread, 1 do
+		distrib_fear_group[i] = 0
+	end
+	for i=1, #ghosts, 1 do
+		if( ghosts[i].is_active == true) then -- para criar novos valores
+			if ( distrib_fear_group[ ghosts[i].fear_group ] ~= nil ) then
+				distrib_fear_group[ ghosts[i].fear_group ] = distrib_fear_group[ ghosts[i].fear_group ] + 1
+			else
+				distrib_fear_group[ ghosts[i].fear_group ] = 1
+			end
+		end
+	end
+
+	io.output(fear_group_file)
+	--print("population's target distribution")
+	for i=1, #distrib_fear_group, 1 do
+		if ( distrib_fear_group[i] == 0 or distrib_fear_group == nil ) then
+			io.write(" _ ")
+		else
+			io.write(" " .. distrib_fear_group[i] .. " ")
+		end
+	end
+	io.write("\n")
+	--print()
+
+--------------------------------------------------------------------------------
+
+	local distrib_fear_target = {}
+	for i=1, ghost_fear_spread, 1 do
+		distrib_fear_target[i] = 0
+	end
+	for i=1, #ghosts, 1 do
+		if( ghosts[i].is_active == true) then -- para criar novos valores
+			if ( distrib_fear_target[ ghosts[i].fear_target ] ~= nil ) then
+				distrib_fear_target[ ghosts[i].fear_target ] = distrib_fear_target[ ghosts[i].fear_target ] + 1
+			else
+				distrib_fear_target[ ghosts[i].fear_target ] = 1
+			end
+		end
+	end
+
+	io.output(fear_target_file)
+	--print("population's target distribution")
+	for i=1, #distrib_fear_target, 1 do
+		if ( distrib_fear_target[i] == 0 or distrib_fear_target == nil ) then
+			io.write(" _ ")
+		else
+			io.write(" " .. distrib_fear_target[i] .. " ")
+		end
+	end
+	io.write("\n")
+	--print()
+
 end
 
 --------------------------------------------------------------------------------
@@ -266,7 +333,7 @@ function love.load()
 
 	grid.init(grid_width_n, grid_height_n, grid_size, lookahead)
 	player.init(grid_size, lookahead)
-	ghost.init(ghost_fitness_on, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, grid_size, lookahead)
+	ghost.init(ghost_fitness_on, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, grid_size, lookahead)
 	pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookahead)
 
 	-- registrando uma fonte
@@ -313,7 +380,11 @@ function love.load()
 			try_order[i] = i
 		end
 		utils.array_shuffler(try_order)
-	    ghosts[i] = ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, ghost_speed, pills)
+
+		local fear_target = love.math.random(0, ghost_fear_spread)
+		local fear_group = love.math.random(0, ghost_fear_spread)
+
+	    ghosts[i] = ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, ghost_speed, pills)
 	end
 	--print("some ghosts for you to catch :)")
     -- cria o canvas para o maze
@@ -443,7 +514,7 @@ function love.update(dt)
 		average_ghost_pos.x = utils.average(ghosts, "x")
 		average_ghost_pos.y = utils.average(ghosts, "y")
 
-		local total_dist_to_group = 0
+		-- local total_dist_to_group = 0
 		local total_pill_fitness = 0
 		local active_pill_count = 0
 		local player_active_before_update = come_come.is_active -- tem que ser antes do update dos ghosts
@@ -503,7 +574,7 @@ function love.update(dt)
 
 				ghost.update(ghosts[i], come_come, pills, average_ghost_pos, dt, ghost_state, grid_size, lookahead)
 				total_fitness = total_fitness + ghosts[i].fitness
-				total_dist_to_group = total_dist_to_group + ghosts[i].dist_to_group
+				-- total_dist_to_group = total_dist_to_group + ghosts[i].dist_to_group
 
 				if(ghosts[i].is_active) then
 					active_ghost_counter = active_ghost_counter +1
@@ -530,8 +601,13 @@ function love.update(dt)
 						end
 						game_on = false
 					end
+
 					last_catched_target_offset = ghosts[i].target_offset
-					distrib_catched_target_offset[ ghosts[i].target_offset ] = distrib_catched_target_offset[ ghosts[i].target_offset ] + 1
+					if(	distrib_catched_target_offset[ ghosts[i].target_offset ] ) then
+						distrib_catched_target_offset[ ghosts[i].target_offset ] = distrib_catched_target_offset[ ghosts[i].target_offset ] + 1
+					else
+						distrib_catched_target_offset[ ghosts[i].target_offset ] = 1
+					end
 					reporter()
 				end
 			end
@@ -571,7 +647,11 @@ function love.update(dt)
 		player.update(come_come, dt)
 		if ( player_active_before_update == true and come_come.is_active == false ) then -- player killed
 			player_catched_counter = player_catched_counter + 1
-			distrib_catcher_target_offset[ last_catcher_target_offset ] = distrib_catcher_target_offset[ last_catcher_target_offset] + 1
+			if (distrib_catcher_target_offset[ last_catcher_target_offset ])then
+				distrib_catcher_target_offset[ last_catcher_target_offset ] = distrib_catcher_target_offset[ last_catcher_target_offset] + 1
+			else
+				distrib_catcher_target_offset[ last_catcher_target_offset ] = 1
+			end
 		end
 
 	end
@@ -630,19 +710,9 @@ function love.keypressed(key, scancode, isrepeat)
 
 		-------------
 
-		-- local distrib_target_offset = {}
-		-- for i=-20, 20, 1 do
-		-- 	distrib_target_offset[i] = 0
-		-- end
-		-- for i=1, #ghosts, 1 do
-		-- 	distrib_target_offset[ ghosts[i].target_offset ] = distrib_target_offset[ ghosts[i].target_offset ] + 1
-		-- end
-		--
-		-- print("\npopulation's target distribution")
-		-- for i=-ghost_target_spread, ghost_target_spread, 1 do
-		-- 	print("distrib_target_offset[" .. i .. "]: " .. distrib_target_offset[i])
-		-- end
 		io.close(target_offset_distribution_file)
+		io.close(fear_target_file)
+		io.close(fear_group_file)
 		io.close(stats_file)
 	   	love.event.quit(0)
    	end
