@@ -8,7 +8,7 @@ local timer = require "timer"
 local pill = require "pill"
 local resizer = require "resizer"
 --------------------------------------------------------------------------------
--- not quite games
+-- not quite games, not quite lab
 -- to dos
 
 	-- variaveis para o mutation rate
@@ -55,11 +55,16 @@ local resizer = require "resizer"
 --
 
 ------------------------------------------------------------------------ Configuracao
+
+local target_offset_distribution_file = io.open("target_offset_distribution.run", "w")
+local stats_file = io.open("stats.run", "w")
+--local config_file = io.open("config.run")
+
 -- kitten killing globals
 
 local ghost_genetic_on = true  	-- liga e desliga e GA
 local ghost_fitness_on = true             	-- desliga a funcao fitness
-local ghost_target_offset_freightned_on = false -- desliga e gene target_offset_freightned
+local ghost_target_offset_freightned_on = false -- liga e desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
 local ghost_target_spread = 15
@@ -83,7 +88,7 @@ local n_pills = 5	-- at least 2
 local pill_time = 2.7	-- tempo de duracao da pilula
 local ghost_chase_time = 15 -- testado 3.99
 local ghost_scatter_time = 7.5 --testado com 2
-local ghost_respawn_time = 5 --15--20 testado
+local ghost_respawn_time = 0  --  5 --15--20 testado
 
 local speed_boost_on = false
 local ghost_speed_max_factor = 1.5 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
@@ -177,16 +182,19 @@ local last_catched_target_offset = 0
 last_catcher_target_offset = 0 -- tem que ser global pois é setada por ghost.update()
 local distrib_catched_target_offset = {}
 local distrib_catcher_target_offset = {}
-for i=-20, 20, 1 do
+for i=-ghost_target_spread, ghost_target_spread, 1 do
 	distrib_catched_target_offset[i] = 0
 	distrib_catcher_target_offset[i] = 0
 end
 
 --------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 function reporter()
-	-- reporter_counter = reporter_counter + 1
-	print(	"ghosts catched: " .. ghosts_catched .. "  <>  " ..
+	--reporter_counter = reporter_counter + 1
+
+	io.output(stats_file)
+	io.write(	"ghosts catched: " .. ghosts_catched .. "  <>  " ..
 			"last_catched_target_offset: " .. last_catched_target_offset .. "  <>  " ..
 			"player_catched_counter: " .. player_catched_counter .. "  <>  " ..
 			"av ghost fitness: " .. utils.round_2_dec(utils.average( ghosts, "fitness") ) .. "  <>  " ..
@@ -199,7 +207,30 @@ function reporter()
 			"std_dev target_offset_freightned: " .. utils.round_2_dec( utils.std_deviation(ghosts, "target_offset_freightned") ).. "  <>  " ..
 			"average age: " .. utils.round_2_dec( utils.average(ghosts, "n_updates") ).. " <> " ..
 			"std_dev age: " .. utils.round_2_dec( utils.std_deviation( ghosts, "n_updates" ) ) .. " <> " ..
-			"av-pill-fitness: " .. utils.round_2_dec( utils.average(pills, "fitness") )	)
+			"av-pill-fitness: " .. utils.round_2_dec( utils.average(pills, "fitness") ) .. "\n"	)
+
+
+	local distrib_target_offset = {}
+	for i=-20, 20, 1 do
+		distrib_target_offset[i] = 0
+	end
+	for i=1, #ghosts, 1 do
+		if( ghosts[i].is_active == true) then
+			distrib_target_offset[ ghosts[i].target_offset ] = distrib_target_offset[ ghosts[i].target_offset ] + 1
+		end
+	end
+
+	io.output(target_offset_distribution_file)
+	--print("population's target distribution")
+	for i=-ghost_target_spread, ghost_target_spread, 1 do
+		if ( distrib_target_offset[i] == 0 ) then
+			io.write(" _ ")
+		else
+			io.write(" " .. distrib_target_offset[i] .. " ")
+		end
+	end
+	io.write("\n")
+	--print()
 end
 
 --------------------------------------------------------------------------------
@@ -236,6 +267,7 @@ function love.load()
 	print("player's speed: " .. speed)
 	print("ghost_speed: " .. ghost_speed)
 	print("grid_size is: " .. grid_size)
+	print()
 
 	grid.init(grid_width_n, grid_height_n, grid_size, lookahead)
 	player.init(grid_size, lookahead)
@@ -515,7 +547,7 @@ function love.update(dt)
 			-- end
 
 			--respawns
-			if ( game_on and timer.update(ghost_respawn_timer,dt)) then -- continua respawnando mesma sem player
+			if ( game_on and timer.update(ghost_respawn_timer,dt) and ghost_state == "freightened") then -- continua respawnando mesma sem player
 				if (#to_be_respawned > 0) then
 					--print("respawned")
 
@@ -592,30 +624,31 @@ function love.keypressed(key, scancode, isrepeat)
    	elseif (key == "q") then
 
 		print("\ncatched")
-		for i=-20, 20, 1 do
+		for i=-ghost_target_spread, ghost_target_spread, 1 do
 			print("distrib_catched_target_offset[" .. i .. "]: " .. distrib_catched_target_offset[i])
 		end
 
 		print("\ncatcher")
-		for i=-20, 20, 1 do
+		for i=-ghost_target_spread, ghost_target_spread, 1 do
 			print("distrib_catcher_target_offset[" .. i .. "]: " .. distrib_catcher_target_offset[i])
 		end
 
 		-------------
 
-		local distrib_target_offset = {}
-		for i=-20, 20, 1 do
-			distrib_target_offset[i] = 0
-		end
-		for i=1, #ghosts, 1 do
-			distrib_target_offset[ ghosts[i].target_offset ] = distrib_target_offset[ ghosts[i].target_offset ] + 1
-		end
-
-		print("\npopulation's target distribution")
-		for i=-20, 20, 1 do
-			print("distrib_target_offset[" .. i .. "]: " .. distrib_target_offset[i])
-		end
-
+		-- local distrib_target_offset = {}
+		-- for i=-20, 20, 1 do
+		-- 	distrib_target_offset[i] = 0
+		-- end
+		-- for i=1, #ghosts, 1 do
+		-- 	distrib_target_offset[ ghosts[i].target_offset ] = distrib_target_offset[ ghosts[i].target_offset ] + 1
+		-- end
+		--
+		-- print("\npopulation's target distribution")
+		-- for i=-ghost_target_spread, ghost_target_spread, 1 do
+		-- 	print("distrib_target_offset[" .. i .. "]: " .. distrib_target_offset[i])
+		-- end
+		io.close(target_offset_distribution_file)
+		io.close(stats_file)
 	   	love.event.quit(0)
    	end
 end
