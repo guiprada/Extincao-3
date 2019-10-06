@@ -2,7 +2,7 @@
 
 local utils = require "utils"
 local grid = require "grid"
-local ghost = require "ghost"
+local ghost = require "ghost2"
 local player = require "player"
 local timer = require "timer"
 local pill = require "pill"
@@ -65,7 +65,7 @@ local stats_file = io.open("stats.run", "w")
 -- kitten killing globals
 
 local ghost_genetic_on = true  	-- liga e desliga e GA
-local ghost_fitness_on = false             	-- desliga a funcao fitness
+local ghost_fitness_on = true             	-- desliga a funcao fitness
 local ghost_target_offset_freightned_on = true -- liga e desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
@@ -572,7 +572,7 @@ function love.update(dt)
 			for i=1, #ghosts, 1 do
 				local is_active_before_update = ghosts[i].is_active
 
-				ghost.update(ghosts[i], come_come, pills, average_ghost_pos, dt, ghost_state, grid_size, lookahead)
+				ghost.update(ghosts[i], ghosts, come_come, pills, average_ghost_pos, dt, ghost_state, grid_size, lookahead)
 				total_fitness = total_fitness + ghosts[i].fitness
 				-- total_dist_to_group = total_dist_to_group + ghosts[i].dist_to_group
 

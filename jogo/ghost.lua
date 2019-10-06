@@ -27,31 +27,11 @@ function ghost.init( ghost_fitness_on, ghost_target_offset_freightned_on, ghost_
     ghost.lookahead = lookahead
 end
 
-function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, speed, pills)
+function ghost.new(pos_index, try_order, speed, pills)
     local value = {}
-    -- value.is_active = false
-    -- value.x = 0
-    -- value.y = 0
-    -- value.speed = 0
-    -- value.direction = "idle"
     value.grid_pos = {} -- fenotipo de pos_index
-    -- value.n_updates = 0
-    -- value.n_chase_updates = 0
-    -- value.n_freightened_updates = 0
-    -- value.acc_chase_dist = 0
-    -- value.acc_freightened_dist = 0
-    -- value.n_catches = 0
-    -- value.n_pills = 0
     value.pill_debounce = {}
-    -- value.fitness = 0
-    -- value.home_pill_fitness = 0
-    -- value.speed_boost = 0
-    -- value.dist_to_group = 0
 
-    -- value.pos_index = pos_index --gene, but is not effective because the spawning system
-    -- value.pilgrin_gene = pilgrin_gene
-    -- value.target_offset = target_offset -- gene
-    -- value.target_offset_freightned = target_offset_freightned
     value.home = {} -- determinado por pos_index, e um fenotipo
     value.try_order = {} -- gene
 
@@ -64,26 +44,19 @@ function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freight
     return  value
 end
 
-function ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, speed, pills, spawn_grid_pos)
+function ghost.reset(value, pos_index, try_order, speed, pills, spawn_grid_pos)
     value.is_active = true
     value.n_updates = 0
-    value.n_chase_updates = 0
-    value.n_freightened_updates = 0
-    value.acc_chase_dist = 0
-    value.acc_freightened_dist = 0
+
     value.n_catches = 0
     value.n_pills = 0
     value.fitness = 0
-    value.home_pill_fitness = 0
     value.speed_boost = 0
+
     value.dist_to_group = 0
     value.dist_to_target = 0
-
-    value.pilgrin_gene = pilgrin_gene
-    value.target_offset = target_offset
-    value.target_offset_freightned = target_offset_freightned
-    value.fear_target = fear_target
-    value.fear_group = fear_group
+    value.dist_to_closest_pill = 10000
+    value.grid_pos_closest_pill = {}
 
     for i=1, #pills, 1 do
         value.pill_debounce[i] = false
@@ -301,39 +274,24 @@ function ghost.draw(value, state)
     end
 end
 
-function ghost.update(value, target, pills, average_ghost_pos, dt, state)
+function ghost.update(value, ghosts, target, pills, average_ghost_pos, dt, state)
     --print(value.fear_group)
     if (value.is_active) then
         value.n_updates = value.n_updates + 1
-        value.fitness = value.n_catches + (value.n_pills*0.001)/value.n_updates
+        value.fitness = value.fitness - 0.0001
+
+        if(fitness < 0) then
+            value.is_active = false
+            if ( ghost_genetic_on) then
+                ghost.crossover(value, ghost.ghost_speed, ghosts, pills)--, spawn_grid_pos)
+            else
+                ghost.reactivate(value, ghost.ghost_speed, pills)
+            end
+        end
 
         -- atualiza distacia_media do player, poderiamos usar para colisao
         value.dist_to_target = utils.dist(target, value)
         value.dist_to_group = utils.dist(average_ghost_pos, value)
-        --print(distance_to_group)
-
-        -- fitness
-        -- if( state == "chasing") then
-        --     value.n_chase_updates = value.n_chase_updates + 1
-        --     value.acc_chase_dist = value.acc_chase_dist + dist_to_target
-        -- elseif ( state == "freightened") then
-        --     value.n_freightened_updates = value.n_freightened_updates + 1
-        --     value.acc_freightened_dist = value.acc_freightened_dist + dist_to_target
-        -- end
-        --
-        --
-        -- if (value.n_chase_updates >500 and value.n_freightened_updates > 500) then
-        --
-        --
-        --     local average_dist_chase = value.acc_chase_dist/(value.n_chase_updates)
-        --     local average_dist_freightened = value.acc_freightened_dist/value.n_freightened_updates
-        --
-        --     value.fitness = 5*average_dist_chase - average_dist_freightened  -100*(value.n_catches)
-        --
-        -- end
-
-        --value.fitness = value.n_catches + value.n_pills*0.1 -- (dist_to_target/800) + 5 --  -- + value.n_updates/10000000         - value.dist_to_group/400
-
 
         -- update ghost info
         value.front = grid.get_dynamic_front(value)
@@ -359,8 +317,15 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
             end
         end
 
-        --check collision with pills
+        --check collision with pills and find the closest
+        value.dist_to_closest_pill = utils.dist(pills[1], value)
+
         for i=1, #pills, 1 do
+            if (value.dist_to_closest_pill > utils.dist(pills[i], value)) then
+                value.dist_to_closest_pill = utils.dist(pills[i], value)
+                value.grid_pos_closest_pill.x = pill[i].grid_pos.x
+                value.grid_pos_closest_pill.y = pill[i].grid_pos.y
+            end
             local coliding = value.grid_pos.x == pills[i].grid_pos.x and value.grid_pos.y == pills[i].grid_pos.y
             if (  coliding and not value.pill_debounce[i]) then
                 value.n_pills = value.n_pills + 1
@@ -453,6 +418,27 @@ end
 function ghost.find_next_dir(value, target, state)
     value.enabled_dir = grid.get_enabled_directions(value.grid_pos)
 
+    local pill_close = false
+    if (value.dist_to_closest_pill < 20*ghost.grid_size) then
+        pill_close = true
+    end
+
+    local group_close = false
+    if(value.dist_to_group < 20*ghost.grid_size) then
+        group_close = true
+    end
+
+    local target_close
+    if(value.dist_to_target < 10*ghost.grid_size) then
+        target_close = true
+    end
+
+    local hunger = false
+    if(value.fitness < 0.2) then
+        hunger = true
+    end
+
+
     --count = grid.count_enabled_directions(value.grid_pos)
     if ( 	grid.grid_types[value.grid_pos.y][value.grid_pos.x]~=3 and -- invertido
             grid.grid_types[value.grid_pos.y][value.grid_pos.x]~=12 ) then
@@ -501,25 +487,11 @@ function ghost.find_next_dir(value, target, state)
         --print( state)
 
         if (target.is_active) then
-            local fear = false
-            local dist_to_home = utils.dist(value, value.home)
-            if( ghost.ghost_fear_on) then
-                if (value.dist_to_target < value.fear_target*ghost.grid_size  and
-                    value.dist_to_group > value.fear_group*ghost.grid_size
-                    --dist_to_home > 10*ghost.grid_size
-                    --value.direction == "idle"
-                    )then
-                    fear = true
-                end
-            end
+
             --io.output()
             if ( state == "chasing" ) then
 
-                if(fear)then
-                    print("feared")
-                    destination.x = value.home.x
-                    destination.y = value.home.y
-                else
+
                     print("not feared")
                     if (target.direction == "up") then
                         destination.x =  target.grid_pos.x
@@ -621,6 +593,99 @@ function ghost.find_next_dir(value, target, state)
             print("error")
         end
     end
+end
+
+function ghost.go_home( value)
+    local destination = {}
+    destination.x = value.home.x
+    destination.y = value.home.y
+    return  destination
+end
+
+function ghost.catch_target(value, target)
+    local destination = {}
+
+    destination.x = target.grid_pos.x
+    destination.y = target.grid_pos.y
+
+    return  destination
+end
+
+function ghost.surround_target_front(value, target)
+    local destination = {}
+
+    if (target.direction == "up") then
+        destination.x =  target.grid_pos.x
+        destination.y = -4 + target.grid_pos.y
+    elseif (target.direction == "down") then
+        destination.x = target.grid_pos.x
+        destination.y = 4 + target.grid_pos.y
+    elseif (target.direction == "left") then
+        destination.x = -4 + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "right") then
+        destination.x = 4 + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "idle") then
+        destination.x = target.grid_pos.x
+        destination.y = target.grid_pos.y
+    end
+
+    return  destination
+end
+
+function ghost.surround_target_back(value, target)
+    local destination = {}
+
+    if (target.direction == "up") then
+        destination.x =  target.grid_pos.x
+        destination.y = 4 + target.grid_pos.y
+    elseif (target.direction == "down") then
+        destination.x = target.grid_pos.x
+        destination.y = -4 + target.grid_pos.y
+    elseif (target.direction == "left") then
+        destination.x = 4 + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "right") then
+        destination.x = -4 + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "idle") then
+        destination.x = target.grid_pos.x
+        destination.y = target.grid_pos.y
+    end
+
+    return  destination
+end
+
+function ghost.run_from_target(value, target)
+
+    local destination = {}
+
+    destination.x = target.grid_pos.x
+    destination.y = target.grid_pos.y
+
+    return  destination
+
+end
+
+function ghost.go_to_closest_pill(value)
+    local destination = {}
+
+    destination.x = value.grid_pos_closest_pill.x
+    destination.y = value.grid_pos_closest_pill.y
+
+    return  destination
+end
+
+function ghost.panic(value)
+    local destination = {}
+    local rand_grid = love.math.random(1, #grid.valid_grid_pos)
+
+    destination.x = value.grid_pos_closest_pill.x
+    destination.y = value.grid_pos_closest_pill.y
+
+    return  destination
+
 end
 
 return ghost
