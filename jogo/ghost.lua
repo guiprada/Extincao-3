@@ -568,15 +568,7 @@ function ghost.find_next_dir(value, target, state)
 
         -- choose the proper direction
         if ( state == "chasing" or state == "scattering") then
-            local shortest = 1
-            --print(destination.x)
-            for e=1, #maybe_dirs, 1 do
-                maybe_dirs[e].dist = utils.dist(maybe_dirs[e], destination)
-                if ( maybe_dirs[e].dist < maybe_dirs[shortest].dist ) then
-                    shortest = e
-                    --print(#maybe_dirs)
-                end
-            end
+
 
             value.direction = maybe_dirs[shortest].direction
         elseif  ( state == "freightened") then
@@ -595,14 +587,14 @@ function ghost.find_next_dir(value, target, state)
     end
 end
 
-function ghost.go_home( value)
+function ghost.go_home( value, maybe_dirs)
     local destination = {}
     destination.x = value.home.x
     destination.y = value.home.y
     return  destination
 end
 
-function ghost.catch_target(value, target)
+function ghost.catch_target(value, target, maybe_dirs)
     local destination = {}
 
     destination.x = target.grid_pos.x
@@ -611,7 +603,7 @@ function ghost.catch_target(value, target)
     return  destination
 end
 
-function ghost.surround_target_front(value, target)
+function ghost.surround_target_front(value, target, maybe_dirs)
     local destination = {}
 
     if (target.direction == "up") then
@@ -634,7 +626,7 @@ function ghost.surround_target_front(value, target)
     return  destination
 end
 
-function ghost.surround_target_back(value, target)
+function ghost.surround_target_back(value, target, maybe_dirs)
     local destination = {}
 
     if (target.direction == "up") then
@@ -657,7 +649,7 @@ function ghost.surround_target_back(value, target)
     return  destination
 end
 
-function ghost.run_from_target(value, target)
+function ghost.run_from_target(value, target, maybe_dirs)
 
     local destination = {}
 
@@ -668,7 +660,7 @@ function ghost.run_from_target(value, target)
 
 end
 
-function ghost.go_to_closest_pill(value)
+function ghost.go_to_closest_pill(value, maybe_dirs)
     local destination = {}
 
     destination.x = value.grid_pos_closest_pill.x
@@ -677,14 +669,27 @@ function ghost.go_to_closest_pill(value)
     return  destination
 end
 
-function ghost.panic(value)
+function ghost.panic(value, maybe_dirs)
     local destination = {}
     local rand_grid = love.math.random(1, #grid.valid_grid_pos)
 
-    destination.x = value.grid_pos_closest_pill.x
-    destination.y = value.grid_pos_closest_pill.y
+    destination.x = grid.valid_grid_pos[rand_grid].x
+    destination.y = grid.valid_grid_pos[rand_grid].y
 
     return  destination
+end
+
+function ghost.get_closest( maybe_dirs, destination)
+
+    local shortest = 1
+    --print(destination.x)
+    for e=1, #maybe_dirs, 1 do
+        maybe_dirs[e].dist = utils.dist(maybe_dirs[e], destination)
+        if ( maybe_dirs[e].dist < maybe_dirs[shortest].dist ) then
+            shortest = e
+            --print(#maybe_dirs)
+        end
+    end
 
 end
 
