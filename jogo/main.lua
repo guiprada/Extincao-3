@@ -2,7 +2,7 @@
 
 local utils = require "utils"
 local grid = require "grid"
-local ghost = require "ghost2"
+local ghost = require "ghost"
 local player = require "player"
 local timer = require "timer"
 local pill = require "pill"
@@ -633,9 +633,9 @@ function love.update(dt)
 					-- e spawna
 					local i = table.remove(to_be_respawned, 1)
 					if ( ghost_genetic_on) then
-						ghost.crossover(ghosts[i], ghost_speed, ghosts, pills)--, spawn_grid_pos)
+						ghost.crossover(ghosts[i], ghosts, pills)--, spawn_grid_pos)
 					else
-						ghost.reactivate(ghosts[i], ghost_speed, pills)
+						ghost.reactivate(ghosts[i], pills)
 					end
 
 				end
@@ -684,9 +684,9 @@ function love.keypressed(key, scancode, isrepeat)
 			for i=1, #ghosts, 1 do
 				ghosts[i].is_active = true
 				if ( ghost_genetic_on) then
-					ghost.crossover(ghosts[i], ghost_speed, ghosts, pills)
+					ghost.crossover(ghosts[i], ghosts, pills)
 				else
-					ghost.reactivate(ghosts[i], ghost_speed, pills)
+					ghost.reactivate(ghosts[i], pills)
 				end
 			end
 			to_be_respawned = {}

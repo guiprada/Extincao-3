@@ -232,6 +232,13 @@ function grid.is_corridorY(pos)
 	return false
 end
 
+function grid.is_corridor(pos)
+	if ( grid.grid_types[pos.y][pos.x] == 12 or grid.grid_types[pos.y][pos.x] == 3 )then
+		return true
+	end
+	return false
+end
+
 function grid.count_enabled_directions(pos)
 	local count = 0
 	local value = {}

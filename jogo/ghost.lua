@@ -27,24 +27,28 @@ function ghost.init( ghost_fitness_on, ghost_target_offset_freightned_on, ghost_
     ghost.lookahead = lookahead
 end
 
-function ghost.new(pos_index, try_order, speed, pills)
+function ghost.new(pos_index, try_order, chase_actions, scatter_actions, freightened_actions, speed, pills)
     local value = {}
     value.grid_pos = {} -- fenotipo de pos_index
     value.pill_debounce = {}
 
-    value.home = {} -- determinado por pos_index, e um fenotipo
+    value.home = {} -- determinado por pos_index.
+
     value.try_order = {} -- gene
+    value.chase_actions = {}
+    value.scatter_actions = {}
+    value.freightened_actions = {}
 
     value.enabled_dir = {}
     value.last_grid_pos = {}
     value.front = {}
 
-    ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, speed, pills)
+    ghost.reset(value, pos_index, try_order, chase_actions, scatter_actions, freightened_actions, speed, pills)
 
     return  value
 end
 
-function ghost.reset(value, pos_index, try_order, speed, pills, spawn_grid_pos)
+function ghost.reset(value, pos_index, try_order, chase_actions, scatter_actions, freightened_actions, speed, pills, spawn_grid_pos, direction)
     value.is_active = true
     value.n_updates = 0
 
@@ -57,6 +61,11 @@ function ghost.reset(value, pos_index, try_order, speed, pills, spawn_grid_pos)
     value.dist_to_target = 0
     value.dist_to_closest_pill = 10000
     value.grid_pos_closest_pill = {}
+
+    -- should we deep copy?
+    value.chase_actions = chase_actions
+    value.scatter_actions = scatter_actions
+    value.freightened_actions = freightened_actions
 
     for i=1, #pills, 1 do
         value.pill_debounce[i] = false
@@ -89,24 +98,27 @@ function ghost.reset(value, pos_index, try_order, speed, pills, spawn_grid_pos)
     value.try_order[3] = try_order[3]
     value.try_order[4] = try_order[4]
 
-    -- e habilita uma direcao valida
-    for i=1, #value.try_order, 1 do
-        if ( value.enabled_dir[value.try_order[i]] == true) then
-            if(value.try_order[i]==1) then
-                value.direction = "up"
-            elseif(value.try_order[i]==2) then
-                value.direction = "down"
-            elseif(value.try_order[i]==3) then
-                value.direction = "left"
-            elseif(value.try_order[i]==4) then
-                value.direction = "right"
+    -- e habilita uma direcao valida, deveria receber uma direcao para nao nascer em sentido contrario ao da mae
+    if(not direction) then
+        for i=1, #value.try_order, 1 do
+            if ( value.enabled_dir[value.try_order[i]] == true) then
+                if(value.try_order[i]==1) then
+                    value.direction = "up"
+                elseif(value.try_order[i]==2) then
+                    value.direction = "down"
+                elseif(value.try_order[i]==3) then
+                    value.direction = "left"
+                elseif(value.try_order[i]==4) then
+                    value.direction = "right"
+                end
             end
         end
+    else
+        value.direction = direction
     end
 
     value.last_grid_pos.x = -1
     value.last_grid_pos.y = -1
-
 
     value.front = grid.get_dynamic_front(value)
 end
@@ -138,35 +150,22 @@ function ghost.selection(in_table)
     return mom, dad
 end
 
-function ghost.crossover (value, speed, ghosts, pills, spawn_grid_pos)
+function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
     local mom = {}
     local dad = {}
     mom, dad = ghost.selection(ghosts)
 
     local son = {}
 
-    son.fear_target =  math.floor( (mom.fear_target + dad.fear_target)/2 + love.math.random(0, 5) )
-    son.fear_group = math.floor( (mom.fear_group + dad.fear_group)/2 + love.math.random(0, 5) )
-    if(son.fear_target > 50) then son.fear_target = 50 end
-    if(son.fear_group > 50) then son.fear_group = 50 end
-
     local this_spawn_grid_pos = {}
+    local this_direction = ""
     if (spawn_grid_pos) then
         this_spawn_grid_pos = spawn_grid_pos
+        this_direction = nil
     else -- nasce com a mae
         this_spawn_grid_pos.x = mom.grid_pos.x
         this_spawn_grid_pos.y = mom.grid_pos.y
-    end
-
-    -- recessivo para o gene peregrino
-    if( mom.pilgrin_gene == dad.pilgrin_gene ) then
-        son.pilgrin_gene = mom.pilgrin_gene
-    else
-        if ( love.math.random(0, 3) == 1 ) then
-            son.pilgrin_gene = true
-        else
-            son.pilgrin_gene = false
-        end
+        this_direction = mom.direction
     end
 
     son.pos_index = math.floor((mom.pos_index + dad.pos_index)/2)
@@ -180,40 +179,23 @@ function ghost.crossover (value, speed, ghosts, pills, spawn_grid_pos)
     end
     --print(son.pos_index)
 
-    son.target_offset = math.floor((mom.target_offset + dad.target_offset)/2)
-    if (love.math.random(0, 10)<=3) then -- mutate
-        son.target_offset = son.target_offset + math.floor(love.math.random(-2, 2))
-    end
-
-    son.target_offset_freightned = math.floor((mom.target_offset_freightned + dad.target_offset_freightned)/2)
-    if (love.math.random(0, 10)<=3) then -- mutate
-        son.target_offset_freightned = son.target_offset_freightned + math.floor(love.math.random(-2, 2))
-    end
-
     son.try_order = {} -- we should add mutation
-
-    if (love.math.random(0, 10)<=3) then
-        --print("mom")
+    if (love.math.random(0, 10)<=5) then
         for i= 1, #mom.try_order, 1 do
-            --print(mom.try_order[i])
             son.try_order[i] = mom.try_order[i]
-            --print(son.try_order[i])
         end
     else
-        --print("dad")
         for i= 1, #dad.try_order, 1 do
-            --print(dad.try_order[i])
             son.try_order[i] = dad.try_order[i]
-            --print(son.try_order[i])
         end
     end
 
-    ghost.reset(value, son.pos_index, son.pilgrin_gene, son.target_offset, son.target_offset_freightned, son.try_order, son.fear_target, son.fear_group, speed, pills, this_spawn_grid_pos)
+    ghost.reset(value, son.pos_index, son.pilgrin_gene, son.target_offset, son.target_offset_freightned, son.try_order, son.fear_target, son.fear_group, ghost.speed, pills, this_spawn_grid_pos, this_direction)
 end
 
-function ghost.reactivate (value, speed, pills, spawn_grid_pos)
+function ghost.reactivate (value, pills, spawn_grid_pos)
     local this_spawn_grid_pos = spawn_grid_pos or value.grid_pos
-    ghost.reset(value, value.pos_index, value.pilgrin_gene, value.target_offset, value.target_offset_freightned, value.try_order, speed, pills, this_spawn_grid_pos)
+    ghost.reset(value, value.pos_index, value.pilgrin_gene, value.target_offset, value.target_offset_freightned, value.try_order, ghost.speed, pills, this_spawn_grid_pos)
 end
 
 function ghost.draw(value, state)
@@ -280,12 +262,12 @@ function ghost.update(value, ghosts, target, pills, average_ghost_pos, dt, state
         value.n_updates = value.n_updates + 1
         value.fitness = value.fitness - 0.0001
 
-        if(fitness < 0) then
+        if(fitness < 0) then -- respawn now
             value.is_active = false
             if ( ghost_genetic_on) then
-                ghost.crossover(value, ghost.ghost_speed, ghosts, pills)--, spawn_grid_pos)
+                ghost.crossover(value, ghosts, pills)--, spawn_grid_pos)
             else
-                ghost.reactivate(value, ghost.ghost_speed, pills)
+                ghost.reactivate(value, pills)
             end
         end
 
@@ -418,6 +400,7 @@ end
 function ghost.find_next_dir(value, target, state)
     value.enabled_dir = grid.get_enabled_directions(value.grid_pos)
 
+    -- update the "situation"
     local pill_close = false
     if (value.dist_to_closest_pill < 20*ghost.grid_size) then
         pill_close = true
@@ -438,10 +421,10 @@ function ghost.find_next_dir(value, target, state)
         hunger = true
     end
 
-
     --count = grid.count_enabled_directions(value.grid_pos)
-    if ( 	grid.grid_types[value.grid_pos.y][value.grid_pos.x]~=3 and -- invertido
-            grid.grid_types[value.grid_pos.y][value.grid_pos.x]~=12 ) then
+    -- if ( 	grid.grid_types[value.grid_pos.y][value.grid_pos.x]~=3 and -- invertido
+    --         grid.grid_types[value.grid_pos.y][value.grid_pos.x]~=12 ) then -- se nao for corredor
+    if ( not grid.is_corridor(value.grid_pos) )then
         --check which one is closer to the target
         -- make a table to contain the posible destinations
         local maybe_dirs = {}
@@ -482,116 +465,98 @@ function ghost.find_next_dir(value, target, state)
             end
         end
 
-        -- calculate the destination, get the targets grid position and "sum" it with the value.target_offset
-        local destination = {}
-        --print( state)
-
         if (target.is_active) then
-
-            --io.output()
             if ( state == "chasing" ) then
-
-
-                    print("not feared")
-                    if (target.direction == "up") then
-                        destination.x =  target.grid_pos.x
-                        destination.y = -value.target_offset + target.grid_pos.y
-                    elseif (target.direction == "down") then
-                        destination.x = target.grid_pos.x
-                        destination.y = value.target_offset + target.grid_pos.y
-                    elseif (target.direction == "left") then
-                        destination.x = -value.target_offset + target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    elseif (target.direction == "right") then
-                        destination.x = value.target_offset + target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    elseif (target.direction == "idle") then
-                        destination.x = target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    end
+                local this_action = value.chase_actions[pill_close][group_close][target_close][hunger]
+                if ( this_action == 1) then
+                    ghost.panic(value, maybe_dirs)
+                elseif ( this_action == 2) then
+                    ghost.go_home(value, maybe_dirs)
+                elseif ( this_action == 3) then
+                    ghost.catch_target(value, target, maybe_dirs)
+                elseif ( this_action == 4) then
+                    ghost.surround_target_front(value, target, maybe_dirs)
+                elseif ( this_action == 5) then
+                    ghost.surround_target_back(value, target, maybe_dirs)
+                elseif ( this_action == 6) then
+                    ghost.run_from_target(value, target, maybe_dirs)
+                elseif ( this_action == 7) then
+                    ghost.go_to_closest_pill(value, maybe_dirs)
+                else
+                    print("Invalid action for chasing")
                 end
             elseif ( state == "scattering") then
-                if(fear)then
-                    print("feared")
-                    if ( not ghost.target_offset_freightned_on ) then
-                        value.target_offset_freightned = value.target_offset
-                    end
-                    if (target.direction == "up") then
-                        destination.x =  target.grid_pos.x
-                        destination.y = -value.target_offset_freightned + target.grid_pos.y
-                    elseif (target.direction == "down") then
-                        destination.x = target.grid_pos.x
-                        destination.y = value.target_offset_freightned + target.grid_pos.y
-                    elseif (target.direction == "left") then
-                        destination.x = -value.target_offset_freightned + target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    elseif (target.direction == "right") then
-                        destination.x = value.target_offset_freightned + target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    elseif (target.direction == "idle") then
-                        destination.x = target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    end
-
+                local this_action = value.scatter_actions[pill_close][group_close][target_close][hunger]
+                if ( this_action == 1) then
+                    ghost.panic(value, maybe_dirs)
+                elseif ( this_action == 2) then
+                    ghost.go_home(value, maybe_dirs)
+                elseif ( this_action == 3) then
+                    --ghost.catch_target(value, target, maybe_dirs)
+                    print("Invalid action for scattering")
+                elseif ( this_action == 4) then
+                    --ghost.surround_target_front(value, target, maybe_dirs)
+                    print("Invalid action for scattering")
+                elseif ( this_action == 5) then
+                    --ghost.surround_target_back(value, target, maybe_dirs)
+                    print("Invalid action for scattering")
+                elseif ( this_action == 6) then
+                    ghost.run_from_target(value, target, maybe_dirs)
+                elseif ( this_action == 7) then
+                    ghost.go_to_closest_pill(value, maybe_dirs)
                 else
-                    print("not feared")
-                    destination.x = value.home.x
-                    destination.y = value.home.y
+                    print("Invalid action for scattering")
                 end
-
             elseif ( state == "freightened") then
-                if ( not ghost.target_offset_freightned_on ) then
-                    value.target_offset_freightned = value.target_offset
-                end
-                if (target.direction == "up") then
-                    destination.x =  target.grid_pos.x
-                    destination.y = -value.target_offset_freightned + target.grid_pos.y
-                elseif (target.direction == "down") then
-                    destination.x = target.grid_pos.x
-                    destination.y = value.target_offset_freightned + target.grid_pos.y
-                elseif (target.direction == "left") then
-                    destination.x = -value.target_offset_freightned + target.grid_pos.x
-                    destination.y = target.grid_pos.y
-                elseif (target.direction == "right") then
-                    destination.x = value.target_offset_freightned + target.grid_pos.x
-                    destination.y = target.grid_pos.y
-                elseif (target.direction == "idle") then
-                    destination.x = target.grid_pos.x
-                    destination.y = target.grid_pos.y
+                local this_action = value.freightened_actions[pill_close][group_close][target_close][hunger]
+                if ( this_action == 1) then
+                    ghost.panic(value, maybe_dirs)
+                elseif ( this_action == 2) then
+                    ghost.go_home(value, maybe_dirs)
+                elseif ( this_action == 3) then
+                    --ghost.catch_target(value, target, maybe_dirs)
+                    print("Invalid action for freightened")
+                elseif ( this_action == 4) then
+                    --ghost.surround_target_front(value, target, maybe_dirs)
+                    print("Invalid action for freightened")
+                elseif ( this_action == 5) then
+                    --ghost.surround_target_back(value, target, maybe_dirs)
+                    print("Invalid action for freightened")
+                elseif ( this_action == 6) then
+                    ghost.run_from_target(value, target, maybe_dirs)
+                elseif ( this_action == 7) then
+                    ghost.go_to_closest_pill(value, maybe_dirs)
+                else
+                    print("Invalid action for freightened")
                 end
             else
-                print("error")
+                print("Invalid ghost_state")
             end
-        else
+        else -- find random pos if player is inactive
             destination = grid.grid_valid_pos[love.math.random(1, #grid.grid_valid_pos)]
         end
 
-        -- choose the proper direction
-        if ( state == "chasing" or state == "scattering") then
-
-
-            value.direction = maybe_dirs[shortest].direction
-        elseif  ( state == "freightened") then
-            local furthest = 1
-            for e=1, #maybe_dirs, 1 do
-                maybe_dirs[e].dist = utils.dist(maybe_dirs[e], destination)
-                if ( maybe_dirs[e].dist > maybe_dirs[furthest].dist ) then
-                    furthest = e
-                end
-            end
-            --print("furthest" .. furthest)
-            value.direction = maybe_dirs[furthest].direction
-        else
-            print("error")
-        end
     end
+end
+
+-------------------------------------------------------------------- actions
+
+function ghost.panic(value, maybe_dirs)
+    local destination = {}
+    local rand_grid = love.math.random(1, #grid.valid_grid_pos)
+
+    destination.x = grid.valid_grid_pos[rand_grid].x
+    destination.y = grid.valid_grid_pos[rand_grid].y
+
+    ghost.get_closest( value, maybe_dirs, destination)
 end
 
 function ghost.go_home( value, maybe_dirs)
     local destination = {}
     destination.x = value.home.x
     destination.y = value.home.y
-    return  destination
+
+    ghost.get_closest( value, maybe_dirs, destination)
 end
 
 function ghost.catch_target(value, target, maybe_dirs)
@@ -600,7 +565,7 @@ function ghost.catch_target(value, target, maybe_dirs)
     destination.x = target.grid_pos.x
     destination.y = target.grid_pos.y
 
-    return  destination
+    ghost.get_closest( value, maybe_dirs, destination)
 end
 
 function ghost.surround_target_front(value, target, maybe_dirs)
@@ -623,7 +588,7 @@ function ghost.surround_target_front(value, target, maybe_dirs)
         destination.y = target.grid_pos.y
     end
 
-    return  destination
+    ghost.get_closest( value, maybe_dirs, destination)
 end
 
 function ghost.surround_target_back(value, target, maybe_dirs)
@@ -646,7 +611,7 @@ function ghost.surround_target_back(value, target, maybe_dirs)
         destination.y = target.grid_pos.y
     end
 
-    return  destination
+    ghost.get_closest( value, maybe_dirs, destination)
 end
 
 function ghost.run_from_target(value, target, maybe_dirs)
@@ -657,7 +622,7 @@ function ghost.run_from_target(value, target, maybe_dirs)
     destination.y = target.grid_pos.y
 
     return  destination
-
+    ghost.get_furthest(value, maybe_dirs, destination)
 end
 
 function ghost.go_to_closest_pill(value, maybe_dirs)
@@ -666,31 +631,35 @@ function ghost.go_to_closest_pill(value, maybe_dirs)
     destination.x = value.grid_pos_closest_pill.x
     destination.y = value.grid_pos_closest_pill.y
 
-    return  destination
+    ghost.get_closest( value, maybe_dirs, destination)
 end
 
-function ghost.panic(value, maybe_dirs)
-    local destination = {}
-    local rand_grid = love.math.random(1, #grid.valid_grid_pos)
-
-    destination.x = grid.valid_grid_pos[rand_grid].x
-    destination.y = grid.valid_grid_pos[rand_grid].y
-
-    return  destination
-end
-
-function ghost.get_closest( maybe_dirs, destination)
+function ghost.get_closest( value, maybe_dirs, destination)
 
     local shortest = 1
     --print(destination.x)
-    for e=1, #maybe_dirs, 1 do
-        maybe_dirs[e].dist = utils.dist(maybe_dirs[e], destination)
-        if ( maybe_dirs[e].dist < maybe_dirs[shortest].dist ) then
-            shortest = e
+    for i=1, #maybe_dirs, 1 do
+        maybe_dirs[i].dist = utils.dist(maybe_dirs[i], destination)
+        if ( maybe_dirs[i].dist < maybe_dirs[shortest].dist ) then
+            shortest = i
             --print(#maybe_dirs)
         end
     end
-
+    value.direction = maybe_dirs[shortest].direction
 end
+
+function ghost.get_furthest(value, maybe_dirs, destination)
+    local furthest = 1
+    for i=1, #maybe_dirs, 1 do
+        maybe_dirs[i].dist = utils.dist(maybe_dirs[i], destination)
+        if ( maybe_dirs[i].dist > maybe_dirs[furthest].dist ) then
+            furthest = i
+        end
+    end
+    --print("furthest" .. furthest)
+    value.direction = maybe_dirs[furthest].direction
+end
+
+--function ghost.deep_copy_actions()
 
 return ghost
