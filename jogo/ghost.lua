@@ -468,16 +468,17 @@ function ghost.find_next_dir(value, target, state)
         if (target.is_active) then
             if ( state == "chasing" ) then
                 local this_action = value.chase_actions[pill_close][group_close][target_close][hunger]
+
                 if ( this_action == 1) then
-                    ghost.panic(value, maybe_dirs)
-                elseif ( this_action == 2) then
-                    ghost.go_home(value, maybe_dirs)
-                elseif ( this_action == 3) then
                     ghost.catch_target(value, target, maybe_dirs)
-                elseif ( this_action == 4) then
+                elseif ( this_action == 2) then
                     ghost.surround_target_front(value, target, maybe_dirs)
-                elseif ( this_action == 5) then
+                elseif ( this_action == 3) then
                     ghost.surround_target_back(value, target, maybe_dirs)
+                elseif ( this_action == 4) then
+                        ghost.panic(value, maybe_dirs)
+                elseif ( this_action == 5) then
+                        ghost.go_home(value, maybe_dirs)
                 elseif ( this_action == 6) then
                     ghost.run_from_target(value, target, maybe_dirs)
                 elseif ( this_action == 7) then
@@ -487,48 +488,51 @@ function ghost.find_next_dir(value, target, state)
                 end
             elseif ( state == "scattering") then
                 local this_action = value.scatter_actions[pill_close][group_close][target_close][hunger]
+
                 if ( this_action == 1) then
-                    ghost.panic(value, maybe_dirs)
-                elseif ( this_action == 2) then
-                    ghost.go_home(value, maybe_dirs)
-                elseif ( this_action == 3) then
                     --ghost.catch_target(value, target, maybe_dirs)
                     print("Invalid action for scattering")
-                elseif ( this_action == 4) then
+                elseif ( this_action == 2) then
                     --ghost.surround_target_front(value, target, maybe_dirs)
                     print("Invalid action for scattering")
-                elseif ( this_action == 5) then
+                elseif ( this_action == 3) then
                     --ghost.surround_target_back(value, target, maybe_dirs)
                     print("Invalid action for scattering")
+                elseif ( this_action == 4) then
+                        ghost.panic(value, maybe_dirs)
+                elseif ( this_action == 5) then
+                        ghost.go_home(value, maybe_dirs)
                 elseif ( this_action == 6) then
                     ghost.run_from_target(value, target, maybe_dirs)
                 elseif ( this_action == 7) then
                     ghost.go_to_closest_pill(value, maybe_dirs)
                 else
                     print("Invalid action for scattering")
-                end
+
             elseif ( state == "freightened") then
                 local this_action = value.freightened_actions[pill_close][group_close][target_close][hunger]
+
                 if ( this_action == 1) then
-                    ghost.panic(value, maybe_dirs)
-                elseif ( this_action == 2) then
-                    ghost.go_home(value, maybe_dirs)
-                elseif ( this_action == 3) then
                     --ghost.catch_target(value, target, maybe_dirs)
                     print("Invalid action for freightened")
-                elseif ( this_action == 4) then
+                elseif ( this_action == 2) then
                     --ghost.surround_target_front(value, target, maybe_dirs)
                     print("Invalid action for freightened")
-                elseif ( this_action == 5) then
+                elseif ( this_action == 3) then
                     --ghost.surround_target_back(value, target, maybe_dirs)
                     print("Invalid action for freightened")
+                elseif ( this_action == 4) then
+                        ghost.panic(value, maybe_dirs)
+                elseif ( this_action == 5) then
+                        ghost.go_home(value, maybe_dirs)
                 elseif ( this_action == 6) then
                     ghost.run_from_target(value, target, maybe_dirs)
                 elseif ( this_action == 7) then
                     ghost.go_to_closest_pill(value, maybe_dirs)
                 else
                     print("Invalid action for freightened")
-                end
+
+
             else
                 print("Invalid ghost_state")
             end
@@ -540,24 +544,6 @@ function ghost.find_next_dir(value, target, state)
 end
 
 -------------------------------------------------------------------- actions
-
-function ghost.panic(value, maybe_dirs)
-    local destination = {}
-    local rand_grid = love.math.random(1, #grid.valid_grid_pos)
-
-    destination.x = grid.valid_grid_pos[rand_grid].x
-    destination.y = grid.valid_grid_pos[rand_grid].y
-
-    ghost.get_closest( value, maybe_dirs, destination)
-end
-
-function ghost.go_home( value, maybe_dirs)
-    local destination = {}
-    destination.x = value.home.x
-    destination.y = value.home.y
-
-    ghost.get_closest( value, maybe_dirs, destination)
-end
 
 function ghost.catch_target(value, target, maybe_dirs)
     local destination = {}
@@ -613,6 +599,25 @@ function ghost.surround_target_back(value, target, maybe_dirs)
 
     ghost.get_closest( value, maybe_dirs, destination)
 end
+
+function ghost.panic(value, maybe_dirs)
+    local destination = {}
+    local rand_grid = love.math.random(1, #grid.valid_grid_pos)
+
+    destination.x = grid.valid_grid_pos[rand_grid].x
+    destination.y = grid.valid_grid_pos[rand_grid].y
+
+    ghost.get_closest( value, maybe_dirs, destination)
+end
+
+function ghost.go_home( value, maybe_dirs)
+    local destination = {}
+    destination.x = value.home.x
+    destination.y = value.home.y
+
+    ghost.get_closest( value, maybe_dirs, destination)
+end
+
 
 function ghost.run_from_target(value, target, maybe_dirs)
 

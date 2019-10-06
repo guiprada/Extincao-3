@@ -295,6 +295,23 @@ function reporter()
 
 end
 
+function generate_rand_actions( start, stop)
+	local m = {}
+	for a=1,2,1 do
+		m[a]={}
+		for b=1,2,1 do
+			m[a][b]={}
+			for c=1,2,1 do
+				m[a][b][c]={}
+				for d=1,2,1 do
+					m[a][b][c][d] = love.math.random(start, stop)
+				end
+			end
+		end
+	end
+	return m
+end
+
 --------------------------------------------------------------------------------
 
 local red_shader = love.graphics.newShader[[
