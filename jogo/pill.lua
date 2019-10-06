@@ -102,7 +102,9 @@ function pill.selection(pills)
         end
     end
 
-    return living_stack[love.math.random(1, math.ceil(#living_stack/2))], living_stack[love.math.random( math.floor(#living_stack/2), #living_stack)]
+    local best = utils.get_n_best(living_stack, "fitness", 2)
+
+    return best[1], best[2]
     --return utils.tables_get_highest(living_stack, "fitness"), living_stack[love.math.random(1, #living_stack)]
 end
 

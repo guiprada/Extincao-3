@@ -174,6 +174,8 @@ function ghost.crossover (value, speed, ghosts, pills, spawn_grid_pos)
 
     son.fear_target =  math.floor( (mom.fear_target + dad.fear_target)/2 + love.math.random(0, 5) )
     son.fear_group = math.floor( (mom.fear_group + dad.fear_group)/2 + love.math.random(0, 5) )
+    if(son.fear_target > 50) then son.fear_target = 50 end
+    if(son.fear_group > 50) then son.fear_group = 50 end
 
     local this_spawn_grid_pos = {}
     if (spawn_grid_pos) then
@@ -502,7 +504,7 @@ function ghost.find_next_dir(value, target, state)
             local fear = false
             local dist_to_home = utils.dist(value, value.home)
             if( ghost.ghost_fear_on) then
-                if (value.dist_to_target < value.fear_group*ghost.grid_size  and
+                if (value.dist_to_target < value.fear_target*ghost.grid_size  and
                     value.dist_to_group > value.fear_group*ghost.grid_size
                     --dist_to_home > 10*ghost.grid_size
                     --value.direction == "idle"

@@ -65,8 +65,8 @@ local stats_file = io.open("stats.run", "w")
 -- kitten killing globals
 
 local ghost_genetic_on = true  	-- liga e desliga e GA
-local ghost_fitness_on = true             	-- desliga a funcao fitness
-local ghost_target_offset_freightned_on = false -- liga e desliga e gene target_offset_freightned
+local ghost_fitness_on = false             	-- desliga a funcao fitness
+local ghost_target_offset_freightned_on = true -- liga e desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
 local ghost_fear_on = true
@@ -86,13 +86,13 @@ local player_start_grid = {}
 player_start_grid.x = 28
 player_start_grid.y = 18
 
-local n_ghosts = 20 --at least 3
-local n_pills = 5	-- at least 2
+local n_ghosts = 30 --at least 3
+local n_pills = 6	-- at least 2
 
 local pill_time = 2.7	-- tempo de duracao da pilula
 local ghost_chase_time = 15 -- testado 3.99
 local ghost_scatter_time = 7.5 --testado com 2
-local ghost_respawn_time = 0  --  5 --15--20 testado
+local ghost_respawn_time = 1  --  5 --15--20 testado
 
 local speed_boost_on = false
 local ghost_speed_max_factor = 1.5 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
