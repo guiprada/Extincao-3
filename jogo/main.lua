@@ -60,12 +60,12 @@ local target_offset_distribution_file = io.open("target_offset_distribution.run"
 local fear_target_file = io.open("fear_target.run", "w")
 local fear_group_file = io.open("fear_group.run", "w")
 local stats_file = io.open("stats.run", "w")
---local config_file = io.open("config.run")
+local config_file = io.open("config.run")
 
 -- kitten killing globals
 
 local ghost_genetic_on = true  	-- liga e desliga e GA
-local ghost_fitness_on = false             	-- desliga a funcao fitness
+local ghost_fitness_on = true             	-- desliga a funcao fitness
 local ghost_target_offset_freightned_on = true -- liga e desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
@@ -73,10 +73,10 @@ local ghost_fear_on = true
 local ghost_target_spread = 15
 local ghost_fear_spread = 50
 
-local pill_genetic_on = false-- liga e desliga o GA para pilulas
+local pill_genetic_on = true-- liga e desliga o GA para pilulas
 local pill_precise_crossover_on = false	-- controla o forma de crossover dos pilulas
 
-local stats_on = false -- controla a exibicao de informacao do GA na tela
+local stats_on = true -- controla a exibicao de informacao do GA na tela
 --local reporter_duty_cycle = 20        -- frequecia, em fantasmas nascidos, que o reporter printa uma notificacao no console
 
 local grid_width_n = 56
@@ -86,50 +86,51 @@ local player_start_grid = {}
 player_start_grid.x = 28
 player_start_grid.y = 18
 
-local n_ghosts = 30 --at least 3
-local n_pills = 6	-- at least 2
+local n_ghosts = 25 --at least 3
+local n_pills = 10	-- at least 2
 
-local pill_time = 2.7	-- tempo de duracao da pilula
+local pill_time = 3	-- tempo de duracao da pilula
+local restart_pill_time = 2
 local ghost_chase_time = 15 -- testado 3.99
 local ghost_scatter_time = 7.5 --testado com 2
-local ghost_respawn_time = 1  --  5 --15--20 testado
+local ghost_respawn_time = 0  --  5 --15--20 testado
 
 local speed_boost_on = false
-local ghost_speed_max_factor = 1.5 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
+local ghost_speed_max_factor = 1.2 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
 
 local speed = 0 -- will be set in love.load(), needs grid_size being set
 local player_speed_grid_size_factor = 6 -- speed = player_speed_grid_size_factor* grid_size
 local ghost_speed = 0 -- will be set in love.load(), needs speed being set
 
-print("the Configuration used is:")
-print()
-print("ghost_genetic_on: " .. tostring(ghost_genetic_on))
-print("ghost_fitness_on: " .. tostring(ghost_fitness_on) )
-print("ghost_target_offset_freightned_on: " .. tostring(ghost_target_offset_freightned_on))
-print("ghost_migration_on: " .. tostring(ghost_migration_on))
-print("ghost_selective_migration_on: " .. tostring(ghost_selective_migration_on))
-print("ghost_fear_on: " .. tostring(ghost_fear_on))
-print("ghost_target_spread: " .. ghost_target_spread)
-print()
-print("pill_genetic_on: " .. tostring(pill_genetic_on))
-print("pill_precise_crossover_on: " .. tostring(pill_precise_crossover_on))
-print("speed_boost_on: " .. tostring(speed_boost_on))
-print()
 
-print("n_ghosts: " .. n_ghosts)
-print("n_pills: " .. n_pills)
-print("pill_time: " .. pill_time)
-print("ghost_chase_time: " .. ghost_chase_time)
-print("ghost_scatter_time: " .. ghost_scatter_time)
-print("ghost_respawn_time: " .. ghost_respawn_time)
+io.output(config_file)
+io.write("the Configuration used is\n")
 
-print()
-print("the grid is: " .. grid_width_n .. " x " .. grid_height_n)
-print("player's start grid is: " .. player_start_grid.x .. ", " .. player_start_grid.y)
-print("stats_on: " .. tostring(stats_on) )
---print("reporter_duty_cycle: " .. reporter_duty_cycle )
-print("ghost_speed_max_factor: " .. ghost_speed_max_factor )
-print("player_speed_grid_size_factor: " .. player_speed_grid_size_factor )
+io.write("\n\nghost_genetic_on: " .. tostring(ghost_genetic_on))
+io.write("\nghost_fitness_on: " .. tostring(ghost_fitness_on) )
+io.write("\nghost_target_offset_freightned_on: " .. tostring(ghost_target_offset_freightned_on))
+io.write("\nghost_migration_on: " .. tostring(ghost_migration_on))
+io.write("\nghost_selective_migration_on: " .. tostring(ghost_selective_migration_on))
+io.write("\nghost_fear_on: " .. tostring(ghost_fear_on))
+io.write("\nghost_target_spread: " .. ghost_target_spread)
+io.write("\n\npill_genetic_on: " .. tostring(pill_genetic_on))
+io.write("\npill_precise_crossover_on: " .. tostring(pill_precise_crossover_on))
+io.write("\nspeed_boost_on: " .. tostring(speed_boost_on))
+
+io.write("\n\nn_ghosts: " .. n_ghosts)
+io.write("\nn_pills: " .. n_pills)
+io.write("\npill_time: " .. pill_time)
+io.write("\nrestart_pill_time: " .. restart_pill_time)
+io.write("\nghost_chase_time: " .. ghost_chase_time)
+io.write("\nghost_scatter_time: " .. ghost_scatter_time)
+io.write("\nghost_respawn_time: " .. ghost_respawn_time)
+
+io.write("\nthe grid is: " .. grid_width_n .. " x " .. grid_height_n)
+io.write("\nplayer's start grid is: " .. player_start_grid.x .. ", " .. player_start_grid.y)
+io.write("\nstats_on: " .. tostring(stats_on) )
+--io.write("reporter_duty_cycle: " .. reporter_duty_cycle )
+io.write("\nghost_speed_max_factor: " .. ghost_speed_max_factor )
+io.write("\nplayer_speed_grid_size_factor: " .. player_speed_grid_size_factor )
 
 --------------------------------------------------------------------------------
 
@@ -352,7 +353,7 @@ function love.load()
 	--assert(come_come, "no player created")
 	--print("you are up...")
 	-- timer  de estado freightened no restart
-	freightened_on_restart_timer = timer.new(pill_time)
+	freightened_on_restart_timer = timer.new(restart_pill_time)
 
 	-- pilulas
 	for i=1, n_pills, 1 do
@@ -533,24 +534,7 @@ function love.update(dt)
 		end
 
 
-		for i=1, #pills, 1 do
-			local is_active_before_update = pills[i].is_active
-			pill.update(pills[i], pills, come_come, dt, pill_time)
-			if(pills[i].is_active) then
-				active_pill_count = active_pill_count + 1
-				total_pill_fitness = total_pill_fitness + pills[i].fitness
-			end
-			if (is_active_before_update == true and
-					pills[i].is_active == false ) then
-				ghost_state =  "freightened"
-				come_come.speed = ghost_speed
-			elseif (is_active_before_update== false and
-					pills[i].is_active == true ) then
-				ghost_state = "scattering"
-				come_come.speed = speed
-				timer.reset(ghost_state_timer)
-			end
-		end
+
 
 		-- if(active_pill_count > 0) then
 		-- 	average_pill_fitness = total_pill_fitness/active_pill_count
@@ -611,14 +595,12 @@ function love.update(dt)
 					reporter()
 				end
 			end
-
 			-- if (active_ghost_counter ~=0) then
 			-- 	average_ghost_fitness = total_fitness/ active_ghost_counter
 			-- 	average_dist_group = total_dist_to_group/ active_ghost_counter
 			-- end
-
 			--respawns
-			if ( game_on and timer.update(ghost_respawn_timer,dt) and ghost_state == "freightened") then -- continua respawnando mesma sem player
+			if ( timer.update(ghost_respawn_timer,dt) )then --and ghost_state == "freightened") then -- continua respawnando mesma sem player
 				if (#to_be_respawned > 0) then
 					--print("respawned")
 
@@ -633,12 +615,33 @@ function love.update(dt)
 					-- e spawna
 					local i = table.remove(to_be_respawned, 1)
 					if ( ghost_genetic_on) then
-						ghost.crossover(ghosts[i], ghost_speed, ghosts, pills)--, spawn_grid_pos)
+						ghost.crossover(ghosts[i], ghosts, pills)--, spawn_grid_pos)
 					else
-						ghost.reactivate(ghosts[i], ghost_speed, pills)
+						ghost.reactivate(ghosts[i], pills)
 					end
 
 				end
+			end
+		end
+
+		--pilulas
+
+		for i=1, #pills, 1 do
+			local is_active_before_update = pills[i].is_active
+			pill.update(pills[i], pills, come_come, dt, pill_time)
+			if(pills[i].is_active) then
+				active_pill_count = active_pill_count + 1
+				total_pill_fitness = total_pill_fitness + pills[i].fitness
+			end
+			if (is_active_before_update == true and
+					pills[i].is_active == false ) then
+				ghost_state =  "freightened"
+				come_come.speed = ghost_speed
+			elseif (is_active_before_update== false and
+					pills[i].is_active == true ) then
+				ghost_state = "scattering"
+				come_come.speed = speed
+				timer.reset(ghost_state_timer)
 			end
 		end
 
@@ -684,9 +687,9 @@ function love.keypressed(key, scancode, isrepeat)
 			for i=1, #ghosts, 1 do
 				ghosts[i].is_active = true
 				if ( ghost_genetic_on) then
-					ghost.crossover(ghosts[i], ghost_speed, ghosts, pills)
+					ghost.crossover(ghosts[i], ghosts, pills)
 				else
-					ghost.reactivate(ghosts[i], ghost_speed, pills)
+					ghost.reactivate(ghosts[i], pills)
 				end
 			end
 			to_be_respawned = {}
@@ -714,6 +717,7 @@ function love.keypressed(key, scancode, isrepeat)
 		io.close(fear_target_file)
 		io.close(fear_group_file)
 		io.close(stats_file)
+		in.close(config_file)
 	   	love.event.quit(0)
    	end
 end
