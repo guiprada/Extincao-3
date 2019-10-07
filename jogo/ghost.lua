@@ -506,6 +506,7 @@ function ghost.find_next_dir(value, target, state)
                     ghost.go_home(value, maybe_dirs)
                 else
                     ghost.go_to_target(value, target, maybe_dirs)
+                    --ghost.run_from_target(value, target, maybe_dirs)
                 end
             elseif ( state == "scattering") then
                 if(fear)then

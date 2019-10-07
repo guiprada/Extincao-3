@@ -17,6 +17,13 @@ run 9
 run 10
     repetir run 8
 
+    ghost.run_from_target(value, target, maybe_dirs)
+    -- if(ghost_old_scatter_actions_on) then
+    --     ghost.run_from_target(value, target, maybe_dirs)
+    -- else
+    --     ghost.go_home(value, maybe_dirs)
+    -- end
+
 run 11
     criar go_to_group para medo em chasing
 
