@@ -1,3 +1,17 @@
 -- ghost migration alterado, usando a pill mais proxima, toda vez
 -- quantidade de pilulas
 -- spawning na direcao da mae
+
+
+testar sem fitness
+com spawn rate alto e super.populacao
+com speed_boost 1.1
+
+consertei medo para run 7
+
+consertei acao de scatter para panic ao inves de go_home para a run 8
+
+
+run 9
+mudei a acao de scatter com medo de run from player to go_home para run 9
+renameei panic para wander

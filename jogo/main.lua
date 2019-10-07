@@ -60,7 +60,7 @@ local target_offset_distribution_file = io.open("target_offset_distribution.run"
 local fear_target_file = io.open("fear_target.run", "w")
 local fear_group_file = io.open("fear_group.run", "w")
 local stats_file = io.open("stats.run", "w")
-local config_file = io.open("config.run")
+local config_file = io.open("config.run", "w")
 
 -- kitten killing globals
 
@@ -74,7 +74,7 @@ local ghost_target_spread = 15
 local ghost_fear_spread = 50
 
 local pill_genetic_on = true-- liga e desliga o GA para pilulas
-local pill_precise_crossover_on = false	-- controla o forma de crossover dos pilulas
+local pill_precise_crossover_on = false
 
 local stats_on = true -- controla a exibicao de informacao do GA na tela
 --local reporter_duty_cycle = 20        -- frequecia, em fantasmas nascidos, que o reporter printa uma notificacao no console
@@ -86,17 +86,17 @@ local player_start_grid = {}
 player_start_grid.x = 28
 player_start_grid.y = 18
 
-local n_ghosts = 25 --at least 3
+local n_ghosts = 35 --at least 3
 local n_pills = 10	-- at least 2
 
 local pill_time = 3	-- tempo de duracao da pilula
 local restart_pill_time = 2
 local ghost_chase_time = 15 -- testado 3.99
 local ghost_scatter_time = 7.5 --testado com 2
-local ghost_respawn_time = 0  --  5 --15--20 testado
+local ghost_respawn_time = 5 -- should be non zero  --  5 --15--20 testado
 
-local speed_boost_on = false
-local ghost_speed_max_factor = 1.2 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
+local speed_boost_on = true
+local ghost_speed_max_factor = 1.1 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
 
 local speed = 0 -- will be set in love.load(), needs grid_size being set
 local player_speed_grid_size_factor = 6 -- speed = player_speed_grid_size_factor* grid_size
@@ -701,14 +701,15 @@ function love.keypressed(key, scancode, isrepeat)
 
    	elseif (key == "q") then
 
-		print("\ncatched")
+		io.output(config_file)
+		io.write("\n\ncatched")
 		for i=-ghost_target_spread, ghost_target_spread, 1 do
-			print("distrib_catched_target_offset[" .. i .. "]: " .. distrib_catched_target_offset[i])
+			io.write("\ndistrib_catched_target_offset[" .. i .. "]: " .. distrib_catched_target_offset[i])
 		end
 
-		print("\ncatcher")
+		io.write("\n\ncatcher")
 		for i=-ghost_target_spread, ghost_target_spread, 1 do
-			print("distrib_catcher_target_offset[" .. i .. "]: " .. distrib_catcher_target_offset[i])
+			io.write("\ndistrib_catcher_target_offset[" .. i .. "]: " .. distrib_catcher_target_offset[i])
 		end
 
 		-------------
@@ -717,7 +718,7 @@ function love.keypressed(key, scancode, isrepeat)
 		io.close(fear_target_file)
 		io.close(fear_group_file)
 		io.close(stats_file)
-		in.close(config_file)
+		io.close(config_file)
 	   	love.event.quit(0)
    	end
 end

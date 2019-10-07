@@ -427,7 +427,7 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
         if ( (this_speed) > (ghost.ghost_speed_max_factor * ghost.ghost_speed) ) then
             this_speed = ghost.ghost_speed_max_factor * ghost.ghost_speed
         end
-        print(this_speed)
+        --print(this_speed)
         if value.direction ~= "idle" then
             --print("X: ", value.x, "Y:", value.y)
             if value.direction == "up" then value.y = value.y - dt*this_speed
@@ -506,27 +506,9 @@ function ghost.find_next_dir(value, target, state)
             if ( state == "chasing" ) then
 
                 if(fear)then
-                    print("feared")
-                    destination.x = value.home.x
-                    destination.y = value.home.y
+                    ghost.go_home(value, maybe_dirs)
                 else
-                    print("not feared")
-                    if (target.direction == "up") then
-                        destination.x =  target.grid_pos.x
-                        destination.y = -value.target_offset + target.grid_pos.y
-                    elseif (target.direction == "down") then
-                        destination.x = target.grid_pos.x
-                        destination.y = value.target_offset + target.grid_pos.y
-                    elseif (target.direction == "left") then
-                        destination.x = -value.target_offset + target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    elseif (target.direction == "right") then
-                        destination.x = value.target_offset + target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    elseif (target.direction == "idle") then
-                        destination.x = target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    end
+                    ghost.go_to_target(value, target, maybe_dirs)
                 end
             elseif ( state == "scattering") then
                 if(fear)then
@@ -534,83 +516,188 @@ function ghost.find_next_dir(value, target, state)
                     if ( not ghost.target_offset_freightned_on ) then
                         value.target_offset_freightned = value.target_offset
                     end
-                    if (target.direction == "up") then
-                        destination.x =  target.grid_pos.x
-                        destination.y = -value.target_offset_freightned + target.grid_pos.y
-                    elseif (target.direction == "down") then
-                        destination.x = target.grid_pos.x
-                        destination.y = value.target_offset_freightned + target.grid_pos.y
-                    elseif (target.direction == "left") then
-                        destination.x = -value.target_offset_freightned + target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    elseif (target.direction == "right") then
-                        destination.x = value.target_offset_freightned + target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    elseif (target.direction == "idle") then
-                        destination.x = target.grid_pos.x
-                        destination.y = target.grid_pos.y
-                    end
-
+                    --ghost.run_from_target(value, target, maybe_dirs)
+                    ghost.go_home(value, maybe_dirs)
                 else
                     print("not feared")
-                    destination.x = value.home.x
-                    destination.y = value.home.y
+                    --ghost.go_home(value, maybe_dirs)
+                    ghost.wander(value, maybe_dirs)
                 end
 
             elseif ( state == "freightened") then
                 if ( not ghost.target_offset_freightned_on ) then
                     value.target_offset_freightned = value.target_offset
                 end
-                if (target.direction == "up") then
-                    destination.x =  target.grid_pos.x
-                    destination.y = -value.target_offset_freightned + target.grid_pos.y
-                elseif (target.direction == "down") then
-                    destination.x = target.grid_pos.x
-                    destination.y = value.target_offset_freightned + target.grid_pos.y
-                elseif (target.direction == "left") then
-                    destination.x = -value.target_offset_freightned + target.grid_pos.x
-                    destination.y = target.grid_pos.y
-                elseif (target.direction == "right") then
-                    destination.x = value.target_offset_freightned + target.grid_pos.x
-                    destination.y = target.grid_pos.y
-                elseif (target.direction == "idle") then
-                    destination.x = target.grid_pos.x
-                    destination.y = target.grid_pos.y
-                end
+                ghost.run_from_target(value, target, maybe_dirs)
             else
-                print("error")
+                print("error, invalid ghost_state")
             end
         else
-            destination = grid.grid_valid_pos[love.math.random(1, #grid.grid_valid_pos)]
+            ghost.wander(value, maybe_dirs)
         end
 
-        -- choose the proper direction
-        if ( state == "chasing" or state == "scattering") then
-            local shortest = 1
-            --print(destination.x)
-            for e=1, #maybe_dirs, 1 do
-                maybe_dirs[e].dist = utils.dist(maybe_dirs[e], destination)
-                if ( maybe_dirs[e].dist < maybe_dirs[shortest].dist ) then
-                    shortest = e
-                    --print(#maybe_dirs)
-                end
-            end
 
-            value.direction = maybe_dirs[shortest].direction
-        elseif  ( state == "freightened") then
-            local furthest = 1
-            for e=1, #maybe_dirs, 1 do
-                maybe_dirs[e].dist = utils.dist(maybe_dirs[e], destination)
-                if ( maybe_dirs[e].dist > maybe_dirs[furthest].dist ) then
-                    furthest = e
-                end
-            end
-            --print("furthest" .. furthest)
-            value.direction = maybe_dirs[furthest].direction
-        else
-            print("error")
+    end
+end
+
+---------------------------------------------------------------
+
+function ghost.catch_target(value, target, maybe_dirs)
+    local destination = {}
+
+    destination.x = target.grid_pos.x
+    destination.y = target.grid_pos.y
+
+    ghost.get_closest( value, maybe_dirs, destination)
+end
+
+function ghost.go_to_target(value, target, maybe_dirs)
+    local destination = {}
+
+    if (target.direction == "up") then
+        destination.x =  target.grid_pos.x
+        destination.y = -value.target_offset + target.grid_pos.y
+    elseif (target.direction == "down") then
+        destination.x = target.grid_pos.x
+        destination.y = value.target_offset + target.grid_pos.y
+    elseif (target.direction == "left") then
+        destination.x = -value.target_offset + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "right") then
+        destination.x = value.target_offset + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "idle") then
+        destination.x = target.grid_pos.x
+        destination.y = target.grid_pos.y
+    end
+
+    ghost.get_closest( value, maybe_dirs, destination)
+end
+
+function ghost.surround_target_front(value, target, maybe_dirs)
+    local destination = {}
+
+    if (target.direction == "up") then
+        destination.x =  target.grid_pos.x
+        destination.y = -4 + target.grid_pos.y
+    elseif (target.direction == "down") then
+        destination.x = target.grid_pos.x
+        destination.y = 4 + target.grid_pos.y
+    elseif (target.direction == "left") then
+        destination.x = -4 + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "right") then
+        destination.x = 4 + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "idle") then
+        destination.x = target.grid_pos.x
+        destination.y = target.grid_pos.y
+    end
+
+    ghost.get_closest( value, maybe_dirs, destination)
+end
+
+function ghost.surround_target_back(value, target, maybe_dirs)
+    local destination = {}
+
+    if (target.direction == "up") then
+        destination.x =  target.grid_pos.x
+        destination.y = 4 + target.grid_pos.y
+    elseif (target.direction == "down") then
+        destination.x = target.grid_pos.x
+        destination.y = -4 + target.grid_pos.y
+    elseif (target.direction == "left") then
+        destination.x = 4 + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "right") then
+        destination.x = -4 + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "idle") then
+        destination.x = target.grid_pos.x
+        destination.y = target.grid_pos.y
+    end
+
+    ghost.get_closest( value, maybe_dirs, destination)
+end
+
+function ghost.wander(value, maybe_dirs)
+    local destination = {}
+    local rand_grid = love.math.random(1, #grid.grid_valid_pos )
+    local this_grid_pos = grid.grid_valid_pos[rand_grid]
+
+    destination.x = this_grid_pos.x
+    destination.y = this_grid_pos.y
+
+    ghost.get_closest( value, maybe_dirs, destination)
+end
+
+function ghost.go_home( value, maybe_dirs)
+    local destination = {}
+    destination.x = value.home.x
+    destination.y = value.home.y
+
+    ghost.get_closest( value, maybe_dirs, destination)
+end
+
+
+function ghost.run_from_target(value, target, maybe_dirs)
+
+    local destination = {}
+
+    if (target.direction == "up") then
+        destination.x =  target.grid_pos.x
+        destination.y = -value.target_offset + target.grid_pos.y
+    elseif (target.direction == "down") then
+        destination.x = target.grid_pos.x
+        destination.y = value.target_offset + target.grid_pos.y
+    elseif (target.direction == "left") then
+        destination.x = -value.target_offset + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "right") then
+        destination.x = value.target_offset + target.grid_pos.x
+        destination.y = target.grid_pos.y
+    elseif (target.direction == "idle") then
+        destination.x = target.grid_pos.x
+        destination.y = target.grid_pos.y
+    end
+
+    ghost.get_furthest(value, maybe_dirs, destination)
+end
+
+function ghost.go_to_closest_pill(value, maybe_dirs)
+    local destination = {}
+
+    destination.x = value.grid_pos_closest_pill.x
+    destination.y = value.grid_pos_closest_pill.y
+
+    ghost.get_closest( value, maybe_dirs, destination)
+end
+
+
+function ghost.get_closest( value, maybe_dirs, destination)
+
+    local shortest = 1
+    --print(destination.x)
+    for i=1, #maybe_dirs, 1 do
+        maybe_dirs[i].dist = utils.dist(maybe_dirs[i], destination)
+        if ( maybe_dirs[i].dist < maybe_dirs[shortest].dist ) then
+            shortest = i
+            --print(#maybe_dirs)
         end
     end
+    value.direction = maybe_dirs[shortest].direction
+end
+
+function ghost.get_furthest(value, maybe_dirs, destination)
+    local furthest = 1
+    for i=1, #maybe_dirs, 1 do
+        maybe_dirs[i].dist = utils.dist(maybe_dirs[i], destination)
+        if ( maybe_dirs[i].dist > maybe_dirs[furthest].dist ) then
+            furthest = i
+        end
+    end
+    --print("furthest" .. furthest)
+    value.direction = maybe_dirs[furthest].direction
 end
 
 return ghost
