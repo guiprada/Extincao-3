@@ -392,9 +392,6 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
                 value.home_pill_index = i
             end
         end
-        -- pills
-
-
 
         -- check collision with wall
         local front_grid_pos = grid.get_grid_pos(value.front)
@@ -516,12 +513,19 @@ function ghost.find_next_dir(value, target, state)
                     if ( not ghost.target_offset_freightned_on ) then
                         value.target_offset_freightned = value.target_offset
                     end
-                    --ghost.run_from_target(value, target, maybe_dirs)
-                    ghost.go_home(value, maybe_dirs)
+                    ghost.run_from_target(value, target, maybe_dirs)
+                    -- if(ghost_old_scatter_actions_on) then
+                    --     ghost.run_from_target(value, target, maybe_dirs)
+                    -- else
+                    --     ghost.go_home(value, maybe_dirs)
+                    -- end
                 else
                     print("not feared")
-                    --ghost.go_home(value, maybe_dirs)
-                    ghost.wander(value, maybe_dirs)
+                    if(ghost_old_scatter_actions_on) then
+                        ghost.go_home(value, maybe_dirs)
+                    else
+                        ghost.wander(value, maybe_dirs)
+                    end
                 end
 
             elseif ( state == "freightened") then

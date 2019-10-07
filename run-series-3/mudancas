@@ -1,17 +1,38 @@
 -- ghost migration alterado, usando a pill mais proxima, toda vez
+isso criou o comportamento de giradores
+
 -- quantidade de pilulas
 -- spawning na direcao da mae
 
-
-testar sem fitness
-com spawn rate alto e super.populacao
-com speed_boost 1.1
-
-consertei medo para run 7
-
-consertei acao de scatter para panic ao inves de go_home para a run 8
-
+run 7
+    base
+run 8
+    acao de scatter sem medo e wander
 
 run 9
-mudei a acao de scatter com medo de run from player to go_home para run 9
-renameei panic para wander
+    acao de scatter sem medo e wander
+    acao de scatter com medo e
+
+
+run 10
+    repetir run 8
+    local ghost_old_scatter_actions_on = false
+
+run 11
+    criar go_to_group para medo em chasing
+
+
+fim serie 3
+-- terminar is_feared
+-- exibir estade de medo, posso usar o gene peregrino
+-- limpeza do codigo
+
+
+
+versao com comportamento dinamico
+
+    experimentos com nove home
+    -sem pill fitness, sem pill migration e sem medo
+    -com pill fitness, sem pill migration e sem medo
+    -com pill fitness, com pill migration e sem medo
+    -com pill fitness, com pill migration e sem medo
