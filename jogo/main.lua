@@ -70,7 +70,7 @@ local ghost_target_offset_freightned_on = true -- liga e desliga e gene target_o
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
 local ghost_fear_on = true
-local ghost_old_scatter_actions_on = false
+local ghost_go_home_on_scatter = false
 local ghost_target_spread = 15
 local ghost_fear_spread = 50
 

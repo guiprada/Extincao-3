@@ -29,36 +29,14 @@ end
 
 function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, speed, pills)
     local value = {}
-    -- value.is_active = false
-    -- value.x = 0
-    -- value.y = 0
-    -- value.speed = 0
-    -- value.direction = "idle"
     value.grid_pos = {} -- fenotipo de pos_index
-    -- value.n_updates = 0
-    -- value.n_chase_updates = 0
-    -- value.n_freightened_updates = 0
-    -- value.acc_chase_dist = 0
-    -- value.acc_freightened_dist = 0
-    -- value.n_catches = 0
-    -- value.n_pills = 0
     value.pill_debounce = {}
-    -- value.fitness = 0
-    -- value.home_pill_fitness = 0
-    -- value.speed_boost = 0
-    -- value.dist_to_group = 0
-
-    -- value.pos_index = pos_index --gene, but is not effective because the spawning system
-    -- value.pilgrin_gene = pilgrin_gene
-    -- value.target_offset = target_offset -- gene
-    -- value.target_offset_freightned = target_offset_freightned
     value.home = {} -- determinado por pos_index, e um fenotipo
     value.try_order = {} -- gene
 
     value.enabled_dir = {}
     value.last_grid_pos = {}
     value.front = {}
-
     ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, speed, pills)
 
     return  value
@@ -415,7 +393,7 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
             elseif ( value.direction == "left" or value.direction== "right") then
                 grid.center_on_grid_y(value)
             end
-            ghost.find_next_dir(value, target, state)
+            ghost.find_next_dir(value, target, state, average_ghost_pos)
         end
 
         -- checa se o fantasma excedeu a velocidade maxima
@@ -437,7 +415,7 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
     end
 end
 
-function ghost.find_next_dir(value, target, state)
+function ghost.find_next_dir(value, target, state, average_ghost_pos)
     value.enabled_dir = grid.get_enabled_directions(value.grid_pos)
 
     --count = grid.count_enabled_directions(value.grid_pos)
@@ -503,26 +481,28 @@ function ghost.find_next_dir(value, target, state)
             if ( state == "chasing" ) then
 
                 if(fear)then
-                    ghost.go_home(value, maybe_dirs)
+                    --ghost.go_home(value, maybe_dirs)
+                    --ghost.go_to_closest_pill(value, maybe_dirs)
+                    ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
+
                 else
                     ghost.go_to_target(value, target, maybe_dirs)
-                    --ghost.run_from_target(value, target, maybe_dirs)
                 end
             elseif ( state == "scattering") then
                 if(fear)then
-                    print("feared")
+                    --print("feared")
                     if ( not ghost.target_offset_freightned_on ) then
                         value.target_offset_freightned = value.target_offset
                     end
                     ghost.run_from_target(value, target, maybe_dirs)
-                    -- if(ghost_old_scatter_actions_on) then
+                    -- if(ghost_go_home_on_scatter) then
                     --     ghost.run_from_target(value, target, maybe_dirs)
                     -- else
                     --     ghost.go_home(value, maybe_dirs)
                     -- end
                 else
-                    print("not feared")
-                    if(ghost_old_scatter_actions_on) then
+                    --print("not feared")
+                    if(ghost_go_home_on_scatter) then
                         ghost.go_home(value, maybe_dirs)
                     else
                         ghost.wander(value, maybe_dirs)
@@ -640,6 +620,16 @@ function ghost.go_home( value, maybe_dirs)
     local destination = {}
     destination.x = value.home.x
     destination.y = value.home.y
+
+    ghost.get_closest( value, maybe_dirs, destination)
+end
+
+function ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
+    local this_grid_pos = grid.get_grid_pos(average_ghost_pos)
+
+    local destination = {}
+    destination.x =  this_grid_pos.x
+    destination.y =  this_grid_pos.y
 
     ghost.get_closest( value, maybe_dirs, destination)
 end
