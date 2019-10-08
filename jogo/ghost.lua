@@ -27,7 +27,7 @@ function ghost.init( ghost_fitness_on, ghost_target_offset_freightned_on, ghost_
     ghost.lookahead = lookahead
 end
 
-function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, speed, pills)
+function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, speed, pills)
     local value = {}
     value.grid_pos = {} -- fenotipo de pos_index
     value.pill_debounce = {}
@@ -37,12 +37,12 @@ function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freight
     value.enabled_dir = {}
     value.last_grid_pos = {}
     value.front = {}
-    ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, speed, pills)
+    ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, speed, pills)
 
     return  value
 end
 
-function ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, speed, pills, spawn_grid_pos, direction)
+function ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, speed, pills, spawn_grid_pos, direction)
     value.is_active = true
     value.n_updates = 0
     value.n_chase_updates = 0
@@ -57,12 +57,15 @@ function ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offse
     value.speed_boost = 0
     value.dist_to_group = 0
     value.dist_to_target = 0
+    value.is_feared = false
 
     value.pilgrin_gene = pilgrin_gene
     value.target_offset = target_offset
     value.target_offset_freightned = target_offset_freightned
     value.fear_target = fear_target
     value.fear_group = fear_group
+    value.chase_feared_gene = chase_feared_gene
+
 
     for i=1, #pills, 1 do
         value.pill_debounce[i] = false
@@ -227,12 +230,21 @@ function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
         utils.array_shuffler(son.try_order)
     end
 
-    ghost.reset(value, son.pos_index, son.pilgrin_gene, son.target_offset, son.target_offset_freightned, son.try_order, son.fear_target, son.fear_group, ghost.ghost_speed, pills, this_spawn_grid_pos, this_direction)
+    this_rand =  love.math.random(0, 10)
+    if ( this_rand<=4) then
+        son.chase_feared_gene = mom.chase_feared_gene
+    elseif ( this_rand<=8) then
+        son.chase_feared_gene = dad.chase_feared_gene
+    else
+        son.chase_feared_gene = love.math.random(1, 9)
+    end
+
+    ghost.reset(value, son.pos_index, son.pilgrin_gene, son.target_offset, son.target_offset_freightned, son.try_order, son.fear_target, son.fear_group, son.chase_feared_gene, ghost.ghost_speed, pills, this_spawn_grid_pos, this_direction)
 end
 
 function ghost.reactivate(value, pills, spawn_grid_pos)
     local this_spawn_grid_pos = spawn_grid_pos or value.grid_pos
-    ghost.reset(value, value.pos_index, value.pilgrin_gene, value.target_offset, value.target_offset_freightned, value.try_order, ghost.ghost_speed, pills, this_spawn_grid_pos)
+    ghost.reset(value, value.pos_index, value.pilgrin_gene, value.target_offset, value.target_offset_freightned, value.try_order, value.fear_target, value.fear_group, value.chase_feared_gene, ghost.ghost_speed, pills, this_spawn_grid_pos)
 end
 
 function ghost.draw(value, state)
@@ -285,7 +297,8 @@ function ghost.draw(value, state)
         love.graphics.circle("fill", midle_midle_midle.x, midle_midle_midle.y, ghost.grid_size/4)
         --love.graphics.circle("fill", value.x, value.y, grid_size/6)
 
-        if ( value.pilgrin_gene ) then
+        --if ( value.pilgrin_gene ) then
+        if ( value.is_feared ) then
             love.graphics.setColor(1, 0, 0)
             love.graphics.circle("fill", midle.x, midle.y, ghost.grid_size/5)
             --love.graphics.line(value.x, value.y, value.front.x, value.front.y)
@@ -304,6 +317,17 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
         value.dist_to_group = utils.dist(average_ghost_pos, value)
 
         value.front = grid.get_dynamic_front(value)
+
+        value.is_feared = false
+        if( ghost.ghost_fear_on) then
+            if (value.dist_to_target < value.fear_target*ghost.grid_size  and
+                value.dist_to_group > value.fear_group*ghost.grid_size
+                --dist_to_home > 10*ghost.grid_size
+                --value.direction == "idle"
+                )then
+                value.is_feared = true
+            end
+        end
 
         local this_grid_pos = grid.get_grid_pos(value)
 
@@ -466,25 +490,31 @@ function ghost.find_next_dir(value, target, state, average_ghost_pos)
         --print( state)
 
         if (target.is_active) then
-            local fear = false
-            local dist_to_home = utils.dist(value, value.home)
-            if( ghost.ghost_fear_on) then
-                if (value.dist_to_target < value.fear_target*ghost.grid_size  and
-                    value.dist_to_group > value.fear_group*ghost.grid_size
-                    --dist_to_home > 10*ghost.grid_size
-                    --value.direction == "idle"
-                    )then
-                    fear = true
-                end
-            end
+
+
             --io.output()
             if ( state == "chasing" ) then
 
                 if(fear)then
-                    --ghost.go_home(value, maybe_dirs)
-                    --ghost.go_to_closest_pill(value, maybe_dirs)
-                    ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
-
+                    if(value.chase_feared_gene == 1)then
+                        ghost.go_home(value, maybe_dirs)
+                    elseif(value.chase_feared_gene == 2)then
+                        ghost.go_to_closest_pill(value, maybe_dirs)
+                    elseif(value.chase_feared_gene == 3)then
+                        ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
+                    elseif(value.chase_feared_gene == 4)then
+                        ghost.run_from_target(value, target, maybe_dirs)
+                    elseif(value.chase_feared_gene == 5)then
+                        ghost.go_to_target(value, target, maybe_dirs)
+                    elseif(value.chase_feared_gene == 6)then
+                        ghost.wander(value, maybe_dirs)
+                    elseif(value.chase_feared_gene == 7)then
+                        ghost.catch_target(value,target,maybe_dirs)
+                    elseif(value.chase_feared_gene == 8)then
+                        ghost.surround_target_back(value,target,maybe_dirs)
+                    elseif(value.chase_feared_gene == 9)then
+                        ghost.surround_target_front(value, target, maybe_dirs)
+                    end
                 else
                     ghost.go_to_target(value, target, maybe_dirs)
                 end
@@ -495,6 +525,12 @@ function ghost.find_next_dir(value, target, state, average_ghost_pos)
                         value.target_offset_freightned = value.target_offset
                     end
                     ghost.run_from_target(value, target, maybe_dirs)
+                    -- ghost.go_to_closest_pill(value, maybe_dirs)
+                    -- ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
+                    -- ghost.run_from_target(value, target, maybe_dirs)
+
+                    -- ghost.wander(value, maybe_dirs)
+
                     -- if(ghost_go_home_on_scatter) then
                     --     ghost.run_from_target(value, target, maybe_dirs)
                     -- else
@@ -514,6 +550,8 @@ function ghost.find_next_dir(value, target, state, average_ghost_pos)
                     value.target_offset_freightned = value.target_offset
                 end
                 ghost.run_from_target(value, target, maybe_dirs)
+                --ghost.go_home(value, maybe_dirs)
+                -- ghost.go_to_closest_pill(value, maybe_dirs)
             else
                 print("error, invalid ghost_state")
             end

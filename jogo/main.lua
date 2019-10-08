@@ -386,7 +386,9 @@ function love.load()
 		local fear_target = love.math.random(0, ghost_fear_spread)
 		local fear_group = love.math.random(0, ghost_fear_spread)
 
-	    ghosts[i] = ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, ghost_speed, pills)
+		local chase_feared_gene = love.math.random(1, 9)
+
+	    ghosts[i] = ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, ghost_speed, pills)
 	end
 	--print("some ghosts for you to catch :)")
     -- cria o canvas para o maze
