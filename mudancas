@@ -18,13 +18,16 @@ run 10
     repetir run 8
     local ghost_old_scatter_actions_on = false
 
+run 11 chase_feared_gene implementado
 
-fim serie 3
--- terminar is_feared
--- exibir estade de medo, posso usar o gene peregrino
+run 12 scatter_feared_gene implementado
+
+    testar com 7 pilulas e 27 fantasmas.
+    desligar speed_boost
+    tempo de pilula um pouco maior
+
+
 -- limpeza do codigo
--- criar go_to_group para medo em chasing
--- versao com comportamento dinamico
 
     experimentos com nove home
     -sem pill fitness, sem pill migration e sem medo
