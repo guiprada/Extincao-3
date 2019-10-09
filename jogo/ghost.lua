@@ -27,7 +27,7 @@ function ghost.init( ghost_fitness_on, ghost_target_offset_freightned_on, ghost_
     ghost.lookahead = lookahead
 end
 
-function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, speed, pills)
+function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, scatter_feared_gene, speed, pills)
     local value = {}
     value.grid_pos = {} -- fenotipo de pos_index
     value.pill_debounce = {}
@@ -37,12 +37,12 @@ function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freight
     value.enabled_dir = {}
     value.last_grid_pos = {}
     value.front = {}
-    ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, speed, pills)
+    ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, scatter_feared_gene, speed, pills)
 
     return  value
 end
 
-function ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, speed, pills, spawn_grid_pos, direction)
+function ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, scatter_feared_gene, speed, pills, spawn_grid_pos, direction)
     value.is_active = true
     value.n_updates = 0
     value.n_chase_updates = 0
@@ -65,6 +65,7 @@ function ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offse
     value.fear_target = fear_target
     value.fear_group = fear_group
     value.chase_feared_gene = chase_feared_gene
+    value.scatter_feared_gene = scatter_feared_gene
 
 
     for i=1, #pills, 1 do
@@ -239,12 +240,21 @@ function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
         son.chase_feared_gene = love.math.random(1, 9)
     end
 
-    ghost.reset(value, son.pos_index, son.pilgrin_gene, son.target_offset, son.target_offset_freightned, son.try_order, son.fear_target, son.fear_group, son.chase_feared_gene, ghost.ghost_speed, pills, this_spawn_grid_pos, this_direction)
+    this_rand =  love.math.random(0, 10)
+    if ( this_rand<=4) then
+        son.chase_feared_gene = mom.chase_feared_gene
+    elseif ( this_rand<=8) then
+        son.chase_feared_gene = dad.chase_feared_gene
+    else
+        son.chase_feared_gene = love.math.random(1, 5)
+    end
+
+    ghost.reset(value, son.pos_index, son.pilgrin_gene, son.target_offset, son.target_offset_freightned, son.try_order, son.fear_target, son.fear_group, son.chase_feared_gene, son.scatter_feared_gene, ghost.ghost_speed, pills, this_spawn_grid_pos, this_direction)
 end
 
 function ghost.reactivate(value, pills, spawn_grid_pos)
     local this_spawn_grid_pos = spawn_grid_pos or value.grid_pos
-    ghost.reset(value, value.pos_index, value.pilgrin_gene, value.target_offset, value.target_offset_freightned, value.try_order, value.fear_target, value.fear_group, value.chase_feared_gene, ghost.ghost_speed, pills, this_spawn_grid_pos)
+    ghost.reset(value, value.pos_index, value.pilgrin_gene, value.target_offset, value.target_offset_freightned, value.try_order, value.fear_target, value.fear_group, value.chase_feared_gene, value.scatter_feared_gene, ghost.ghost_speed, pills, this_spawn_grid_pos)
 end
 
 function ghost.draw(value, state)
@@ -505,9 +515,9 @@ function ghost.find_next_dir(value, target, state, average_ghost_pos)
                     elseif(value.chase_feared_gene == 4)then
                         ghost.run_from_target(value, target, maybe_dirs)
                     elseif(value.chase_feared_gene == 5)then
-                        ghost.go_to_target(value, target, maybe_dirs)
-                    elseif(value.chase_feared_gene == 6)then
                         ghost.wander(value, maybe_dirs)
+                    elseif(value.chase_feared_gene == 6)then
+                        ghost.go_to_target(value, target, maybe_dirs)
                     elseif(value.chase_feared_gene == 7)then
                         ghost.catch_target(value,target,maybe_dirs)
                     elseif(value.chase_feared_gene == 8)then
@@ -524,7 +534,19 @@ function ghost.find_next_dir(value, target, state, average_ghost_pos)
                     if ( not ghost.target_offset_freightned_on ) then
                         value.target_offset_freightned = value.target_offset
                     end
-                    ghost.run_from_target(value, target, maybe_dirs)
+                    if(value.chase_feared_gene == 1)then
+                        ghost.go_home(value, maybe_dirs)
+                    elseif(value.chase_feared_gene == 2)then
+                        ghost.go_to_closest_pill(value, maybe_dirs)
+                    elseif(value.chase_feared_gene == 3)then
+                        ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
+                    elseif(value.chase_feared_gene == 4)then
+                        ghost.run_from_target(value, target, maybe_dirs)
+                    elseif(value.chase_feared_gene == 5)then
+                        ghost.wander(value, maybe_dirs)
+                    end
+
+                    --ghost.run_from_target(value, target, maybe_dirs)
                     -- ghost.go_to_closest_pill(value, maybe_dirs)
                     -- ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
                     -- ghost.run_from_target(value, target, maybe_dirs)

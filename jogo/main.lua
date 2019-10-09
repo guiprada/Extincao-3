@@ -87,8 +87,8 @@ local player_start_grid = {}
 player_start_grid.x = 28
 player_start_grid.y = 18
 
-local n_ghosts = 35 --at least 3
-local n_pills = 10	-- at least 2
+local n_ghosts = 30 --at least 3
+local n_pills = 6	-- at least 2
 
 local pill_time = 3	-- tempo de duracao da pilula
 local restart_pill_time = 2
@@ -387,8 +387,9 @@ function love.load()
 		local fear_group = love.math.random(0, ghost_fear_spread)
 
 		local chase_feared_gene = love.math.random(1, 9)
+		local scatter_feared_gene = love.math.random(1, 5)
 
-	    ghosts[i] = ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, ghost_speed, pills)
+	    ghosts[i] = ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, scatter_feared_gene, ghost_speed, pills)
 	end
 	--print("some ghosts for you to catch :)")
     -- cria o canvas para o maze
