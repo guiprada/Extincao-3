@@ -22,10 +22,62 @@ run 11 chase_feared_gene implementado
 
 run 12 scatter_feared_gene implementado
 
+    12.2
     testar com 7 pilulas e 27 fantasmas.
     desligar speed_boost
     tempo de pilula um pouco maior
+    velocidade do jogo 5.5
 
+    local ghost_target_spread = 15
+    local ghost_fear_spread = 100
+    local pill_time = 3.5	-- tempo de duracao da pilula
+    local restart_pill_time = 3
+    local ghost_chase_time = 15 -- testado 3.99
+
+    12.3
+        voltar para 30 fantasmas
+
+        mais mutacao no target
+
+        local n_ghosts = 30 --at least 3
+        local n_pills = 5	-- at least 2
+
+        local pill_time = 3.3	-- tempo de duracao da pilula
+        local restart_pill_time = 3.3
+        local ghost_chase_time = 6 -- testado 3.99
+        local ghost_scatter_time = 2.5 --testado com 2
+        local ghost_respawn_time = 5 -- should be non zero  --  5 --15--20 testado
+
+        son.fear_target =  math.floor( (mom.fear_target + dad.fear_target)/2 + love.math.random(-5, 5) )
+        son.fear_group = math.floor( (mom.fear_group + dad.fear_group)/2 + love.math.random(-5, 5) )
+        if(son.fear_target > 50) then
+            son.fear_target = 50
+        elseif(son.fear_target < 0) then
+            son.fear_target = 0
+        end
+        if(son.fear_group > 50) then
+            son.fear_group = 50
+        elseif(son.fear_group < 0) then
+            son.fear_group = 0
+        end
+
+        son.target_offset = math.floor((mom.target_offset + dad.target_offset)/2)
+        if (love.math.random(0, 10)<=5) then -- mutate
+            son.target_offset = son.target_offset + math.floor(love.math.random(-2, 2))
+        end
+
+        son.target_offset_freightned = math.floor((mom.target_offset_freightned + dad.target_offset_freightned)/2)
+        if (love.math.random(0, 10)<=5) then -- mutate
+            son.target_offset_freightned = son.target_offset_freightned + math.floor(love.math.random(-2, 2))
+        end
+
+        if (value.dist_to_target < value.fear_target*ghost.grid_size  or
+            value.dist_to_group > value.fear_group*ghost.grid_size
+
+        colocar function ghost.surround_target_front com 8
+        e possivelmente o gene chase_gene (estado normal)
+
+        dar fitness para quem estiver raie 12 na hora da captura
 
 -- limpeza do codigo
 

@@ -159,10 +159,18 @@ function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
 
     local son = {}
 
-    son.fear_target =  math.floor( (mom.fear_target + dad.fear_target)/2 + love.math.random(0, 5) )
-    son.fear_group = math.floor( (mom.fear_group + dad.fear_group)/2 + love.math.random(0, 5) )
-    if(son.fear_target > 50) then son.fear_target = 50 end
-    if(son.fear_group > 50) then son.fear_group = 50 end
+    son.fear_target =  math.floor( (mom.fear_target + dad.fear_target)/2 + love.math.random(-5, 5) )
+    son.fear_group = math.floor( (mom.fear_group + dad.fear_group)/2 + love.math.random(-5, 5) )
+    if(son.fear_target > 50) then
+        son.fear_target = 50
+    elseif(son.fear_target < 0) then
+        son.fear_target = 0
+    end
+    if(son.fear_group > 50) then
+        son.fear_group = 50
+    elseif(son.fear_group < 0) then
+        son.fear_group = 0
+    end
 
     local this_spawn_grid_pos = {}
     local this_direction = ""
@@ -198,12 +206,12 @@ function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
     --print(son.pos_index)
 
     son.target_offset = math.floor((mom.target_offset + dad.target_offset)/2)
-    if (love.math.random(0, 10)<=3) then -- mutate
+    if (love.math.random(0, 10)<=5) then -- mutate
         son.target_offset = son.target_offset + math.floor(love.math.random(-2, 2))
     end
 
     son.target_offset_freightned = math.floor((mom.target_offset_freightned + dad.target_offset_freightned)/2)
-    if (love.math.random(0, 10)<=3) then -- mutate
+    if (love.math.random(0, 10)<=5) then -- mutate
         son.target_offset_freightned = son.target_offset_freightned + math.floor(love.math.random(-2, 2))
     end
 
@@ -328,6 +336,7 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
 
         value.front = grid.get_dynamic_front(value)
 
+
         value.is_feared = false
         if( ghost.ghost_fear_on) then
             if (value.dist_to_target < value.fear_target*ghost.grid_size  and
@@ -376,12 +385,9 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
             local coliding = value.grid_pos.x == pills[i].grid_pos.x and value.grid_pos.y == pills[i].grid_pos.y
             if (  coliding and not value.pill_debounce[i]) then
                 value.n_pills = value.n_pills + 1
-
                 if(ghost.speed_boost_on)then
                     value.speed_boost = value.speed_boost  + 0.02*ghost.grid_size
                 end
-
-
 
                 pills[i].n_ghost_pass = pills[i].n_ghost_pass + 1
 
@@ -534,30 +540,24 @@ function ghost.find_next_dir(value, target, state, average_ghost_pos)
                     if ( not ghost.target_offset_freightned_on ) then
                         value.target_offset_freightned = value.target_offset
                     end
-                    if(value.chase_feared_gene == 1)then
-                        ghost.go_home(value, maybe_dirs)
-                    elseif(value.chase_feared_gene == 2)then
-                        ghost.go_to_closest_pill(value, maybe_dirs)
-                    elseif(value.chase_feared_gene == 3)then
-                        ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
-                    elseif(value.chase_feared_gene == 4)then
-                        ghost.run_from_target(value, target, maybe_dirs)
-                    elseif(value.chase_feared_gene == 5)then
-                        ghost.wander(value, maybe_dirs)
-                    end
-
-                    --ghost.run_from_target(value, target, maybe_dirs)
-                    -- ghost.go_to_closest_pill(value, maybe_dirs)
-                    -- ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
-                    -- ghost.run_from_target(value, target, maybe_dirs)
-
-                    -- ghost.wander(value, maybe_dirs)
-
-                    -- if(ghost_go_home_on_scatter) then
-                    --     ghost.run_from_target(value, target, maybe_dirs)
-                    -- else
+                    -- if(value.scatter_feared_gene == 1)then
                     --     ghost.go_home(value, maybe_dirs)
+                    -- elseif(value.scatter_feared_gene == 2)then
+                    --     ghost.go_to_closest_pill(value, maybe_dirs)
+                    -- elseif(value.scatter_feared_gene == 3)then
+                    --     ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
+                    -- elseif(value.scatter_feared_gene == 4)then
+                    --     ghost.run_from_target(value, target, maybe_dirs)
+                    -- elseif(value.scatter_feared_gene == 5)then
+                    --     ghost.wander(value, maybe_dirs)
                     -- end
+
+
+                    if(ghost_go_home_on_scatter) then
+                        ghost.wander(value, maybe_dirs)
+                    else
+                        ghost.go_home(value, maybe_dirs)
+                    end
                 else
                     --print("not feared")
                     if(ghost_go_home_on_scatter) then
@@ -624,15 +624,15 @@ function ghost.surround_target_front(value, target, maybe_dirs)
 
     if (target.direction == "up") then
         destination.x =  target.grid_pos.x
-        destination.y = -4 + target.grid_pos.y
+        destination.y = -6 + target.grid_pos.y
     elseif (target.direction == "down") then
         destination.x = target.grid_pos.x
-        destination.y = 4 + target.grid_pos.y
+        destination.y = 6 + target.grid_pos.y
     elseif (target.direction == "left") then
-        destination.x = -4 + target.grid_pos.x
+        destination.x = -6 + target.grid_pos.x
         destination.y = target.grid_pos.y
     elseif (target.direction == "right") then
-        destination.x = 4 + target.grid_pos.x
+        destination.x = 6 + target.grid_pos.x
         destination.y = target.grid_pos.y
     elseif (target.direction == "idle") then
         destination.x = target.grid_pos.x
@@ -647,15 +647,15 @@ function ghost.surround_target_back(value, target, maybe_dirs)
 
     if (target.direction == "up") then
         destination.x =  target.grid_pos.x
-        destination.y = 4 + target.grid_pos.y
+        destination.y = 6 + target.grid_pos.y
     elseif (target.direction == "down") then
         destination.x = target.grid_pos.x
-        destination.y = -4 + target.grid_pos.y
+        destination.y = -6 + target.grid_pos.y
     elseif (target.direction == "left") then
-        destination.x = 4 + target.grid_pos.x
+        destination.x = 6 + target.grid_pos.x
         destination.y = target.grid_pos.y
     elseif (target.direction == "right") then
-        destination.x = -4 + target.grid_pos.x
+        destination.x = -6 + target.grid_pos.x
         destination.y = target.grid_pos.y
     elseif (target.direction == "idle") then
         destination.x = target.grid_pos.x

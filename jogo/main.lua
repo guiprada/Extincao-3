@@ -88,19 +88,19 @@ player_start_grid.x = 28
 player_start_grid.y = 18
 
 local n_ghosts = 30 --at least 3
-local n_pills = 6	-- at least 2
+local n_pills = 5	-- at least 2
 
-local pill_time = 3	-- tempo de duracao da pilula
-local restart_pill_time = 2
-local ghost_chase_time = 15 -- testado 3.99
-local ghost_scatter_time = 7.5 --testado com 2
+local pill_time = 3.3	-- tempo de duracao da pilula
+local restart_pill_time = 3.3
+local ghost_chase_time = 6 -- testado 3.99
+local ghost_scatter_time = 3.99 --testado com 2
 local ghost_respawn_time = 5 -- should be non zero  --  5 --15--20 testado
 
-local speed_boost_on = true
+local speed_boost_on = false
 local ghost_speed_max_factor = 1.1 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
 
 local speed = 0 -- will be set in love.load(), needs grid_size being set
-local player_speed_grid_size_factor = 6 -- speed = player_speed_grid_size_factor* grid_size
+local player_speed_grid_size_factor = 5.5 -- speed = player_speed_grid_size_factor* grid_size
 local ghost_speed = 0 -- will be set in love.load(), needs speed being set
 
 
