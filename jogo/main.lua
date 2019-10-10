@@ -71,8 +71,10 @@ local ghost_migration_on = true
 local ghost_selective_migration_on = false
 local ghost_fear_on = true
 local ghost_go_home_on_scatter = false
+local ghost_scatter_feared_gene_on = false
 local ghost_target_spread = 15
 local ghost_fear_spread = 50
+
 
 local pill_genetic_on = true-- liga e desliga o GA para pilulas
 local pill_precise_crossover_on = false
@@ -88,7 +90,8 @@ player_start_grid.x = 28
 player_start_grid.y = 18
 
 local n_ghosts = 30 --at least 3
-local n_pills = 6	-- at least 2
+local n_pills = 7	-- at least 2
+
 
 local pill_time = 3	-- tempo de duracao da pilula
 local restart_pill_time = 2
@@ -100,7 +103,7 @@ local speed_boost_on = true
 local ghost_speed_max_factor = 1.1 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
 
 local speed = 0 -- will be set in love.load(), needs grid_size being set
-local player_speed_grid_size_factor = 6 -- speed = player_speed_grid_size_factor* grid_size
+local player_speed_grid_size_factor = 5.5 -- speed = player_speed_grid_size_factor* grid_size
 local ghost_speed = 0 -- will be set in love.load(), needs speed being set
 
 
@@ -335,7 +338,7 @@ function love.load()
 
 	grid.init(grid_width_n, grid_height_n, grid_size, lookahead)
 	player.init(grid_size, lookahead)
-	ghost.init(ghost_fitness_on, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, grid_size, lookahead)
+	ghost.init(ghost_fitness_on, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, ghost_go_home_on_scatter, ghost_scatter_feared_gene_on, grid_size, lookahead)
 	pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookahead)
 
 	-- registrando uma fonte

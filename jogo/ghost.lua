@@ -14,7 +14,7 @@ ghost.ghost_speed = 0
 ghost.grid_size = 0
 ghost.ghost_fear_on = false
 
-function ghost.init( ghost_fitness_on, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, grid_size, lookahead)
+function ghost.init( ghost_fitness_on, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, ghost_go_home_on_scatter, ghost_scatter_feared_gene_on, grid_size, lookahead)
     ghost.ghost_fitness_on = ghost_fitness_on
     ghost.ghost_target_offset_freightned_on = ghost_target_offset_freightned_on
     ghost.ghost_migration_on = ghost_migration_on
@@ -23,6 +23,8 @@ function ghost.init( ghost_fitness_on, ghost_target_offset_freightned_on, ghost_
     ghost.speed_boost_on = speed_boost_on
     ghost.ghost_speed_max_factor = ghost_speed_max_factor
     ghost.ghost_fear_on = ghost_fear_on
+    ghost.ghost_go_home_on_scatter = ghost_go_home_on_scatter
+    ghost.ghost_scatter_feared_gene_on = ghost_scatter_feared_gene_on
     ghost.grid_size = grid_size
     ghost.lookahead = lookahead
 end
@@ -159,10 +161,19 @@ function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
 
     local son = {}
 
-    son.fear_target =  math.floor( (mom.fear_target + dad.fear_target)/2 + love.math.random(0, 5) )
-    son.fear_group = math.floor( (mom.fear_group + dad.fear_group)/2 + love.math.random(0, 5) )
-    if(son.fear_target > 50) then son.fear_target = 50 end
-    if(son.fear_group > 50) then son.fear_group = 50 end
+    son.fear_target =  math.floor( (mom.fear_target + dad.fear_target)/2 + love.math.random(-5, 5) )
+    son.fear_group = math.floor( (mom.fear_group + dad.fear_group)/2 + love.math.random(-5, 5) )
+    if(son.fear_target > 50)then
+        son.fear_target = 50
+    elseif(son.fear_target < 0)then
+        son.fear_target = 0
+    end
+
+    if(son.fear_group > 50)then
+        son.fear_group = 50
+    elseif(son.fear_group < 0)then
+        son.fear_group = 0
+    end
 
     local this_spawn_grid_pos = {}
     local this_direction = ""
@@ -534,33 +545,25 @@ function ghost.find_next_dir(value, target, state, average_ghost_pos)
                     if ( not ghost.target_offset_freightned_on ) then
                         value.target_offset_freightned = value.target_offset
                     end
-                    if(value.chase_feared_gene == 1)then
-                        ghost.go_home(value, maybe_dirs)
-                    elseif(value.chase_feared_gene == 2)then
-                        ghost.go_to_closest_pill(value, maybe_dirs)
-                    elseif(value.chase_feared_gene == 3)then
-                        ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
-                    elseif(value.chase_feared_gene == 4)then
+                    if( ghost.ghost_scatter_feared_gene_on ) then
+                        if(value.scatter_feared_gene == 1)then
+                            ghost.go_home(value, maybe_dirs)
+                        elseif(value.scatter_feared_gene == 2)then
+                            ghost.go_to_closest_pill(value, maybe_dirs)
+                        elseif(value.scatter_feared_gene == 3)then
+                            ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
+                        elseif(value.scatter_feared_gene == 4)then
+                            ghost.run_from_target(value, target, maybe_dirs)
+                        elseif(value.scatter_feared_gene == 5)then
+                            ghost.wander(value, maybe_dirs)
+                        end
+                    else
                         ghost.run_from_target(value, target, maybe_dirs)
-                    elseif(value.chase_feared_gene == 5)then
-                        ghost.wander(value, maybe_dirs)
                     end
 
-                    --ghost.run_from_target(value, target, maybe_dirs)
-                    -- ghost.go_to_closest_pill(value, maybe_dirs)
-                    -- ghost.go_to_group(value, maybe_dirs, average_ghost_pos)
-                    -- ghost.run_from_target(value, target, maybe_dirs)
-
-                    -- ghost.wander(value, maybe_dirs)
-
-                    -- if(ghost_go_home_on_scatter) then
-                    --     ghost.run_from_target(value, target, maybe_dirs)
-                    -- else
-                    --     ghost.go_home(value, maybe_dirs)
-                    -- end
                 else
                     --print("not feared")
-                    if(ghost_go_home_on_scatter) then
+                    if(ghost.ghost_go_home_on_scatter) then
                         ghost.go_home(value, maybe_dirs)
                     else
                         ghost.wander(value, maybe_dirs)
