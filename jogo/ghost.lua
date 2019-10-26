@@ -167,6 +167,7 @@ function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
 
     son.fear_target =  math.floor( (mom.fear_target + dad.fear_target)/2 + love.math.random(-5, 5) )
     son.fear_group = math.floor( (mom.fear_group + dad.fear_group)/2 + love.math.random(-5, 5) )
+    
     if(son.fear_target > 50)then
         son.fear_target = 50
     elseif(son.fear_target < 0)then

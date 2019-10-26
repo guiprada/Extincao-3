@@ -8,52 +8,8 @@ local timer = require "timer"
 local pill = require "pill"
 local resizer = require "resizer"
 --------------------------------------------------------------------------------
--- not quite games, not quite lab
--- to dos
-
-	-- variaveis para o mutation rate
-
-	-- fazer um chasing melhor, que altere o target por contexto, um controlador de grupo
-	-- mais perto mira no player, medio na frente e longe atras, teriamos o gene de grupo com
-	-- esses valores, oque e longe e oque e perto. talvez possamos usar a distancia do centro do grupo
-	-- ai teriamos uma tabela fuzzy
-
-	--controlador de medo usando as informacoes que o algoritmo original usa, para nao desrespeitar
-	--o sistema "sensitivo inicial"
-	-- posicao e direcao do player, sabe calcular distancias e sua propria direcao e distancia de casa
-	-- vamos criar o medo :)
-	-- e fazer o spawning na posicao da mae
-	-- tempo de respawn deveria ser proporcional a populacao
-
-	-- e se as pilulas se exitnguissem
-
-	-- o pill ghost_selective_migration_on buga pois a home pill pode sumir
-	-- criar um teto baseado no pill max fitness, ainda e bugado
-	-- fazer o ghost_selective_migration_on baseado em pos_index
-
-
-	-- o fitness da pilula tem que diminuir com o tempo
-	-- o do ghost tambem
-	-- e fazer a duracao da pilula de fitness baixo menor?
-	-- fazer o ghost nao distanciar de sua home se ela tiver fitness alto?
-
-	-- testes com handicaps diferentes
-
-  	-- detector de emboscada
-  	--ver se tem outro tile com mais de uma opcao antes de uma pilula ou do player
-
--- controlador fuzzy para o  target_offset do fantasma, seria dinamico
-	-- entradas player is moving ou speed
-	-- distancia do player para a pilula mais proxima
-	-- qual fantasma e o mais perto e se sou eu
--- duas sub_especies de fantasma, uma que foge rapido e uma que persegue rapido
--- make target a gene
--- poderimos eveluir uma tabela fuzzy para o fantasma
--- fix crossover selection and turn of elitism
--- automatic grid from map
-
---
-
+-- not quite game, not quite lab
+-- kitten killing globals
 ------------------------------------------------------------------------ Configuracao
 
 local target_offset_distribution_file = io.open("target_offset_distribution.run", "w")
@@ -61,8 +17,8 @@ local fear_target_file = io.open("fear_target.run", "w")
 local fear_group_file = io.open("fear_group.run", "w")
 local stats_file = io.open("stats.run", "w")
 local config_file = io.open("config.run", "w")
-
--- kitten killing globals
+local gene_scatter_file = io.open("gene_scatter.run", "w")
+local gene_chase_file = io.open("gene_chase.run", "w")
 
 local ghost_genetic_on = true  	-- liga e desliga e GA
 local ghost_fitness_on = true             	-- desliga a funcao fitness
@@ -75,7 +31,6 @@ local ghost_chase_feared_gene_on = true
 local ghost_scatter_feared_gene_on = false
 local ghost_target_spread = 15
 local ghost_fear_spread = 50
-
 
 local pill_genetic_on = true-- liga e desliga o GA para pilulas
 local pill_precise_crossover_on = false
@@ -91,14 +46,21 @@ player_start_grid.x = 28
 player_start_grid.y = 18
 
 local n_ghosts = 30 --at least 3
-local n_pills = 5	-- at least 2
+local n_pills = 7	-- at least 2
 
 
 local pill_time = 3	-- tempo de duracao da pilula
 local restart_pill_time = 3
-local ghost_chase_time = 10 -- testado 3.99
+local ghost_chase_time = 12 -- testado 3.99
 local ghost_scatter_time = 7 --testado com 2
 local ghost_respawn_time = 5 -- should be non zero  --  5 --15--20 testado
+
+--
+-- local pill_time = 3	-- tempo de duracao da pilula
+-- local restart_pill_time = 2
+-- local ghost_chase_time = 15 -- testado 3.99
+-- local ghost_scatter_time = 7.5 --testado com 2
+-- local ghost_respawn_time = 5 -- should be non zero  --  5 --15--20 testado
 
 local speed_boost_on = true
 local ghost_speed_max_factor = 1.1 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
@@ -329,7 +291,7 @@ function love.load()
 	local default_height = love.graphics.getHeight() -- atualiza
 
 	grid_size = resizer.init_resizer(default_width, default_height, grid_width_n, grid_height_n)
-	print("grid_size is: " .. grid_size)
+	--print("grid_size is: " .. grid_size)
 	lookahead = grid_size/2
 
 	speed = (player_speed_grid_size_factor*grid_size)
@@ -725,11 +687,14 @@ function love.keypressed(key, scancode, isrepeat)
 
 		-------------
 
+
 		io.close(target_offset_distribution_file)
 		io.close(fear_target_file)
 		io.close(fear_group_file)
 		io.close(stats_file)
 		io.close(config_file)
+		io.close(gene_scatter_file)
+		io.close(gene_chase_file)
 	   	love.event.quit(0)
    	end
 end
