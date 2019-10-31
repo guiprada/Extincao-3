@@ -66,7 +66,7 @@ local speed_boost_on = true
 local ghost_speed_max_factor = 1.1 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
 
 local speed = 0 -- will be set in love.load(), needs grid_size being set
-local player_speed_grid_size_factor = 5.5 -- speed = player_speed_grid_size_factor* grid_size
+local player_speed_grid_size_factor = 5 -- speed = player_speed_grid_size_factor* grid_size
 local ghost_speed = 0 -- will be set in love.load(), needs speed being set
 
 
@@ -500,14 +500,17 @@ function love.update(dt)
 			--state_change_timer = state_change_reset_time
 			if ( ghost_state == "scattering") then -- nao faz nada caso ghost_state == "freightened"
 				ghost_state = "chasing"
+				for i=1, #ghosts, 1 do
+					ghost.flip_direction(ghosts[i])
+				end
 				timer.reset(ghost_state_timer, ghost_chase_time)
 			elseif ( ghost_state == "chasing") then
 				ghost_state = "scattering"
+				for i=1, #ghosts, 1 do
+					ghost.flip_direction(ghosts[i])
+				end
 			end
 		end
-
-
-
 
 		-- if(active_pill_count > 0) then
 		-- 	average_pill_fitness = total_pill_fitness/active_pill_count

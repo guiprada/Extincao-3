@@ -167,7 +167,7 @@ function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
 
     son.fear_target =  math.floor( (mom.fear_target + dad.fear_target)/2 + love.math.random(-5, 5) )
     son.fear_group = math.floor( (mom.fear_group + dad.fear_group)/2 + love.math.random(-5, 5) )
-    
+
     if(son.fear_target > 50)then
         son.fear_target = 50
     elseif(son.fear_target < 0)then
@@ -765,6 +765,14 @@ function ghost.get_furthest(value, maybe_dirs, destination)
     end
     --print("furthest" .. furthest)
     value.direction = maybe_dirs[furthest].direction
+end
+
+function ghost.flip_direction(value)
+    if (value == nil) then return end
+    if(value.direction == "up") then value.direction = "down"
+    elseif(value.direction == "down") then value.direction = "up"
+    elseif(value.direction == "left") then value.direction = "right"
+    elseif(value.direction == "right") then value.direction = "left" end
 end
 
 return ghost

@@ -27,7 +27,7 @@ the grid is: 56 x 31
 player's start grid is: 28, 18
 stats_on: true
 ghost_speed_max_factor: 1.1
-player_speed_grid_size_factor: 5.5
+player_speed_grid_size_factor: 5
 
 catched
 distrib_catched_target_offset[-15]: 0
@@ -77,7 +77,7 @@ distrib_catcher_target_offset[-5]: 0
 distrib_catcher_target_offset[-4]: 0
 distrib_catcher_target_offset[-3]: 0
 distrib_catcher_target_offset[-2]: 0
-distrib_catcher_target_offset[-1]: 0
+distrib_catcher_target_offset[-1]: 1
 distrib_catcher_target_offset[0]: 0
 distrib_catcher_target_offset[1]: 0
 distrib_catcher_target_offset[2]: 0
