@@ -636,15 +636,15 @@ function ghost.surround_target_front(value, target, maybe_dirs)
 
     if (target.direction == "up") then
         destination.x =  target.grid_pos.x
-        destination.y = -6 + target.grid_pos.y
+        destination.y = -4 + target.grid_pos.y
     elseif (target.direction == "down") then
         destination.x = target.grid_pos.x
-        destination.y = 6 + target.grid_pos.y
+        destination.y = 4 + target.grid_pos.y
     elseif (target.direction == "left") then
-        destination.x = -6 + target.grid_pos.x
+        destination.x = -4 + target.grid_pos.x
         destination.y = target.grid_pos.y
     elseif (target.direction == "right") then
-        destination.x = 6 + target.grid_pos.x
+        destination.x = 4 + target.grid_pos.x
         destination.y = target.grid_pos.y
     elseif (target.direction == "idle") then
         destination.x = target.grid_pos.x
@@ -659,15 +659,15 @@ function ghost.surround_target_back(value, target, maybe_dirs)
 
     if (target.direction == "up") then
         destination.x =  target.grid_pos.x
-        destination.y = 6 + target.grid_pos.y
+        destination.y = 4 + target.grid_pos.y
     elseif (target.direction == "down") then
         destination.x = target.grid_pos.x
-        destination.y = -6 + target.grid_pos.y
+        destination.y = -4 + target.grid_pos.y
     elseif (target.direction == "left") then
-        destination.x = 6 + target.grid_pos.x
+        destination.x = 4 + target.grid_pos.x
         destination.y = target.grid_pos.y
     elseif (target.direction == "right") then
-        destination.x = -6 + target.grid_pos.x
+        destination.x = -4 + target.grid_pos.x
         destination.y = target.grid_pos.y
     elseif (target.direction == "idle") then
         destination.x = target.grid_pos.x

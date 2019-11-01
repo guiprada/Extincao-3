@@ -8,7 +8,7 @@ function grid.init(grid_width_n, grid_height_n, grid_size, lookahead)
 	grid.grid_size = grid_size
 	grid.lookahead = lookahead
 
-	grid.grid_types = {}
+	--grid.grid_types = {}
 	grid.grid_directions = {}
 
 	-- this matrix defines the map, it stores the tile type

@@ -45,7 +45,7 @@ local player_start_grid = {}
 player_start_grid.x = 28
 player_start_grid.y = 18
 
-local n_ghosts = 30 --at least 3
+local n_ghosts = 25 --at least 3
 local n_pills = 7	-- at least 2
 
 
@@ -263,6 +263,50 @@ function reporter()
 	end
 	io.write("\n")
 	--print()
+-------------------------------------------------------------------------------
+	local distrib_chase_feared = {}
+	for i=1, 9, 1 do
+		distrib_chase_feared[i] = 0
+	end
+	for i=1, #ghosts, 1 do
+		if( ghosts[i].is_active == true) then
+			distrib_chase_feared[ghosts[i].chase_feared_gene] = distrib_chase_feared[ghosts[i].chase_feared_gene] +1
+		end
+	end
+
+	io.output(gene_chase_file)
+	--print("population's target distribution")
+	for i=1, #distrib_chase_feared, 1 do
+		if ( distrib_chase_feared[i] == 0 ) then
+			io.write(" _ ")
+		else
+			io.write(" " .. distrib_chase_feared[i] .. " ")
+		end
+	end
+	io.write("\n")
+	print()
+------------------------------------------------------------------------------
+	local distrib_scatter_feared = {}
+	for i=1, 5, 1 do
+		distrib_scatter_feared[i] = 0
+	end
+	for i=1, #ghosts, 1 do
+		if( ghosts[i].is_active == true) then
+			distrib_scatter_feared[ghosts[i].scatter_feared_gene] = distrib_scatter_feared[ghosts[i].scatter_feared_gene] +1
+		end
+	end
+
+	io.output(gene_scatter_file)
+	--print("population's target distribution")
+	for i=1, #distrib_scatter_feared, 1 do
+		if ( distrib_scatter_feared[i] == 0 ) then
+			io.write(" _ ")
+		else
+			io.write(" " .. distrib_scatter_feared[i] .. " ")
+		end
+	end
+	io.write("\n")
+	print()
 
 end
 
