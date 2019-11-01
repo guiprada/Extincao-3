@@ -258,11 +258,11 @@ function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
 
     this_rand =  love.math.random(0, 10)
     if ( this_rand<=4) then
-        son.chase_feared_gene = mom.chase_feared_gene
+        son.scatter_feared_gene = mom.scatter_feared_gene
     elseif ( this_rand<=8) then
-        son.chase_feared_gene = dad.chase_feared_gene
+        son.scatter_feared_gene = dad.scatter_feared_gene
     else
-        son.chase_feared_gene = love.math.random(1, 5)
+        son.scatter_feared_gene = love.math.random(1, 5)
     end
 
     ghost.reset(value, son.pos_index, son.pilgrin_gene, son.target_offset, son.target_offset_freightned, son.try_order, son.fear_target, son.fear_group, son.chase_feared_gene, son.scatter_feared_gene, ghost.ghost_speed, pills, this_spawn_grid_pos, this_direction)

@@ -83,6 +83,7 @@ function player.update(value, dt)
     --     print("player speed > grid_size", player.speed*dt)
     --     love.event.quit(0)
     -- end
+    -- print(value.speed)
     if (value.is_active) then
         if value.direction ~= "idle" then
             --print("X: ", value.x, "Y:", value.y)

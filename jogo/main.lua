@@ -49,7 +49,7 @@ local n_ghosts = 25 --at least 3
 local n_pills = 7	-- at least 2
 
 
-local pill_time = 3	-- tempo de duracao da pilula
+local pill_time = 3.99	-- tempo de duracao da pilula
 local restart_pill_time = 3
 local ghost_chase_time = 12 -- testado 3.99
 local ghost_scatter_time = 7 --testado com 2
@@ -656,10 +656,16 @@ function love.update(dt)
 			if (is_active_before_update == true and
 					pills[i].is_active == false ) then
 				ghost_state =  "freightened"
-				come_come.speed = ghost_speed
+				for i=1, #ghosts, 1 do
+					ghost.flip_direction(ghosts[i])
+				end
+				ghost.ghost_speed = ghost_speed / 1.5
+				come_come.speed = speed * 1.1
 			elseif (is_active_before_update== false and
 					pills[i].is_active == true ) then
 				ghost_state = "scattering"
+
+				ghost.ghost_speed = ghost_speed
 				come_come.speed = speed
 				timer.reset(ghost_state_timer)
 			end
@@ -733,7 +739,6 @@ function love.keypressed(key, scancode, isrepeat)
 		end
 
 		-------------
-
 
 		io.close(target_offset_distribution_file)
 		io.close(fear_target_file)
