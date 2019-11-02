@@ -9,23 +9,14 @@ player.grid_size = 0
 function player.init(grid_size)
     player.grid_size = grid_size
     --player.lookahead = lookahead
+
+    player.tic_sound = love.audio.newSource("tic.wav", "static")
+    player.tic_sound:setVolume(0.5)
+    player.tic_sound:setPitch(0.7)
 end
 
 function player.new(grid_pos, speed)
     local value = {}
-    -- value.is_active = false
-    -- value.x = 0
-    -- value.y = 0
-    -- value.speed = 0
-    -- value.direction = "idle"
-
-    -- value.next_direction = "idle"
-    -- value.relay_x_counter = 0
-    -- value.relay_y_counter = 0
-    -- value.relay_x = 0
-    -- value.relay_y = 0
-    -- value.relay_times = 0
-
     value.grid_pos = {}
     value.enabled = {}
     value.last_grid_pos = {}
@@ -117,6 +108,7 @@ function player.update(value, dt)
         if value.grid_pos.x ~= value.last_grid_pos.x or value.grid_pos.y ~= value.last_grid_pos.y then
             value.enabled = grid.get_enabled_directions(value.grid_pos)
     		value.last_grid_pos = value.grid_pos
+            player.tic_sound:play()
         end
 
         -- apply next_direction

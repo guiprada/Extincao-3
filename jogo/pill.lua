@@ -27,6 +27,7 @@ function pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookah
     pill.pill_precise_crossover_on = pill_precise_crossover_on
     pill.grid_size = grid_size
     pill.lookahead = lookahead
+    pill.warn_sound = love.audio.newSource("warn.wav", "static")
 end
 
 function pill.new(pos_index, pill_time)
@@ -65,6 +66,8 @@ function pill.update(value, pills, target, dt, pill_time)
                 pill.reset(value, pill_time, this_pos)
             end
             pill.pills_active = true
+        elseif(value.timer.timer < 1)then
+            pill.warn_sound:play()
         end
     elseif (    (pill.pills_active) and
                 (target.is_active)) then

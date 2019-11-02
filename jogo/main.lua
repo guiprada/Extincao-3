@@ -20,22 +20,23 @@ local config_file = io.open("config.run", "w")
 local gene_scatter_file = io.open("gene_scatter.run", "w")
 local gene_chase_file = io.open("gene_chase.run", "w")
 
-local ghost_genetic_on = true  	-- liga e desliga e GA
-local ghost_fitness_on = true             	-- desliga a funcao fitness
+
+local ghost_genetic_on = false  	-- liga e desliga e GA
+local ghost_fitness_on = false             	-- desliga a funcao fitness
 local ghost_target_offset_freightned_on = true -- liga e desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
-local ghost_fear_on = true
+local ghost_fear_on = false
 local ghost_go_home_on_scatter = false
-local ghost_chase_feared_gene_on = true
+local ghost_chase_feared_gene_on = false
 local ghost_scatter_feared_gene_on = false
 local ghost_target_spread = 15
 local ghost_fear_spread = 50
 
-local pill_genetic_on = true-- liga e desliga o GA para pilulas
+local pill_genetic_on = false-- liga e desliga o GA para pilulas
 local pill_precise_crossover_on = false
 
-local stats_on = true -- controla a exibicao de informacao do GA na tela
+local stats_on = true -- controla a exibicao de informacao do na tela
 --local reporter_duty_cycle = 20        -- frequecia, em fantasmas nascidos, que o reporter printa uma notificacao no console
 
 local grid_width_n = 56
@@ -45,11 +46,11 @@ local player_start_grid = {}
 player_start_grid.x = 28
 player_start_grid.y = 18
 
-local n_ghosts = 25 --at least 3
-local n_pills = 7	-- at least 2
+local n_ghosts = 20 --at least 3
+local n_pills = 6	-- at least 2
 
 
-local pill_time = 3.99	-- tempo de duracao da pilula
+local pill_time = 3	-- tempo de duracao da pilula
 local restart_pill_time = 3
 local ghost_chase_time = 12 -- testado 3.99
 local ghost_scatter_time = 7 --testado com 2
@@ -115,6 +116,7 @@ local ghosts = {} -- e um array
 local pills = {} -- e um array
 local freightened_on_restart_timer = {}
 local just_restarted = false
+local global_frame_counter = 0
 
 -- gamestate
 local has_shown_menu = false
@@ -167,19 +169,9 @@ function reporter()
 
 	io.output(stats_file)
 	io.write(	"ghosts catched: " .. ghosts_catched .. "  <>  " ..
-			"last_catched_target_offset: " .. last_catched_target_offset .. "  <>  " ..
-			"player_catched_counter: " .. player_catched_counter .. "  <>  " ..
-			"av ghost fitness: " .. utils.round_2_dec(utils.average( ghosts, "fitness") ) .. "  <>  " ..
-			"std_dev ghost fitness: " .. utils.round_2_dec( utils.std_deviation(ghosts, "fitness") ).. "  <> " ..
-			"max ghost fitness: " .. utils.round_2_dec( utils.get_highest(ghosts, "fitness").fitness ).. "  <>  " ..
-			"max ghost fitness's target: " .. utils.get_highest(ghosts, "fitness").target_offset  .. "  <>  " ..
-			"av target_offset: " .. utils.round_2_dec( utils.average(ghosts, "target_offset") ) .. "  <>  " ..
-			"std_dev target_offset: " .. utils.round_2_dec( utils.std_deviation(ghosts, "target_offset") ).. " <>  " ..
-			"av target_offset_freightned: " .. utils.round_2_dec( utils.average(ghosts, "target_offset_freightned") ) .. "  <>  " ..
-			"std_dev target_offset_freightned: " .. utils.round_2_dec( utils.std_deviation(ghosts, "target_offset_freightned") ).. "  <>  " ..
-			"average age: " .. utils.round_2_dec( utils.average(ghosts, "n_updates") ).. " <> " ..
-			"std_dev age: " .. utils.round_2_dec( utils.std_deviation( ghosts, "n_updates" ) ) .. " <> " ..
-			"av-pill-fitness: " .. utils.round_2_dec( utils.average(pills, "fitness") ) .. "\n"	)
+				"player_catched: " .. player_catched_counter .. "  <>  " ..
+				"catches/catched:" .. ghosts_catched/player_catched_counter .. " <> " ..
+				"catches/frames:"  .. ghosts_catched/global_frame_counter  .. "\n"	)
 
 --------------------------------------------------------------------------------
 	local distrib_target_offset = {}
@@ -426,7 +418,6 @@ function love.load()
 		end
 	love.graphics.setCanvas()
 	--print("and finally a stage, game_on, good luck ;)")
-
 end
 
 --------------------------------------------------------------------------------
@@ -497,11 +488,11 @@ function love.draw()
 	if (stats_on) then
 		--love.graphics.setColor(1, 0, 0)
 		love.graphics.print(tostring(love.timer.getFPS( )), 5, h -3*font_size -10)
-		love.graphics.print("av-ghost-fit: " .. utils.round_2_dec(utils.average( ghosts, "fitness")), 10, h -font_size -10)
-		local best_specime = utils.get_highest(ghosts, "fitness")
-		love.graphics.print("max-fit: " .. utils.round_2_dec(best_specime.fitness), w/4, h -font_size -10)
-		love.graphics.print("av-target_offset: " .. utils.round_2_dec(total_target/active_ghost_counter), 2*w/4, h -font_size -10)
-		love.graphics.print("av-pill-fit: " .. utils.round_2_dec( utils.average(pills, "fitness")), 3*w/4, h -font_size -10)
+		-- love.graphics.print("av-ghost-fit: " .. utils.round_2_dec(utils.average( ghosts, "fitness")), 10, h -font_size -10)
+		-- local best_specime = utils.get_highest(ghosts, "fitness")
+		-- love.graphics.print("max-fit: " .. utils.round_2_dec(best_specime.fitness), w/4, h -font_size -10)
+		-- love.graphics.print("av-target_offset: " .. utils.round_2_dec(total_target/active_ghost_counter), 2*w/4, h -font_size -10)
+		-- love.graphics.print("av-pill-fit: " .. utils.round_2_dec( utils.average(pills, "fitness")), 3*w/4, h -font_size -10)
 	end
 	if ( not come_come.is_active ) then
 		love.graphics.print( "'r' para ir de novo", 3*w/4 -5, font_size - 22)
@@ -570,6 +561,7 @@ function love.update(dt)
 		end
 
 		if (game_on) then
+			global_frame_counter = global_frame_counter + 1
 			local total_fitness = 0
 			local active_ghost_counter = 0
 
@@ -624,20 +616,20 @@ function love.update(dt)
 				if (#to_be_respawned > 0) then
 					--print("respawned")
 
-					-- encontra posicao de spawn
-					-- local spawn_grid_pos = {}
-					-- if ( come_come.grid_pos.x > (grid_width_n/2) ) then
-					-- 	spawn_grid_pos = {x=7, y= 21}
-					-- else
-					-- 	spawn_grid_pos = {x=50, y= 21}
-					-- end
-
 					-- e spawna
 					local i = table.remove(to_be_respawned, 1)
 					if ( ghost_genetic_on) then
 						ghost.crossover(ghosts[i], ghosts, pills)--, spawn_grid_pos)
 					else
-						ghost.reactivate(ghosts[i], pills)
+						-- encontra posicao de spawn
+						local spawn_grid_pos = {}
+						if ( come_come.grid_pos.x > (grid_width_n/2) ) then
+							spawn_grid_pos = {x=7, y= 21}
+						else
+							spawn_grid_pos = {x=50, y= 21}
+						end
+
+						ghost.reactivate(ghosts[i], pills, spawn_grid_pos)
 					end
 
 				end
