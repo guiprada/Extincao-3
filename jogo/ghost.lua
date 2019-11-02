@@ -17,8 +17,9 @@ ghost.ghost_go_home_on_scatter = false
 ghost.ghost_scatter_feared_gene_on = false
 ghost.ghost_chase_feared_gene_on = false
 
-function ghost.init( ghost_fitness_on, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, ghost_go_home_on_scatter, ghost_chase_feared_gene_on, ghost_scatter_feared_gene_on, grid_size, lookahead)
+function ghost.init( ghost_fitness_on, ghost_target_spread, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, ghost_go_home_on_scatter, ghost_chase_feared_gene_on, ghost_scatter_feared_gene_on, grid_size, lookahead)
     ghost.ghost_fitness_on = ghost_fitness_on
+    ghost.ghost_target_spread = ghost_target_spread
     ghost.ghost_target_offset_freightned_on = ghost_target_offset_freightned_on
     ghost.ghost_migration_on = ghost_migration_on
     ghost.ghost_selective_migration_on = ghost_selective_migration_on
@@ -271,6 +272,37 @@ end
 function ghost.reactivate(value, pills, spawn_grid_pos)
     local this_spawn_grid_pos = spawn_grid_pos or value.grid_pos
     ghost.reset(value, value.pos_index, value.pilgrin_gene, value.target_offset, value.target_offset_freightned, value.try_order, value.fear_target, value.fear_group, value.chase_feared_gene, value.scatter_feared_gene, ghost.ghost_speed, pills, this_spawn_grid_pos)
+end
+
+function ghost.regen(value, pills, spawn_grid_pos)
+    local this_spawn_grid_pos = spawn_grid_pos or value.grid_pos
+
+    local pos_index = love.math.random(1, #grid.grid_valid_pos)
+
+    local pilgrin_gene
+    if ( love.math.random(0, 1) == 1) then
+        pilgrin_gene = true
+    else
+        pilgrin_gene = false
+    end
+
+    local target_offset = love.math.random(-ghost.ghost_target_spread, ghost.ghost_target_spread)
+    local target_offset_freightned = love.math.random(-ghost.ghost_target_spread, ghost.ghost_target_spread)
+    -- faz um gene try_order valido
+    local try_order = {}
+    for i=1, 4, 1 do
+        try_order[i] = i
+    end
+    utils.array_shuffler(try_order)
+
+    local fear_target = love.math.random(0, ghost_fear_spread)
+    local fear_group = love.math.random(0, ghost_fear_spread)
+
+    local chase_feared_gene = love.math.random(1, 9)
+    local scatter_feared_gene = love.math.random(1, 5)
+
+
+    ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, scatter_feared_gene, ghost.ghost_speed, pills, this_spawn_grid_pos)
 end
 
 function ghost.draw(value, state)

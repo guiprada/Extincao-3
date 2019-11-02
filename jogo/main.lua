@@ -340,7 +340,7 @@ function love.load()
 
 	grid.init(grid_width_n, grid_height_n, grid_size, lookahead)
 	player.init(grid_size, lookahead)
-	ghost.init(ghost_fitness_on, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, ghost_go_home_on_scatter, ghost_chase_feared_gene_on, ghost_scatter_feared_gene_on, grid_size, lookahead)
+	ghost.init(ghost_fitness_on, ghost_target_spread, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, ghost_go_home_on_scatter, ghost_chase_feared_gene_on, ghost_scatter_feared_gene_on, grid_size, lookahead)
 	pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookahead)
 
 	-- registrando uma fonte
@@ -629,7 +629,7 @@ function love.update(dt)
 							spawn_grid_pos = {x=50, y= 21}
 						end
 
-						ghost.reactivate(ghosts[i], pills, spawn_grid_pos)
+						ghost.regen(ghosts[i], pills, spawn_grid_pos)
 					end
 
 				end
@@ -707,7 +707,7 @@ function love.keypressed(key, scancode, isrepeat)
 				if ( ghost_genetic_on) then
 					ghost.crossover(ghosts[i], ghosts, pills)
 				else
-					ghost.reactivate(ghosts[i], pills)
+					ghost.regen(ghosts[i], pills)
 				end
 			end
 			to_be_respawned = {}
