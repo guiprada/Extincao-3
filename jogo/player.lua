@@ -10,9 +10,9 @@ function player.init(grid_size)
     player.grid_size = grid_size
     --player.lookahead = lookahead
 
-    player.tic_sound = love.audio.newSource("tic.wav", "static")
-    player.tic_sound:setVolume(0.5)
-    player.tic_sound:setPitch(0.7)
+    player.plip_sound = love.audio.newSource("plip.wav", "static")
+    player.plip_sound:setVolume(0.3)
+    player.plip_sound:setPitch(0.9)
 end
 
 function player.new(grid_pos, speed)
@@ -108,7 +108,7 @@ function player.update(value, dt)
         if value.grid_pos.x ~= value.last_grid_pos.x or value.grid_pos.y ~= value.last_grid_pos.y then
             value.enabled = grid.get_enabled_directions(value.grid_pos)
     		value.last_grid_pos = value.grid_pos
-            player.tic_sound:play()
+            player.plip_sound:play()
         end
 
         -- apply next_direction

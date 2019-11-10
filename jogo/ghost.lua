@@ -150,7 +150,8 @@ function ghost.selection(in_table)
 
         local best_stack = utils.get_n_best(living_stack, "fitness", math.ceil(#living_stack/2))
         mom = best_stack[love.math.random(1, #best_stack)]
-        dad = best_stack[love.math.random(1, #best_stack)]
+        --dad = best_stack[love.math.random(1, #best_stack)]
+        dad = living_stack[love.math.random(1, #living_stack)]
     else
         mom = living_stack[love.math.random(1, #living_stack)]
         dad = living_stack[love.math.random(1, #living_stack)]
@@ -549,10 +550,8 @@ function ghost.find_next_dir(value, target, state, average_ghost_pos)
 
         if (target.is_active) then
 
-
             --io.output()
             if ( state == "chasing" ) then
-
                 if(value.fear)then
                     if(ghost.ghost_chase_feared_gene_on)then
                         if(value.chase_feared_gene == 1)then
@@ -615,7 +614,8 @@ function ghost.find_next_dir(value, target, state, average_ghost_pos)
                 if ( not ghost.target_offset_freightned_on ) then
                     value.target_offset_freightned = value.target_offset
                 end
-                ghost.run_from_target(value, target, maybe_dirs)
+                ghost.wander(value, maybe_dirs)
+                --ghost.run_from_target(value, target, maybe_dirs)
                 --ghost.go_home(value, maybe_dirs)
                 -- ghost.go_to_closest_pill(value, maybe_dirs)
             else

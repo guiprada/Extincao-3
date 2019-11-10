@@ -20,16 +20,15 @@ local config_file = io.open("config.run", "w")
 local gene_scatter_file = io.open("gene_scatter.run", "w")
 local gene_chase_file = io.open("gene_chase.run", "w")
 
-
-local ghost_genetic_on = false  	-- liga e desliga e GA
-local ghost_fitness_on = false             	-- desliga a funcao fitness
+local ghost_genetic_on = true  	-- liga e desliga e GA
+local ghost_fitness_on = false 	-- desliga a funcao fitness
 local ghost_target_offset_freightned_on = true -- liga e desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
-local ghost_fear_on = false
-local ghost_go_home_on_scatter = false
-local ghost_chase_feared_gene_on = false
-local ghost_scatter_feared_gene_on = false
+local ghost_fear_on = true
+local ghost_go_home_on_scatter = true
+local ghost_chase_feared_gene_on = true
+local ghost_scatter_feared_gene_on = true
 local ghost_target_spread = 15
 local ghost_fear_spread = 50
 
@@ -54,7 +53,7 @@ local pill_time = 3	-- tempo de duracao da pilula
 local restart_pill_time = 3
 local ghost_chase_time = 12 -- testado 3.99
 local ghost_scatter_time = 7 --testado com 2
-local ghost_respawn_time = 5 -- should be non zero  --  5 --15--20 testado
+local ghost_respawn_time = 0 -- should be non zero  --  5 --15--20 testado
 
 --
 -- local pill_time = 3	-- tempo de duracao da pilula
@@ -132,8 +131,11 @@ local to_be_respawned = {} -- fila para armazenar os indices dos objetos a serem
 local ghost_state_timer = timer.new(ghost_scatter_time) -- timer para alternar o ghost_state
 local ghost_respawn_timer = timer.new(ghost_respawn_time) --39-- timer para reativar um fantasma
 
--- canvas para o maze
-local maze = {}
+-- para o maze_canvas
+local maze_canvas = {}
+
+-- para o som do troca de estados do fantasma
+local flip_sound = true
 
 local pause_text = 	"Jogo da extinção\n\n"
 					.."Não deixe o monstro te pegar :) \n"
@@ -397,9 +399,9 @@ function love.load()
 	    ghosts[i] = ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, scatter_feared_gene, ghost_speed, pills)
 	end
 	--print("some ghosts for you to catch :)")
-    -- cria o canvas para o maze
-	maze = love.graphics.newCanvas(default_width, default_height)
-	love.graphics.setCanvas(maze)
+    -- cria o canvas para o maze_canvas
+	maze_canvas = love.graphics.newCanvas(default_width, default_height)
+	love.graphics.setCanvas(maze_canvas)
 		love.graphics.clear()
 		love.graphics.setBlendMode("alpha")
 		for i=1,grid_width_n do
@@ -418,6 +420,8 @@ function love.load()
 		end
 	love.graphics.setCanvas()
 	--print("and finally a stage, game_on, good luck ;)")
+
+	flip_sound = love.audio.newSource("tic.wav", "static")
 end
 
 --------------------------------------------------------------------------------
@@ -431,10 +435,10 @@ function love.draw()
 	local w = love.graphics.getWidth()-- atualiza
 	local h = love.graphics.getHeight() -- atualiza
 
-	-- maze canvas
+	-- maze_canvas
 	love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setBlendMode("alpha", "premultiplied")
-	love.graphics.draw(maze)
+	love.graphics.draw(maze_canvas)
 	love.graphics.setBlendMode("alpha") -- volta ao modo normal
 
 
@@ -537,12 +541,14 @@ function love.update(dt)
 				ghost_state = "chasing"
 				for i=1, #ghosts, 1 do
 					ghost.flip_direction(ghosts[i])
+					flip_sound:play()
 				end
 				timer.reset(ghost_state_timer, ghost_chase_time)
 			elseif ( ghost_state == "chasing") then
 				ghost_state = "scattering"
 				for i=1, #ghosts, 1 do
 					ghost.flip_direction(ghosts[i])
+					flip_sound:play()
 				end
 			end
 		end
@@ -650,6 +656,7 @@ function love.update(dt)
 				ghost_state =  "freightened"
 				for i=1, #ghosts, 1 do
 					ghost.flip_direction(ghosts[i])
+					flip_sound:play()
 				end
 				ghost.ghost_speed = ghost_speed / 1.5
 				come_come.speed = speed * 1.1
