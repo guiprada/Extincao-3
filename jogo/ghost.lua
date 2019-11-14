@@ -216,9 +216,18 @@ function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
     --print(son.pos_index)
 
     son.target_offset = math.floor((mom.target_offset + dad.target_offset)/2)
-    if (love.math.random(0, 10)<=3) then -- mutate
-        son.target_offset = son.target_offset + math.floor(love.math.random(-2, 2))
-    end
+    -- if (love.math.random(0, 10)<=3) then -- mutate
+    --     son.target_offset = son.target_offset + math.floor(love.math.random(-2, 2))
+    -- end
+
+    -- run 11
+    -- if (love.math.random(0, 10)<=5) then -- mutate
+    --     son.target_offset = son.target_offset + math.floor(love.math.random(-3, 3))
+    -- end
+
+    son.target_offset = son.target_offset + math.floor(love.math.random(-4, 4))
+
+
 
     son.target_offset_freightned = math.floor((mom.target_offset_freightned + dad.target_offset_freightned)/2)
     if (love.math.random(0, 10)<=3) then -- mutate

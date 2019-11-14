@@ -1,0 +1,60 @@
+the Configuration used is
+
+
+ghost_genetic_on: true
+ghost_fitness_on: true
+ghost_target_offset_freightned_on: true
+ghost_migration_on: true
+ghost_selective_migration_on: false
+ghost_fear_on: true
+ghost_go_home_on_scatter: true
+ghost_chase_feared_gene_on: true
+ghost_scatter_feared_gene_on: true
+ghost_target_spread: 6
+
+pill_genetic_on: false
+pill_precise_crossover_on: false
+speed_boost_on: true
+
+n_ghosts: 20
+n_pills: 6
+pill_time: 3
+restart_pill_time: 3
+ghost_chase_time: 12
+ghost_scatter_time: 7
+ghost_respawn_time: 0
+the grid is: 56 x 31
+player's start grid is: 28, 18
+stats_on: true
+ghost_speed_max_factor: 1.1
+player_speed_grid_size_factor: 5
+
+catched
+distrib_catched_target_offset[-6]: 100
+distrib_catched_target_offset[-5]: 97
+distrib_catched_target_offset[-4]: 80
+distrib_catched_target_offset[-3]: 50
+distrib_catched_target_offset[-2]: 18
+distrib_catched_target_offset[-1]: 6
+distrib_catched_target_offset[0]: 10
+distrib_catched_target_offset[1]: 1
+distrib_catched_target_offset[2]: 1
+distrib_catched_target_offset[3]: 1
+distrib_catched_target_offset[4]: 3
+distrib_catched_target_offset[5]: 2
+distrib_catched_target_offset[6]: 0
+
+catcher
+distrib_catcher_target_offset[-6]: 11
+distrib_catcher_target_offset[-5]: 12
+distrib_catcher_target_offset[-4]: 5
+distrib_catcher_target_offset[-3]: 1
+distrib_catcher_target_offset[-2]: 1
+distrib_catcher_target_offset[-1]: 1
+distrib_catcher_target_offset[0]: 0
+distrib_catcher_target_offset[1]: 0
+distrib_catcher_target_offset[2]: 0
+distrib_catcher_target_offset[3]: 0
+distrib_catcher_target_offset[4]: 0
+distrib_catcher_target_offset[5]: 0
+distrib_catcher_target_offset[6]: 0

@@ -21,7 +21,7 @@ local gene_scatter_file = io.open("gene_scatter.run", "w")
 local gene_chase_file = io.open("gene_chase.run", "w")
 
 local ghost_genetic_on = true  	-- liga e desliga e GA
-local ghost_fitness_on = false 	-- desliga a funcao fitness
+local ghost_fitness_on = true 	-- desliga a funcao fitness
 local ghost_target_offset_freightned_on = true -- liga e desliga e gene target_offset_freightned
 local ghost_migration_on = true
 local ghost_selective_migration_on = false
