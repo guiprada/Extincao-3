@@ -7,11 +7,12 @@ local player = require "player"
 local timer = require "timer"
 local pill = require "pill"
 local resizer = require "resizer"
+local settings = require "settings"
 --------------------------------------------------------------------------------
 -- not quite game, not quite lab
 -- kitten killing globals
------------------------------------------------------------------------- Configuracao
 
+-- log files
 local target_offset_distribution_file = io.open("target_offset_distribution.run", "w")
 local fear_target_file = io.open("fear_target.run", "w")
 local fear_group_file = io.open("fear_group.run", "w")
@@ -20,87 +21,36 @@ local config_file = io.open("config.run", "w")
 local gene_scatter_file = io.open("gene_scatter.run", "w")
 local gene_chase_file = io.open("gene_chase.run", "w")
 
-local ghost_genetic_on = true  	-- liga e desliga e GA
-local ghost_fitness_on = true 	-- desliga a funcao fitness
-local ghost_target_offset_freightned_on = true -- liga e desliga e gene target_offset_freightned
-local ghost_migration_on = true
-local ghost_selective_migration_on = false
-local ghost_fear_on = true
-local ghost_go_home_on_scatter = true
-local ghost_chase_feared_gene_on = true
-local ghost_scatter_feared_gene_on = true
-local ghost_target_spread = 15
-local ghost_fear_spread = 50
-
-local pill_genetic_on = false-- liga e desliga o GA para pilulas
-local pill_precise_crossover_on = false
-
-local stats_on = true -- controla a exibicao de informacao do na tela
---local reporter_duty_cycle = 20        -- frequecia, em fantasmas nascidos, que o reporter printa uma notificacao no console
-
-local grid_width_n = 56
-local grid_height_n = 31
-
-local player_start_grid = {}
-player_start_grid.x = 28
-player_start_grid.y = 18
-
-local n_ghosts = 20 --at least 3
-local n_pills = 6	-- at least 2
-
-
-local pill_time = 3	-- tempo de duracao da pilula
-local restart_pill_time = 3
-local ghost_chase_time = 12 -- testado 3.99
-local ghost_scatter_time = 7 --testado com 2
-local ghost_respawn_time = 0 -- should be non zero  --  5 --15--20 testado
-
---
--- local pill_time = 3	-- tempo de duracao da pilula
--- local restart_pill_time = 2
--- local ghost_chase_time = 15 -- testado 3.99
--- local ghost_scatter_time = 7.5 --testado com 2
--- local ghost_respawn_time = 5 -- should be non zero  --  5 --15--20 testado
-
-local speed_boost_on = true
-local ghost_speed_max_factor = 1.1 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
-
-local speed = 0 -- will be set in love.load(), needs grid_size being set
-local player_speed_grid_size_factor = 5 -- speed = player_speed_grid_size_factor* grid_size
-local ghost_speed = 0 -- will be set in love.load(), needs speed being set
-
-
 io.output(config_file)
 io.write("the Configuration used is\n")
 
-io.write("\n\nghost_genetic_on: " .. tostring(ghost_genetic_on))
-io.write("\nghost_fitness_on: " .. tostring(ghost_fitness_on) )
-io.write("\nghost_target_offset_freightned_on: " .. tostring(ghost_target_offset_freightned_on))
-io.write("\nghost_migration_on: " .. tostring(ghost_migration_on))
-io.write("\nghost_selective_migration_on: " .. tostring(ghost_selective_migration_on))
-io.write("\nghost_fear_on: " .. tostring(ghost_fear_on))
-io.write("\nghost_go_home_on_scatter: " .. tostring(ghost_go_home_on_scatter))
-io.write("\nghost_chase_feared_gene_on: " .. tostring(ghost_chase_feared_gene_on))
-io.write("\nghost_scatter_feared_gene_on: " .. tostring(ghost_scatter_feared_gene_on))
-io.write("\nghost_target_spread: " .. ghost_target_spread)
-io.write("\n\npill_genetic_on: " .. tostring(pill_genetic_on))
-io.write("\npill_precise_crossover_on: " .. tostring(pill_precise_crossover_on))
-io.write("\nspeed_boost_on: " .. tostring(speed_boost_on))
+io.write("\n\nghost_genetic_on: " .. tostring(settings.ghost_genetic_on))
+io.write("\nghost_fitness_on: " .. tostring(settings.ghost_fitness_on) )
+io.write("\nghost_target_offset_freightned_on: " .. tostring(settings.ghost_target_offset_freightned_on))
+io.write("\nghost_migration_on: " .. tostring(settings.ghost_migration_on))
+io.write("\nghost_selective_migration_on: " .. tostring(settings.ghost_selective_migration_on))
+io.write("\nghost_fear_on: " .. tostring(settings.ghost_fear_on))
+io.write("\nghost_go_home_on_scatter: " .. tostring(settings.ghost_go_home_on_scatter))
+io.write("\nghost_chase_feared_gene_on: " .. tostring(settings.ghost_chase_feared_gene_on))
+io.write("\nghost_scatter_feared_gene_on: " .. tostring(settings.ghost_scatter_feared_gene_on))
+io.write("\nghost_target_spread: " .. settings.ghost_target_spread)
+io.write("\n\npill_genetic_on: " .. tostring(settings.pill_genetic_on))
+io.write("\npill_precise_crossover_on: " .. tostring(settings.pill_precise_crossover_on))
+io.write("\nspeed_boost_on: " .. tostring(settings.peed_boost_on))
 
-io.write("\n\nn_ghosts: " .. n_ghosts)
-io.write("\nn_pills: " .. n_pills)
-io.write("\npill_time: " .. pill_time)
-io.write("\nrestart_pill_time: " .. restart_pill_time)
-io.write("\nghost_chase_time: " .. ghost_chase_time)
-io.write("\nghost_scatter_time: " .. ghost_scatter_time)
-io.write("\nghost_respawn_time: " .. ghost_respawn_time)
+io.write("\n\nn_ghosts: " .. settings.n_ghosts)
+io.write("\nn_pills: " .. settings.n_pills)
+io.write("\npill_time: " .. settings.pill_time)
+io.write("\nrestart_pill_time: " .. settings.restart_pill_time)
+io.write("\nghost_chase_time: " .. settings.ghost_chase_time)
+io.write("\nghost_scatter_time: " .. settings.ghost_scatter_time)
+io.write("\nghost_respawn_time: " .. settings.ghost_respawn_time)
 
-io.write("\nthe grid is: " .. grid_width_n .. " x " .. grid_height_n)
-io.write("\nplayer's start grid is: " .. player_start_grid.x .. ", " .. player_start_grid.y)
-io.write("\nstats_on: " .. tostring(stats_on) )
---io.write("reporter_duty_cycle: " .. reporter_duty_cycle )
-io.write("\nghost_speed_max_factor: " .. ghost_speed_max_factor )
-io.write("\nplayer_speed_grid_size_factor: " .. player_speed_grid_size_factor )
+io.write("\nthe grid is: " .. settings.grid_width_n .. " x " .. settings.grid_height_n)
+io.write("\nplayer's start grid is: " .. settings.player_start_grid.x .. ", " .. settings.player_start_grid.y)
+
+io.write("\nghost_speed_max_factor: " .. settings.ghost_speed_max_factor )
+io.write("\nplayer_speed_grid_size_factor: " .. settings.player_speed_grid_size_factor )
 
 --------------------------------------------------------------------------------
 
@@ -116,6 +66,9 @@ local pills = {} -- e um array
 local freightened_on_restart_timer = {}
 local just_restarted = false
 local global_frame_counter = 0
+local ghost_speed = 0 -- will be set in love.load(), needs speed being set
+local speed = 0 -- will be set in love.load(), needs grid_size being set
+
 
 -- gamestate
 local has_shown_menu = false
@@ -128,8 +81,8 @@ local ghosts_catched = 0 -- contador de comidos
 local to_be_respawned = {} -- fila para armazenar os indices dos objetos a serem reiniciados
 
 
-local ghost_state_timer = timer.new(ghost_scatter_time) -- timer para alternar o ghost_state
-local ghost_respawn_timer = timer.new(ghost_respawn_time) --39-- timer para reativar um fantasma
+local ghost_state_timer = timer.new(settings.ghost_scatter_time) -- timer para alternar o ghost_state
+local ghost_respawn_timer = timer.new(settings.ghost_respawn_time) --39-- timer para reativar um fantasma
 
 -- para o maze_canvas
 local maze_canvas = {}
@@ -158,7 +111,7 @@ last_catcher_target_offset = 0 -- tem que ser global pois é setada por ghost.up
 
 local distrib_catched_target_offset = {}
 local distrib_catcher_target_offset = {}
-for i=-ghost_target_spread, ghost_target_spread, 1 do
+for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
 	distrib_catched_target_offset[i] = 0
 	distrib_catcher_target_offset[i] = 0
 end
@@ -177,7 +130,7 @@ function reporter()
 
 --------------------------------------------------------------------------------
 	local distrib_target_offset = {}
-	for i=-ghost_target_spread, ghost_target_spread, 1 do
+	for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
 		distrib_target_offset[i] = 0
 	end
 	for i=1, #ghosts, 1 do
@@ -192,7 +145,7 @@ function reporter()
 
 	io.output(target_offset_distribution_file)
 	--print("population's target distribution")
-	for i=-ghost_target_spread, ghost_target_spread, 1 do
+	for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
 		if ( distrib_target_offset[i] == 0 ) then
 			io.write(" _ ")
 		else
@@ -205,7 +158,7 @@ function reporter()
 --------------------------------------------------------------------------------
 
 	local distrib_fear_group = {}
-	for i=1, ghost_fear_spread, 1 do
+	for i=1, settings.ghost_fear_spread, 1 do
 		distrib_fear_group[i] = 0
 	end
 	for i=1, #ghosts, 1 do
@@ -233,7 +186,7 @@ function reporter()
 --------------------------------------------------------------------------------
 
 	local distrib_fear_target = {}
-	for i=1, ghost_fear_spread, 1 do
+	for i=1, settings.ghost_fear_spread, 1 do
 		distrib_fear_target[i] = 0
 	end
 	for i=1, #ghosts, 1 do
@@ -323,16 +276,19 @@ local blue_shader = love.graphics.newShader[[
 ]]
 
 function love.load()
-	love.window.setMode(0, 0, {resizable=true, vsync=true})
+
+	love.window.setMode(settings.screen_width or 0,
+						settings.screen_height or 0,
+						{fullscreen=true, resizable=false, vsync=true})
 
 	local default_width = love.graphics.getWidth()-- atualiza
 	local default_height = love.graphics.getHeight() -- atualiza
 
-	grid_size = resizer.init_resizer(default_width, default_height, grid_width_n, grid_height_n)
+	grid_size = resizer.init_resizer(default_width, default_height, settings.grid_width_n, settings.grid_height_n)
 	--print("grid_size is: " .. grid_size)
 	lookahead = grid_size/2
 
-	speed = (player_speed_grid_size_factor*grid_size)
+	speed = (settings.player_speed_grid_size_factor*grid_size)
 	ghost_speed = speed*1
 
 	print("player's speed: " .. speed)
@@ -340,37 +296,53 @@ function love.load()
 	print("grid_size is: " .. grid_size)
 	print()
 
-	grid.init(grid_width_n, grid_height_n, grid_size, lookahead)
+	grid.init(	settings.grid_width_n,
+				settings.grid_height_n,
+				grid_size, lookahead)
 	player.init(grid_size, lookahead)
-	ghost.init(ghost_fitness_on, ghost_target_spread, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, ghost_go_home_on_scatter, ghost_chase_feared_gene_on, ghost_scatter_feared_gene_on, grid_size, lookahead)
-	pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookahead)
+	ghost.init(	settings.ghost_fitness_on,
+				settings.ghost_target_spread,
+				settings.ghost_target_offset_freightned_on,
+				settings.ghost_migration_on,
+				settings.ghost_selective_migration_on,
+				ghost_speed,
+				settings.speed_boost_on,
+				settings.ghost_speed_max_factor,
+				settings.ghost_fear_on,
+				settings.ghost_go_home_on_scatter,
+				settings.ghost_chase_feared_gene_on,
+				settings.ghost_scatter_feared_gene_on,
+				grid_size,
+				lookahead)
+	pill.init(	settings.pill_genetic_on,
+				settings.pill_precise_crossover_on,
+				grid_size,
+				lookahead)
 
 	-- registrando uma fonte
 	font_size = grid_size
 	local font = love.graphics.newFont(font_size)
 	love.graphics.setFont(font)
 
-	--print("graphics is on, starting the game")
-
 	--inicia player
 	local grid_pos = {}
-	grid_pos.x =  player_start_grid.x
-	grid_pos.y =  player_start_grid.y
+	grid_pos.x =  settings.player_start_grid.x
+	grid_pos.y =  settings.player_start_grid.y
 
     come_come = player.new(grid_pos, speed)
 	--assert(come_come, "no player created")
 	--print("you are up...")
 	-- timer  de estado freightened no restart
-	freightened_on_restart_timer = timer.new(restart_pill_time)
+	freightened_on_restart_timer = timer.new(settings.restart_pill_time)
 
 	-- pilulas
-	for i=1, n_pills, 1 do
+	for i=1, settings.n_pills, 1 do
 		local rand = love.math.random(1, #grid.grid_valid_pos)
-		pills[i] = pill.new(rand, pill_time)
+		pills[i] = pill.new(rand, settings.pill_time)
 	end
 	--print("adding some pills and")
 
-	for i=1,n_ghosts,1 do
+	for i=1, settings.n_ghosts,1 do
 		-- encontra posicao valida, gene pos_index
 		local pos_index = love.math.random(1, #grid.grid_valid_pos)
 
@@ -381,8 +353,8 @@ function love.load()
 			pilgrin_gene = false
 		end
 
-		local target_offset = love.math.random(-ghost_target_spread, ghost_target_spread)
-		local target_offset_freightned = love.math.random(-ghost_target_spread, ghost_target_spread)
+		local target_offset = love.math.random(-settings.ghost_target_spread, settings.ghost_target_spread)
+		local target_offset_freightned = love.math.random(-settings.ghost_target_spread, settings.ghost_target_spread)
 		-- faz um gene try_order valido
 		local try_order = {}
 		for i=1, 4, 1 do
@@ -390,8 +362,8 @@ function love.load()
 		end
 		utils.array_shuffler(try_order)
 
-		local fear_target = love.math.random(0, ghost_fear_spread)
-		local fear_group = love.math.random(0, ghost_fear_spread)
+		local fear_target = love.math.random(0, settings.ghost_fear_spread)
+		local fear_group = love.math.random(0, settings.ghost_fear_spread)
 
 		local chase_feared_gene = love.math.random(1, 9)
 		local scatter_feared_gene = love.math.random(1, 5)
@@ -404,8 +376,8 @@ function love.load()
 	love.graphics.setCanvas(maze_canvas)
 		love.graphics.clear()
 		love.graphics.setBlendMode("alpha")
-		for i=1,grid_width_n do
-			for j=1,grid_height_n do
+		for i=1, settings.grid_width_n do
+			for j=1,settings.grid_height_n do
 				if (grid.grid_types[j][i]==16) then
 					love.graphics.setColor(0.7, 0.8, 0.8, 1)
 					love.graphics.rectangle("fill", grid_size*(i-1), grid_size*(j-1), grid_size, grid_size)
@@ -489,15 +461,8 @@ function love.draw()
 	love.graphics.print( "capturados: " .. ghosts_catched, 2*w/5,  font_size - 22)
 	love.graphics.print( "ativos: " .. active_ghost_counter, 3*w/5,  font_size -22)
 
-	if (stats_on) then
-		--love.graphics.setColor(1, 0, 0)
-		love.graphics.print(tostring(love.timer.getFPS( )), 5, h -3*font_size -10)
-		-- love.graphics.print("av-ghost-fit: " .. utils.round_2_dec(utils.average( ghosts, "fitness")), 10, h -font_size -10)
-		-- local best_specime = utils.get_highest(ghosts, "fitness")
-		-- love.graphics.print("max-fit: " .. utils.round_2_dec(best_specime.fitness), w/4, h -font_size -10)
-		-- love.graphics.print("av-target_offset: " .. utils.round_2_dec(total_target/active_ghost_counter), 2*w/4, h -font_size -10)
-		-- love.graphics.print("av-pill-fit: " .. utils.round_2_dec( utils.average(pills, "fitness")), 3*w/4, h -font_size -10)
-	end
+	love.graphics.print(tostring(love.timer.getFPS( )), 5, h -3*font_size -10)
+
 	if ( not come_come.is_active ) then
 		love.graphics.print( "'r' para ir de novo", 3*w/4 -5, font_size - 22)
 	end
@@ -543,7 +508,7 @@ function love.update(dt)
 					ghost.flip_direction(ghosts[i])
 					flip_sound:play()
 				end
-				timer.reset(ghost_state_timer, ghost_chase_time)
+				timer.reset(ghost_state_timer, settings.ghost_chase_time)
 			elseif ( ghost_state == "chasing") then
 				ghost_state = "scattering"
 				for i=1, #ghosts, 1 do
@@ -629,7 +594,7 @@ function love.update(dt)
 					else
 						-- encontra posicao de spawn
 						local spawn_grid_pos = {}
-						if ( come_come.grid_pos.x > (grid_width_n/2) ) then
+						if ( come_come.grid_pos.x > (settings.grid_width_n/2) ) then
 							spawn_grid_pos = {x=7, y= 21}
 						else
 							spawn_grid_pos = {x=50, y= 21}
@@ -646,7 +611,7 @@ function love.update(dt)
 
 		for i=1, #pills, 1 do
 			local is_active_before_update = pills[i].is_active
-			pill.update(pills[i], pills, come_come, dt, pill_time)
+			pill.update(pills[i], pills, come_come, dt, settings.pill_time)
 			if(pills[i].is_active) then
 				active_pill_count = active_pill_count + 1
 				total_pill_fitness = total_pill_fitness + pills[i].fitness
@@ -702,7 +667,7 @@ function love.keypressed(key, scancode, isrepeat)
 		timer.reset(freightened_on_restart_timer)
 		just_restarted = true
 		pill.pills_active = false
-		local grid_pos = {x=player_start_grid.x, y=player_start_grid.y}
+		local grid_pos = {x=settings.player_start_grid.x, y=settings.player_start_grid.y}
 		player.reset( come_come, grid_pos, speed, grid_size, lookahead)
 
 	elseif (key == "r" and game_on==false and (not paused)) then
@@ -728,12 +693,12 @@ function love.keypressed(key, scancode, isrepeat)
 
 		io.output(config_file)
 		io.write("\n\ncatched")
-		for i=-ghost_target_spread, ghost_target_spread, 1 do
+		for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
 			io.write("\ndistrib_catched_target_offset[" .. i .. "]: " .. distrib_catched_target_offset[i])
 		end
 
 		io.write("\n\ncatcher")
-		for i=-ghost_target_spread, ghost_target_spread, 1 do
+		for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
 			io.write("\ndistrib_catcher_target_offset[" .. i .. "]: " .. distrib_catcher_target_offset[i])
 		end
 

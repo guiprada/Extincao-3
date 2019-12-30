@@ -408,7 +408,7 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
             --if ( value.grid_pos.x == target.grid_pos.x and value.grid_pos.y == target.grid_pos.y) then
             if (value.dist_to_target < ghost.lookahead) then
                 if (state~="freightened") then
-                    print("you loose, my target is: " .. value.target_offset)
+                    --print("you loose, my target is: " .. value.target_offset)
                     last_catcher_target_offset = value.target_offset
                     if(ghost.speed_boost_on) then
                         value.speed_boost = value.speed_boost  + 0.1*ghost.grid_size
