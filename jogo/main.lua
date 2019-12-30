@@ -231,7 +231,7 @@ function reporter()
 		end
 	end
 	io.write("\n")
-	print()
+	--print()
 ------------------------------------------------------------------------------
 	local distrib_scatter_feared = {}
 	for i=1, 5, 1 do
@@ -253,7 +253,7 @@ function reporter()
 		end
 	end
 	io.write("\n")
-	print()
+	--print()
 
 end
 
@@ -294,7 +294,7 @@ function love.load()
 	print("player's speed: " .. speed)
 	print("ghost_speed: " .. ghost_speed)
 	print("grid_size is: " .. grid_size)
-	print()
+	--print()
 
 	grid.init(	settings.grid_width_n,
 				settings.grid_height_n,
