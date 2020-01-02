@@ -1,4 +1,7 @@
 -- Guilherme Cunha Prada 2019
+--------------------------------------------------------------------------------
+-- not quite game, not quite lab
+-- kitten killing globals
 
 local utils = require "utils"
 local grid = require "grid"
@@ -8,49 +11,7 @@ local timer = require "timer"
 local pill = require "pill"
 local resizer = require "resizer"
 local settings = require "settings"
---------------------------------------------------------------------------------
--- not quite game, not quite lab
--- kitten killing globals
-
--- log files
-local target_offset_distribution_file = io.open("target_offset_distribution.run", "w")
-local fear_target_file = io.open("fear_target.run", "w")
-local fear_group_file = io.open("fear_group.run", "w")
-local stats_file = io.open("stats.run", "w")
-local config_file = io.open("config.run", "w")
-local gene_scatter_file = io.open("gene_scatter.run", "w")
-local gene_chase_file = io.open("gene_chase.run", "w")
-
-io.output(config_file)
-io.write("the Configuration used is\n")
-
-io.write("\n\nghost_genetic_on: " .. tostring(settings.ghost_genetic_on))
-io.write("\nghost_fitness_on: " .. tostring(settings.ghost_fitness_on) )
-io.write("\nghost_target_offset_freightned_on: " .. tostring(settings.ghost_target_offset_freightned_on))
-io.write("\nghost_migration_on: " .. tostring(settings.ghost_migration_on))
-io.write("\nghost_selective_migration_on: " .. tostring(settings.ghost_selective_migration_on))
-io.write("\nghost_fear_on: " .. tostring(settings.ghost_fear_on))
-io.write("\nghost_go_home_on_scatter: " .. tostring(settings.ghost_go_home_on_scatter))
-io.write("\nghost_chase_feared_gene_on: " .. tostring(settings.ghost_chase_feared_gene_on))
-io.write("\nghost_scatter_feared_gene_on: " .. tostring(settings.ghost_scatter_feared_gene_on))
-io.write("\nghost_target_spread: " .. settings.ghost_target_spread)
-io.write("\n\npill_genetic_on: " .. tostring(settings.pill_genetic_on))
-io.write("\npill_precise_crossover_on: " .. tostring(settings.pill_precise_crossover_on))
-io.write("\nspeed_boost_on: " .. tostring(settings.peed_boost_on))
-
-io.write("\n\nn_ghosts: " .. settings.n_ghosts)
-io.write("\nn_pills: " .. settings.n_pills)
-io.write("\npill_time: " .. settings.pill_time)
-io.write("\nrestart_pill_time: " .. settings.restart_pill_time)
-io.write("\nghost_chase_time: " .. settings.ghost_chase_time)
-io.write("\nghost_scatter_time: " .. settings.ghost_scatter_time)
-io.write("\nghost_respawn_time: " .. settings.ghost_respawn_time)
-
-io.write("\nthe grid is: " .. settings.grid_width_n .. " x " .. settings.grid_height_n)
-io.write("\nplayer's start grid is: " .. settings.player_start_grid.x .. ", " .. settings.player_start_grid.y)
-
-io.write("\nghost_speed_max_factor: " .. settings.ghost_speed_max_factor )
-io.write("\nplayer_speed_grid_size_factor: " .. settings.player_speed_grid_size_factor )
+local reporter = require "reporter"
 
 --------------------------------------------------------------------------------
 
@@ -58,28 +19,25 @@ local grid_size = 0 -- will be set by resizer
 local lookahead = 0 -- will be set after grid_size
 local font_size = 0 -- will be set after grid_size
 
-
 -- tables para os objetos de jogo
 local come_come = {}
 local ghosts = {} -- e um array
 local pills = {} -- e um array
 local freightened_on_restart_timer = {}
 local just_restarted = false
-local global_frame_counter = 0
+
 local ghost_speed = 0 -- will be set in love.load(), needs speed being set
 local speed = 0 -- will be set in love.load(), needs grid_size being set
-
 
 -- gamestate
 local has_shown_menu = false
 local ghost_state = "scattering" -- controla o estado dos fantasmas
 local game_on = true -- e falsa caso o jogador tenha vencido :)
 local paused = true  -- para pausar e despausar
-local restarts = 0 -- contador de reinicios
-local resets = 0 -- contador de resets
-local ghosts_catched = 0 -- contador de comidos
-local to_be_respawned = {} -- fila para armazenar os indices dos objetos a serem reiniciados
 
+local resets = 0 -- contador de resets
+
+local to_be_respawned = {} -- fila para armazenar os indices dos objetos a serem reiniciados
 
 local ghost_state_timer = timer.new(settings.ghost_scatter_time) -- timer para alternar o ghost_state
 local ghost_respawn_timer = timer.new(settings.ghost_respawn_time) --39-- timer para reativar um fantasma
@@ -102,160 +60,6 @@ local pause_text = 	"Jogo da extinção\n\n"
 					.. "'p' para pausar/despausar\n"
 
 local active_ghost_counter = 0
--- local reporter_counter = 0
-
-local player_catched_counter = 0
-
-local last_catched_target_offset = 0
-last_catcher_target_offset = 0 -- tem que ser global pois é setada por ghost.update()
-
-local distrib_catched_target_offset = {}
-local distrib_catcher_target_offset = {}
-for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
-	distrib_catched_target_offset[i] = 0
-	distrib_catcher_target_offset[i] = 0
-end
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
-
-function reporter()
-	--reporter_counter = reporter_counter + 1
-
-	io.output(stats_file)
-	io.write(	"ghosts catched: " .. ghosts_catched .. "  <>  " ..
-				"player_catched: " .. player_catched_counter .. "  <>  " ..
-				"catches/catched:" .. ghosts_catched/player_catched_counter .. " <> " ..
-				"catches/frames:"  .. ghosts_catched/global_frame_counter  .. "\n"	)
-
---------------------------------------------------------------------------------
-	local distrib_target_offset = {}
-	for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
-		distrib_target_offset[i] = 0
-	end
-	for i=1, #ghosts, 1 do
-		if( ghosts[i].is_active == true) then -- para criar novos valores
-			if ( distrib_target_offset[ ghosts[i].target_offset ] ~= nil ) then
-				distrib_target_offset[ ghosts[i].target_offset ] = distrib_target_offset[ ghosts[i].target_offset ] + 1
-			else
-				distrib_target_offset[ ghosts[i].target_offset ] = 1
-			end
-		end
-	end
-
-	io.output(target_offset_distribution_file)
-	--print("population's target distribution")
-	for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
-		if ( distrib_target_offset[i] == 0 ) then
-			io.write(" _ ")
-		else
-			io.write(" " .. distrib_target_offset[i] .. " ")
-		end
-	end
-	io.write("\n")
-	--print()
-
---------------------------------------------------------------------------------
-
-	local distrib_fear_group = {}
-	for i=1, settings.ghost_fear_spread, 1 do
-		distrib_fear_group[i] = 0
-	end
-	for i=1, #ghosts, 1 do
-		if( ghosts[i].is_active == true) then -- para criar novos valores
-			if ( distrib_fear_group[ ghosts[i].fear_group ] ~= nil ) then
-				distrib_fear_group[ ghosts[i].fear_group ] = distrib_fear_group[ ghosts[i].fear_group ] + 1
-			else
-				distrib_fear_group[ ghosts[i].fear_group ] = 1
-			end
-		end
-	end
-
-	io.output(fear_group_file)
-	--print("population's target distribution")
-	for i=1, #distrib_fear_group, 1 do
-		if ( distrib_fear_group[i] == 0 or distrib_fear_group[i] == nil ) then
-			io.write(" _ ")
-		else
-			io.write(" " .. distrib_fear_group[i] .. " ")
-		end
-	end
-	io.write("\n")
-	--print()
-
---------------------------------------------------------------------------------
-
-	local distrib_fear_target = {}
-	for i=1, settings.ghost_fear_spread, 1 do
-		distrib_fear_target[i] = 0
-	end
-	for i=1, #ghosts, 1 do
-		if( ghosts[i].is_active == true) then -- para criar novos valores
-			if ( distrib_fear_target[ ghosts[i].fear_target ] ~= nil ) then
-				distrib_fear_target[ ghosts[i].fear_target ] = distrib_fear_target[ ghosts[i].fear_target ] + 1
-			else
-				distrib_fear_target[ ghosts[i].fear_target ] = 1
-			end
-		end
-	end
-
-	io.output(fear_target_file)
-	--print("population's target distribution")
-	for i=1, #distrib_fear_target, 1 do
-		if ( distrib_fear_target[i] == 0 or distrib_fear_target[i] == nil ) then
-			io.write(" _ ")
-		else
-			io.write(" " .. distrib_fear_target[i] .. " ")
-		end
-	end
-	io.write("\n")
-	--print()
--------------------------------------------------------------------------------
-	local distrib_chase_feared = {}
-	for i=1, 9, 1 do
-		distrib_chase_feared[i] = 0
-	end
-	for i=1, #ghosts, 1 do
-		if( ghosts[i].is_active == true) then
-			distrib_chase_feared[ghosts[i].chase_feared_gene] = distrib_chase_feared[ghosts[i].chase_feared_gene] +1
-		end
-	end
-
-	io.output(gene_chase_file)
-	--print("population's target distribution")
-	for i=1, #distrib_chase_feared, 1 do
-		if ( distrib_chase_feared[i] == 0 ) then
-			io.write(" _ ")
-		else
-			io.write(" " .. distrib_chase_feared[i] .. " ")
-		end
-	end
-	io.write("\n")
-	--print()
-------------------------------------------------------------------------------
-	local distrib_scatter_feared = {}
-	for i=1, 5, 1 do
-		distrib_scatter_feared[i] = 0
-	end
-	for i=1, #ghosts, 1 do
-		if( ghosts[i].is_active == true) then
-			distrib_scatter_feared[ghosts[i].scatter_feared_gene] = distrib_scatter_feared[ghosts[i].scatter_feared_gene] +1
-		end
-	end
-
-	io.output(gene_scatter_file)
-	--print("population's target distribution")
-	for i=1, #distrib_scatter_feared, 1 do
-		if ( distrib_scatter_feared[i] == 0 ) then
-			io.write(" _ ")
-		else
-			io.write(" " .. distrib_scatter_feared[i] .. " ")
-		end
-	end
-	io.write("\n")
-	--print()
-
-end
 
 --------------------------------------------------------------------------------
 
@@ -276,7 +80,6 @@ local blue_shader = love.graphics.newShader[[
 ]]
 
 function love.load()
-
 	love.window.setMode(settings.screen_width or 0,
 						settings.screen_height or 0,
 						{fullscreen=true, resizable=false, vsync=true})
@@ -294,8 +97,8 @@ function love.load()
 	print("player's speed: " .. speed)
 	print("ghost_speed: " .. ghost_speed)
 	print("grid_size is: " .. grid_size)
-	--print()
 
+	reporter.init()
 	grid.init(	settings.grid_width_n,
 				settings.grid_height_n,
 				grid_size, lookahead)
@@ -313,7 +116,8 @@ function love.load()
 				settings.ghost_chase_feared_gene_on,
 				settings.ghost_scatter_feared_gene_on,
 				grid_size,
-				lookahead)
+				lookahead,
+				reporter)
 	pill.init(	settings.pill_genetic_on,
 				settings.pill_precise_crossover_on,
 				grid_size,
@@ -456,9 +260,9 @@ function love.draw()
 	love.graphics.origin()
 
 	love.graphics.setColor(1, 0, 0)
-	love.graphics.print( "reinicios: " .. restarts, 10,  font_size - 22)
+	love.graphics.print( "capturado: " .. reporter.player_catched, 10,  font_size - 22)
 	love.graphics.print( "resets: " .. resets, w/5,  font_size -22)
-	love.graphics.print( "capturados: " .. ghosts_catched, 2*w/5,  font_size - 22)
+	love.graphics.print( "capturados: " .. reporter.ghosts_catched, 2*w/5,  font_size - 22)
 	love.graphics.print( "ativos: " .. active_ghost_counter, 3*w/5,  font_size -22)
 
 	love.graphics.print(tostring(love.timer.getFPS( )), 5, h -3*font_size -10)
@@ -532,7 +336,7 @@ function love.update(dt)
 		end
 
 		if (game_on) then
-			global_frame_counter = global_frame_counter + 1
+			reporter.global_frame_counter = reporter.global_frame_counter + 1
 			local total_fitness = 0
 			local active_ghost_counter = 0
 
@@ -550,7 +354,9 @@ function love.update(dt)
 
 				if ( is_active_before_update==true and
 						ghosts[i].is_active == false) then -- foi pego
-					ghosts_catched = ghosts_catched + 1
+
+					reporter.report_catch(ghosts[i], ghosts)
+
 					local len_respawn =  #to_be_respawned
 					local len_ghosts = #ghosts
 					if ( len_respawn ==0 ) then
@@ -568,20 +374,9 @@ function love.update(dt)
 						end
 						game_on = false
 					end
-
-					last_catched_target_offset = ghosts[i].target_offset
-					if(	distrib_catched_target_offset[ ghosts[i].target_offset ] ) then
-						distrib_catched_target_offset[ ghosts[i].target_offset ] = distrib_catched_target_offset[ ghosts[i].target_offset ] + 1
-					else
-						distrib_catched_target_offset[ ghosts[i].target_offset ] = 1
-					end
-					reporter()
 				end
 			end
-			-- if (active_ghost_counter ~=0) then
-			-- 	average_ghost_fitness = total_fitness/ active_ghost_counter
-			-- 	average_dist_group = total_dist_to_group/ active_ghost_counter
-			-- end
+
 			--respawns
 			if ( timer.update(ghost_respawn_timer,dt) )then --and ghost_state == "freightened") then -- continua respawnando mesma sem player
 				if (#to_be_respawned > 0) then
@@ -638,14 +433,9 @@ function love.update(dt)
 		-- player, depois de ghosts, para pegar a mudanca de estado( player catched)
 
 		player.update(come_come, dt)
-		if ( player_active_before_update == true and come_come.is_active == false ) then -- player killed
-			player_catched_counter = player_catched_counter + 1
-			if (distrib_catcher_target_offset[ last_catcher_target_offset ])then
-				distrib_catcher_target_offset[ last_catcher_target_offset ] = distrib_catcher_target_offset[ last_catcher_target_offset] + 1
-			else
-				distrib_catcher_target_offset[ last_catcher_target_offset ] = 1
-			end
-		end
+		-- if ( player_active_before_update == true and come_come.is_active == false ) then -- player killed
+		-- 	reporter.player_catched = rplayer_catched_counter + 1
+		-- end
 
 	end
 end
@@ -661,7 +451,7 @@ function love.keypressed(key, scancode, isrepeat)
 
 	elseif (key == "r" and come_come.is_active==false and (not paused)) then
 		--print("restarting")
-		restarts = restarts + 1
+
 		ghost_state = "freightened"
 
 		timer.reset(freightened_on_restart_timer)
@@ -690,27 +480,8 @@ function love.keypressed(key, scancode, isrepeat)
 		timer.reset(ghost_state_timer)
 
    	elseif (key == "q") then
-
-		io.output(config_file)
-		io.write("\n\ncatched")
-		for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
-			io.write("\ndistrib_catched_target_offset[" .. i .. "]: " .. distrib_catched_target_offset[i])
-		end
-
-		io.write("\n\ncatcher")
-		for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
-			io.write("\ndistrib_catcher_target_offset[" .. i .. "]: " .. distrib_catcher_target_offset[i])
-		end
-
+		reporter.stop()
 		-------------
-
-		io.close(target_offset_distribution_file)
-		io.close(fear_target_file)
-		io.close(fear_group_file)
-		io.close(stats_file)
-		io.close(config_file)
-		io.close(gene_scatter_file)
-		io.close(gene_chase_file)
 	   	love.event.quit(0)
    	end
 end

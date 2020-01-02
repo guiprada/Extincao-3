@@ -2,6 +2,7 @@
 
 local grid = require "grid"
 local utils = require "utils"
+
 local ghost = {}
 
 ghost.ghost_fitness_on = false
@@ -17,7 +18,7 @@ ghost.ghost_go_home_on_scatter = false
 ghost.ghost_scatter_feared_gene_on = false
 ghost.ghost_chase_feared_gene_on = false
 
-function ghost.init( ghost_fitness_on, ghost_target_spread, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, ghost_go_home_on_scatter, ghost_chase_feared_gene_on, ghost_scatter_feared_gene_on, grid_size, lookahead)
+function ghost.init( ghost_fitness_on, ghost_target_spread, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, ghost_go_home_on_scatter, ghost_chase_feared_gene_on, ghost_scatter_feared_gene_on, grid_size, lookahead, reporter)
     ghost.ghost_fitness_on = ghost_fitness_on
     ghost.ghost_target_spread = ghost_target_spread
     ghost.ghost_target_offset_freightned_on = ghost_target_offset_freightned_on
@@ -32,6 +33,7 @@ function ghost.init( ghost_fitness_on, ghost_target_spread, ghost_target_offset_
     ghost.ghost_chase_feared_gene_on = ghost_chase_feared_gene_on
     ghost.grid_size = grid_size
     ghost.lookahead = lookahead
+    ghost.reporter = reporter
 end
 
 function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, scatter_feared_gene, speed, pills)
@@ -406,10 +408,11 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
         --print(target.is_active)
         if (target.is_active == true) then
             --if ( value.grid_pos.x == target.grid_pos.x and value.grid_pos.y == target.grid_pos.y) then
-            if (value.dist_to_target < ghost.lookahead) then
+            if (value.dist_to_target < ghost.lookahead) then --colidiu
                 if (state~="freightened") then
                     --print("you loose, my target is: " .. value.target_offset)
-                    last_catcher_target_offset = value.target_offset
+                    ghost.reporter.report_catched(value.target_offset)
+                    
                     if(ghost.speed_boost_on) then
                         value.speed_boost = value.speed_boost  + 0.1*ghost.grid_size
                     end
