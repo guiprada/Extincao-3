@@ -12,6 +12,7 @@ local pill = require "pill"
 local resizer = require "resizer"
 local settings = require "settings"
 local reporter = require "reporter"
+local shaders = require "shaders"
 
 --------------------------------------------------------------------------------
 
@@ -62,22 +63,6 @@ local pause_text = 	"Jogo da extinção\n\n"
 local active_ghost_counter = 0
 
 --------------------------------------------------------------------------------
-
-local red_shader = love.graphics.newShader[[
-	vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords ){
-		vec4 pixel = Texel(texture, texture_coords );//This is the current pixel color
-		vec4 redish = vec4(1, 0.1, 0.1, 0.7);
-		return pixel * redish;
-	}
-]]
-
-local blue_shader = love.graphics.newShader[[
-	vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords ){
-		vec4 pixel = Texel(texture, texture_coords );//This is the current pixel color
-		vec4 blueish = vec4(0, 0, 1, 0.5);
-		return pixel * blueish;
-	}
-]]
 
 function love.load()
 	love.window.setMode(settings.screen_width or 0,
@@ -246,9 +231,9 @@ function love.draw()
 		end
 
 		if(ghost_state == "chasing") then
-			love.graphics.setShader(red_shader)
+			love.graphics.setShader(shaders.red)
 		elseif(ghost_state == "freightened") then
-			love.graphics.setShader(blue_shader)
+			love.graphics.setShader(shaders.blue)
 		end
 		--ghosts
 		for i=1, #ghosts, 1 do
@@ -319,8 +304,6 @@ function love.update(dt)
 		-- local total_dist_to_group = 0
 		local total_pill_fitness = 0
 		local active_pill_count = 0
-		local player_active_before_update = come_come.is_active -- tem que ser antes do update dos ghosts
-		--print("in" .. tostring(come_come.is_active) )
 
 		-- controlador do ghost_state
 		-- o pill update  tbem faz modificoes no ghost_state
@@ -451,11 +434,7 @@ function love.update(dt)
 		end
 
 		-- player, depois de ghosts, para pegar a mudanca de estado( player catched)
-
 		player.update(come_come, dt)
-		-- if ( player_active_before_update == true and come_come.is_active == false ) then -- player killed
-		-- 	reporter.player_catched = rplayer_catched_counter + 1
-		-- end
 
 	end
 end
