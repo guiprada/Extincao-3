@@ -412,7 +412,7 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
                 if (state~="freightened") then
                     --print("you loose, my target is: " .. value.target_offset)
                     ghost.reporter.report_catched(value.target_offset)
-                    
+
                     if(ghost.speed_boost_on) then
                         value.speed_boost = value.speed_boost  + 0.1*ghost.grid_size
                     end

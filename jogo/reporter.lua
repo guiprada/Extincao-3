@@ -22,8 +22,9 @@ for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
 end
 
 reporter.init = function ()
+    -- save the configuration used in the run to file
     io.output(reporter.config_file)
-    io.write("the Configuration used is\n")
+    io.write("the Configuration used is:")
 
     io.write("\n\nghost_genetic_on: " .. tostring(settings.ghost_genetic_on))
     io.write("\nghost_fitness_on: " .. tostring(settings.ghost_fitness_on) )
@@ -69,132 +70,42 @@ function reporter.report_catch(this_ghost, ghosts)
 				"catches/catched:" .. reporter.ghosts_catched/reporter.player_catched .. " <> " ..
 				"catches/frames:"  .. reporter.ghosts_catched/reporter.global_frame_counter  .. "\n"	)
 
---------------------------------------------------------------------------------
-	local distrib_target_offset = {}
-	for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
-		distrib_target_offset[i] = 0
-	end
-	for i=1, #ghosts, 1 do
-		if( ghosts[i].is_active == true) then -- para criar novos valores
-			if ( distrib_target_offset[ ghosts[i].target_offset ] ~= nil ) then
-				distrib_target_offset[ ghosts[i].target_offset ] = distrib_target_offset[ ghosts[i].target_offset ] + 1
-			else
-				distrib_target_offset[ ghosts[i].target_offset ] = 1
-			end
-		end
-	end
+    ----------------------------------------------------------------------------
+    -- local function to save to file
+    local f = function(start, stop, parameter, file)
+        local distrib = {}
+        for i=start, stop, 1 do
+            distrib[i] = 0
+        end
 
-	io.output(reporter.target_offset_distribution_file)
-	--print("population's target distribution")
-	for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
-		if ( distrib_target_offset[i] == 0 ) then
-			io.write(" _ ")
-		else
-			io.write(" " .. distrib_target_offset[i] .. " ")
-		end
-	end
-	io.write("\n")
-	--print()
+        for i=1, #ghosts, 1 do
+            if( ghosts[i].is_active == true) then -- para criar novos valores
+                if ( distrib[ ghosts[i][parameter] ] ~= nil ) then
+                    distrib[ ghosts[i][parameter] ] = distrib[ ghosts[i][parameter] ] + 1
+                else
+                    distrib[ ghosts[i][parameter] ] = 1
+                end
+            end
+        end
 
---------------------------------------------------------------------------------
+        io.output(file)
 
-	local distrib_fear_group = {}
-	for i=1, settings.ghost_fear_spread, 1 do
-		distrib_fear_group[i] = 0
-	end
-	for i=1, #ghosts, 1 do
-		if( ghosts[i].is_active == true) then -- para criar novos valores
-			if ( distrib_fear_group[ ghosts[i].fear_group ] ~= nil ) then
-				distrib_fear_group[ ghosts[i].fear_group ] = distrib_fear_group[ ghosts[i].fear_group ] + 1
-			else
-				distrib_fear_group[ ghosts[i].fear_group ] = 1
-			end
-		end
-	end
+        for i=start, stop, 1 do
+            if ( distrib[i] == 0 ) then
+                io.write(" _ ")
+            else
+                io.write(" " .. distrib[i] .. " ")
+            end
+        end
+        io.write("\n")
+    end
 
-	io.output(reporter.fear_group_file)
-	--print("population's target distribution")
-	for i=1, #distrib_fear_group, 1 do
-		if ( distrib_fear_group[i] == 0 or distrib_fear_group[i] == nil ) then
-			io.write(" _ ")
-		else
-			io.write(" " .. distrib_fear_group[i] .. " ")
-		end
-	end
-	io.write("\n")
-	--print()
-
---------------------------------------------------------------------------------
-
-	local distrib_fear_target = {}
-	for i=1, settings.ghost_fear_spread, 1 do
-		distrib_fear_target[i] = 0
-	end
-	for i=1, #ghosts, 1 do
-		if( ghosts[i].is_active == true) then -- para criar novos valores
-			if ( distrib_fear_target[ ghosts[i].fear_target ] ~= nil ) then
-				distrib_fear_target[ ghosts[i].fear_target ] = distrib_fear_target[ ghosts[i].fear_target ] + 1
-			else
-				distrib_fear_target[ ghosts[i].fear_target ] = 1
-			end
-		end
-	end
-
-	io.output(reporter.fear_target_file)
-	--print("population's target distribution")
-	for i=1, #distrib_fear_target, 1 do
-		if ( distrib_fear_target[i] == 0 or distrib_fear_target[i] == nil ) then
-			io.write(" _ ")
-		else
-			io.write(" " .. distrib_fear_target[i] .. " ")
-		end
-	end
-	io.write("\n")
-	--print()
--------------------------------------------------------------------------------
-	local distrib_chase_feared = {}
-	for i=1, 9, 1 do
-		distrib_chase_feared[i] = 0
-	end
-	for i=1, #ghosts, 1 do
-		if( ghosts[i].is_active == true) then
-			distrib_chase_feared[ghosts[i].chase_feared_gene] = distrib_chase_feared[ghosts[i].chase_feared_gene] +1
-		end
-	end
-
-	io.output(reporter.gene_chase_file)
-	--print("population's target distribution")
-	for i=1, #distrib_chase_feared, 1 do
-		if ( distrib_chase_feared[i] == 0 ) then
-			io.write(" _ ")
-		else
-			io.write(" " .. distrib_chase_feared[i] .. " ")
-		end
-	end
-	io.write("\n")
-	--print()
-------------------------------------------------------------------------------
-	local distrib_scatter_feared = {}
-	for i=1, 5, 1 do
-		distrib_scatter_feared[i] = 0
-	end
-	for i=1, #ghosts, 1 do
-		if( ghosts[i].is_active == true) then
-			distrib_scatter_feared[ghosts[i].scatter_feared_gene] = distrib_scatter_feared[ghosts[i].scatter_feared_gene] +1
-		end
-	end
-
-	io.output(reporter.gene_scatter_file)
-	--print("population's target distribution")
-	for i=1, #distrib_scatter_feared, 1 do
-		if ( distrib_scatter_feared[i] == 0 ) then
-			io.write(" _ ")
-		else
-			io.write(" " .. distrib_scatter_feared[i] .. " ")
-		end
-	end
-	io.write("\n")
-	--print()
+    f(  -settings.ghost_target_spread, settings.ghost_target_spread,
+        "target_offset", reporter.target_offset_distribution_file )
+    f(1, settings.ghost_fear_spread, "fear_group", reporter.fear_group_file)
+    f(1, settings.ghost_fear_spread, "fear_target", reporter.fear_target_file)
+    f(1,  9, "chase_feared_gene", reporter.gene_chase_file)
+    f(1, 5, "scatter_feared_gene", reporter.gene_scatter_file)
 
 end
 
@@ -217,6 +128,7 @@ function reporter.report_catched(last_catcher_target_offset)
     else
         reporter.distrib_catcher_target_offset[ last_catcher_target_offset ] = 1
     end
+    reporter.player_catched = reporter.player_catched + 1
 end
 
 return reporter

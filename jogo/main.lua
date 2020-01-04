@@ -88,7 +88,6 @@ function love.load()
 	local default_height = love.graphics.getHeight() -- atualiza
 
 	grid_size = resizer.init_resizer(default_width, default_height, settings.grid_width_n, settings.grid_height_n)
-	--print("grid_size is: " .. grid_size)
 	lookahead = grid_size/2
 
 	speed = (settings.player_speed_grid_size_factor*grid_size)
@@ -134,7 +133,6 @@ function love.load()
 	grid_pos.y =  settings.player_start_grid.y
 
     come_come = player.new(grid_pos, speed)
-	--assert(come_come, "no player created")
 	--print("you are up...")
 	-- timer  de estado freightened no restart
 	freightened_on_restart_timer = timer.new(settings.restart_pill_time)
@@ -157,8 +155,11 @@ function love.load()
 			pilgrin_gene = false
 		end
 
-		local target_offset = love.math.random(-settings.ghost_target_spread, settings.ghost_target_spread)
-		local target_offset_freightned = love.math.random(-settings.ghost_target_spread, settings.ghost_target_spread)
+		local target_offset = love.math.random(	-settings.ghost_target_spread,
+												settings.ghost_target_spread)
+		local target_offset_freightned = love.math.random(
+												-settings.ghost_target_spread,
+												settings.ghost_target_spread)
 		-- faz um gene try_order valido
 		local try_order = {}
 		for i=1, 4, 1 do
@@ -172,7 +173,17 @@ function love.load()
 		local chase_feared_gene = love.math.random(1, 9)
 		local scatter_feared_gene = love.math.random(1, 5)
 
-	    ghosts[i] = ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, scatter_feared_gene, ghost_speed, pills)
+	    ghosts[i] = ghost.new(	pos_index,
+								pilgrin_gene,
+								target_offset,
+								target_offset_freightned,
+								try_order,
+								fear_target,
+								fear_group,
+								chase_feared_gene,
+								scatter_feared_gene,
+								ghost_speed,
+								pills)
 	end
 	--print("some ghosts for you to catch :)")
     -- cria o canvas para o maze_canvas
@@ -184,13 +195,22 @@ function love.load()
 			for j=1,settings.grid_height_n do
 				if (grid.grid_types[j][i]==16) then
 					love.graphics.setColor(0.7, 0.8, 0.8, 1)
-					love.graphics.rectangle("fill", grid_size*(i-1), grid_size*(j-1), grid_size, grid_size)
+					love.graphics.rectangle("fill",
+											grid_size*(i-1),
+											grid_size*(j-1),
+											grid_size,grid_size)
 				elseif (grid.grid_types[j][i]==0) then
 						love.graphics.setColor(0.15, 0.25, 0.35, 1)
-						love.graphics.rectangle("fill", grid_size*(i-1), grid_size*(j-1), grid_size, grid_size)
+						love.graphics.rectangle("fill",
+												grid_size*(i-1),
+												grid_size*(j-1),
+												grid_size, grid_size)
 				else
 					love.graphics.setColor(0, 0, 0, 1)
-					love.graphics.rectangle("fill", grid_size*(i-1), grid_size*(j-1), grid_size, grid_size)
+					love.graphics.rectangle("fill",
+											grid_size*(i-1),
+											grid_size*(j-1),
+											grid_size, grid_size)
 				end
 			end
 		end
