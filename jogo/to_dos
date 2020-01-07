@@ -1,4 +1,5 @@
-- Criar pasta de assets separada
+------------------------------ todo
+
 - Gerar audio proceduralmente e eliminar os assets :)
 - Atualizar a love
 - Criar player inteligente
@@ -6,3 +7,8 @@
 - velocidade baseada em metabolismo!
 - fazer os objetos usarem o arquivo settings diretamente?
 - usar ponteiros para funcao no fantasma
+
+
+------------------------------ done
+
++- Criar pasta de assets separada

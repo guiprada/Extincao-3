@@ -27,7 +27,7 @@ function pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookah
     pill.pill_precise_crossover_on = pill_precise_crossover_on
     pill.grid_size = grid_size
     pill.lookahead = lookahead
-    pill.warn_sound = love.audio.newSource("warn.wav", "static")
+    pill.warn_sound = love.audio.newSource("audio/warn.wav", "static")
 end
 
 function pill.new(pos_index, pill_time)

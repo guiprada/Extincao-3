@@ -10,7 +10,7 @@ function player.init(grid_size)
     player.grid_size = grid_size
     --player.lookahead = lookahead
 
-    player.plip_sound = love.audio.newSource("plip.wav", "static")
+    player.plip_sound = love.audio.newSource("audio/plip.wav", "static")
     player.plip_sound:setVolume(0.3)
     player.plip_sound:setPitch(0.9)
 end

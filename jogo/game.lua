@@ -197,7 +197,7 @@ function game.load()
 		end
 	love.graphics.setCanvas()
 
-	flip_sound = love.audio.newSource("tic.wav", "static")
+	flip_sound = love.audio.newSource("audio/tic.wav", "static")
 end
 
 --------------------------------------------------------------------------------
