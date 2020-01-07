@@ -3,13 +3,13 @@
 local reporter = {}
 local settings = require "settings"
 
-reporter.target_offset_distribution_file = io.open("target_offset_distribution.run", "w")
-reporter.fear_target_file = io.open("fear_target.run", "w")
-reporter.fear_group_file = io.open("fear_group.run", "w")
-reporter.stats_file = io.open("stats.run", "w")
-reporter.config_file = io.open("config.run", "w")
-reporter.gene_scatter_file = io.open("gene_scatter.run", "w")
-reporter.gene_chase_file = io.open("gene_chase.run", "w")
+reporter.target_offset_distribution_file = io.open("run/target_offset_distribution.run", "w")
+reporter.fear_target_file = io.open("run/fear_target.run", "w")
+reporter.fear_group_file = io.open("run/fear_group.run", "w")
+reporter.stats_file = io.open("run/stats.run", "w")
+reporter.config_file = io.open("run/config.run", "w")
+reporter.gene_scatter_file = io.open("run/gene_scatter.run", "w")
+reporter.gene_chase_file = io.open("run/gene_chase.run", "w")
 
 reporter.distrib_catched_target_offset = {}
 reporter.distrib_catcher_target_offset = {}

@@ -1,5 +1,8 @@
-- Criar pasta de media separada
+- Criar pasta de assets separada
+- Gerar audio proceduralmente e eliminar os assets :)
 - Atualizar a love
 - Criar player inteligente
 - Criar tela de vitoria
 - velocidade baseada em metabolismo!
+- fazer os objetos usarem o arquivo settings diretamente?
+- usar ponteiros para funcao no fantasma

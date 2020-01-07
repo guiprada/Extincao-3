@@ -564,7 +564,6 @@ function ghost.find_next_dir(value, target, state, average_ghost_pos)
         --print( state)
 
         if (target.is_active) then
-
             --io.output()
             if ( state == "chasing" ) then
                 if(value.fear)then
@@ -755,7 +754,6 @@ end
 
 
 function ghost.run_from_target(value, target, maybe_dirs)
-
     local destination = {}
 
     if (target.direction == "up") then
@@ -789,7 +787,6 @@ end
 
 
 function ghost.get_closest( value, maybe_dirs, destination)
-
     local shortest = 1
     --print(destination.x)
     for i=1, #maybe_dirs, 1 do
