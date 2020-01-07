@@ -1,10 +1,11 @@
--- Guilherme Cunha Prada 2019
+-- Guilherme Cunha Prada 2020
 --------------------------------------------------------------------------------
 -- not quite game, not quite lab
 -- kitten killing globals
 local game = {}
 
 --print("ow yeah")
+local gamestate = require "gamestate"
 local utils = require "utils"
 local grid = require "grid"
 local ghost = require "ghost"
@@ -17,6 +18,8 @@ local reporter = require "reporter"
 local shaders = require "shaders"
 
 --------------------------------------------------------------------------------
+
+local text_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 35)
 
 local grid_size = 0 -- will be set by resizer
 local lookahead = 0 -- will be set after grid_size
@@ -33,9 +36,7 @@ local ghost_speed = 0 -- will be set in love.load(), needs speed being set
 local speed = 0 -- will be set in love.load(), needs grid_size being set
 
 -- gamestate
-local has_shown_menu = false
 local ghost_state = "scattering" -- controla o estado dos fantasmas
-local game_on = true -- e falsa caso o jogador tenha vencido :)
 local paused = true  -- para pausar e despausar
 
 local resets = 0 -- contador de resets
@@ -51,16 +52,9 @@ local maze_canvas = {}
 -- para o som do troca de estados do fantasma
 local flip_sound = true
 
-local pause_text = 	"Jogo da extinção\n\n"
-					.."Não deixe o monstro te pegar :) \n"
-					.. "Voce precisa comer uma  pilula verde para poder vencelos.\n"
-					.. "O objetivo do jogo é levar os montros a extinção, "
-					.. "deixando    ao    maximo    um    exemplar   solto.\n"
-					.. "Alguns monstros escapam com o tempo.\n"
-					.. "\nComandos\n"
-					.. "'r' para tentar de novo \n"
-					.. "'q' para sair\n"
-					.. "'p' para pausar/despausar\n"
+local pause_text = 	"\n\n'enter' para tentar de novo \n\n"
+					.. "'esc' para sair\n\n"
+					.. "'spaco' para pausar\n\n"
 
 local active_ghost_counter = 0
 
@@ -80,9 +74,9 @@ function game.load()
 	speed = (settings.player_speed_grid_size_factor*grid_size)
 	ghost_speed = speed*1
 
-	print("player's speed: " .. speed)
-	print("ghost_speed: " .. ghost_speed)
-	print("grid_size is: " .. grid_size)
+	-- print("player's speed: " .. speed)
+	-- print("ghost_speed: " .. ghost_speed)
+	-- print("grid_size is: " .. grid_size)
 
 	reporter.init()
 	grid.init(	settings.grid_width_n,
@@ -225,36 +219,26 @@ function game.draw()
 
 
 
-	if( game_on ) then
-		--pills
-		for i=1, #pills, 1 do
-			pill.draw(pills[i])
-		end
+	--pills
+	for i=1, #pills, 1 do
+		pill.draw(pills[i])
+	end
 
-		if(ghost_state == "chasing") then
-			love.graphics.setShader(shaders.red)
-		elseif(ghost_state == "freightened") then
-			love.graphics.setShader(shaders.blue)
-		end
-		--ghosts
-		for i=1, #ghosts, 1 do
-			--print(ghosts[i].n_updates)
+	if(ghost_state == "chasing") then
+		love.graphics.setShader(shaders.red)
+	elseif(ghost_state == "freightened") then
+		love.graphics.setShader(shaders.blue)
+	end
+	--ghosts
+	for i=1, #ghosts, 1 do
+		--print(ghosts[i].n_updates)
 
-			if (ghosts[i].is_active )then
-				active_ghost_counter = active_ghost_counter +1
-				total_target = total_target + ghosts[i].target_offset
-			end
-			ghost.draw(ghosts[i], ghost_state)
-			--print(ghosts[i].fitness)
+		if (ghosts[i].is_active )then
+			active_ghost_counter = active_ghost_counter +1
+			total_target = total_target + ghosts[i].target_offset
 		end
-	else -- tela de vitoria
-		-- reseta scale and translate
-		love.graphics.origin()
-		--love.graphics.setShader()
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.print( "extintos! 'r' para reiniciar", 4*w/5 -50, -3)
-		-- e volta
-		resizer.draw_fix()
+		ghost.draw(ghosts[i], ghost_state)
+		--print(ghosts[i].fitness)
 	end
 
 	-- jogador
@@ -266,10 +250,12 @@ function game.draw()
 	love.graphics.origin()
 
 	love.graphics.setColor(1, 0, 0)
-	love.graphics.print( "capturado: " .. reporter.player_catched, 10,  font_size - 22)
-	love.graphics.print( "resets: " .. resets, w/5,  font_size -22)
-	love.graphics.print( "capturados: " .. reporter.ghosts_catched, 2*w/5,  font_size - 22)
-	love.graphics.print( "ativos: " .. active_ghost_counter, 3*w/5,  font_size -22)
+	love.graphics.print("capturado: " .. reporter.player_catched, 10,
+						font_size - 22)
+	love.graphics.print("resets: " .. resets, w/5,  font_size -22)
+	love.graphics.print("capturados: " .. reporter.ghosts_catched, 2*w/5,
+						font_size - 22)
+	love.graphics.print("ativos: " .. active_ghost_counter, 3*w/5,  font_size -22)
 
 	love.graphics.print(tostring(love.timer.getFPS( )), 5, h -3*font_size -10)
 
@@ -279,15 +265,14 @@ function game.draw()
 
 	-- tela de pause
 	if (paused) then
-		if (has_shown_menu==false) then
 			love.graphics.setColor(0, 0, 0, 0.8)
 			love.graphics.rectangle("fill", w/4 , h/4, w/2, h/2)
 			love.graphics.setColor(1, 1, 0)
-			love.graphics.printf(pause_text, w/4, h/4, w/2,"center")
-		else
-			love.graphics.setColor(0, 0, 0, 0.1)
-			love.graphics.rectangle("fill", 0, 0, w, h)
-		end
+			love.graphics.printf(pause_text, text_font, w/4, h/4, w/2,"center")
+
+			-- love.graphics.setColor(0, 0, 0, 0.1)
+			-- love.graphics.rectangle("fill", 0, 0, w, h)
+			--
 	end
 
 end
@@ -339,70 +324,68 @@ function game.update(dt)
 			just_restarted = false
 		end
 
-		if (game_on) then
-			reporter.global_frame_counter = reporter.global_frame_counter + 1
-			local total_fitness = 0
-			local active_ghost_counter = 0
+		reporter.global_frame_counter = reporter.global_frame_counter + 1
+		local total_fitness = 0
+		local active_ghost_counter = 0
 
-			for i=1, #ghosts, 1 do
-				local is_active_before_update = ghosts[i].is_active
+		for i=1, #ghosts, 1 do
+			local is_active_before_update = ghosts[i].is_active
 
-				ghost.update(ghosts[i], come_come, pills, average_ghost_pos, dt, ghost_state, grid_size, lookahead)
-				total_fitness = total_fitness + ghosts[i].fitness
-				-- total_dist_to_group = total_dist_to_group + ghosts[i].dist_to_group
+			ghost.update(ghosts[i], come_come, pills, average_ghost_pos, dt, ghost_state, grid_size, lookahead)
+			total_fitness = total_fitness + ghosts[i].fitness
+			-- total_dist_to_group = total_dist_to_group + ghosts[i].dist_to_group
 
-				if(ghosts[i].is_active) then
-					active_ghost_counter = active_ghost_counter +1
+			if(ghosts[i].is_active) then
+				active_ghost_counter = active_ghost_counter +1
+			end
+			--
+
+			if ( is_active_before_update==true and
+					ghosts[i].is_active == false) then -- foi pego
+
+				reporter.report_catch(ghosts[i], ghosts)
+
+				local len_respawn =  #to_be_respawned
+				local len_ghosts = #ghosts
+				if ( len_respawn ==0 ) then
+					table.insert(to_be_respawned, i)
+					timer.reset(ghost_respawn_timer)
+				elseif ( len_respawn < len_ghosts ) then
+					table.insert(to_be_respawned, i)
 				end
-				--
 
-				if ( is_active_before_update==true and
-						ghosts[i].is_active == false) then -- foi pego
-
-					reporter.report_catch(ghosts[i], ghosts)
-
-					local len_respawn =  #to_be_respawned
-					local len_ghosts = #ghosts
-					if ( len_respawn ==0 ) then
-						table.insert(to_be_respawned, i)
-						timer.reset(ghost_respawn_timer)
-					elseif ( len_respawn < len_ghosts ) then
-						table.insert(to_be_respawned, i)
+				len = #to_be_respawned
+				if ( len == (len_ghosts -1) ) then
+					print("You win!")
+					for i=1, #ghosts, 1 do
+						ghosts[i].is_active = false
 					end
-
-					len = #to_be_respawned
-					if ( len == (len_ghosts -1) ) then
-						print("You win!")
-						for i=1, #ghosts, 1 do
-							ghosts[i].is_active = false
-						end
-						game_on = false
-					end
+					game_on = false
 				end
 			end
+		end
 
-			--respawns
-			if ( timer.update(ghost_respawn_timer,dt) )then --and ghost_state == "freightened") then -- continua respawnando mesma sem player
-				if (#to_be_respawned > 0) then
-					--print("respawned")
+		--respawns
+		if ( timer.update(ghost_respawn_timer,dt) )then --and ghost_state == "freightened") then -- continua respawnando mesma sem player
+			if (#to_be_respawned > 0) then
+				--print("respawned")
 
-					-- e spawna
-					local i = table.remove(to_be_respawned, 1)
-					if ( ghost_genetic_on) then
-						ghost.crossover(ghosts[i], ghosts, pills)--, spawn_grid_pos)
+				-- e spawna
+				local i = table.remove(to_be_respawned, 1)
+				if ( ghost_genetic_on) then
+					ghost.crossover(ghosts[i], ghosts, pills)--, spawn_grid_pos)
+				else
+					-- encontra posicao de spawn
+					local spawn_grid_pos = {}
+					if ( come_come.grid_pos.x > (settings.grid_width_n/2) ) then
+						spawn_grid_pos = {x=7, y= 21}
 					else
-						-- encontra posicao de spawn
-						local spawn_grid_pos = {}
-						if ( come_come.grid_pos.x > (settings.grid_width_n/2) ) then
-							spawn_grid_pos = {x=7, y= 21}
-						else
-							spawn_grid_pos = {x=50, y= 21}
-						end
-
-						ghost.regen(ghosts[i], pills, spawn_grid_pos)
+						spawn_grid_pos = {x=50, y= 21}
 					end
 
+					ghost.regen(ghosts[i], pills, spawn_grid_pos)
 				end
+
 			end
 		end
 
@@ -442,16 +425,12 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-
 function game.keypressed(key, scancode, isrepeat)
-   	if (key == 'p') then
+   	if (key == 'space') then
 		has_shown_menu = true
 	   	if (paused) then paused = false
 	   	else paused = true end
-
-	elseif (key == "r" and come_come.is_active==false and (not paused)) then
-		--print("restarting")
-
+	elseif (key == "return" and come_come.is_active==false and (not paused)) then
 		ghost_state = "freightened"
 
 		timer.reset(freightened_on_restart_timer)
@@ -459,30 +438,11 @@ function game.keypressed(key, scancode, isrepeat)
 		pill.pills_active = false
 		local grid_pos = {x=settings.player_start_grid.x, y=settings.player_start_grid.y}
 		player.reset( come_come, grid_pos, speed, grid_size, lookahead)
-
-	elseif (key == "r" and game_on==false and (not paused)) then
-		--print("reset")
-		resets = resets + 1
-		--if ( not game_on ) then
-			for i=1, #ghosts, 1 do
-				ghosts[i].is_active = true
-				if ( ghost_genetic_on) then
-					ghost.crossover(ghosts[i], ghosts, pills)
-				else
-					ghost.regen(ghosts[i], pills)
-				end
-			end
-			to_be_respawned = {}
-		--end
-		game_on = true
-
-		ghost_state = "scattering"
-		timer.reset(ghost_state_timer)
-
-   	elseif (key == "q") then
+   	elseif (key == "escape") then
 		reporter.stop()
 		-------------
-	   	love.event.quit(0)
+		gamestate.switch("menu")
+	   	--love.event.quit(0)
    	end
 end
 

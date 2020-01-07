@@ -1,4 +1,4 @@
--- Guilherme Cunha Prada 2019
+-- Guilherme Cunha Prada 2020
 --------------------------------------------------------------------------------
 -- not quite game, not quite lab
 -- kitten killing globals
