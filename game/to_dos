@@ -1,0 +1,17 @@
+------------------------------ todo
+
+- sistema de camera e grid maior
+- player automatico( baseado em uma rede neural evolutiva)
+- novo fantasma( depende do player automatico por causa dos testes)
+- Gerar audio proceduralmente e eliminar os assets :)
+- Atualizar a love
+- Criar player inteligente
+- Criar tela de vitoria
+- velocidade baseada em metabolismo!
+- fazer os objetos usarem o arquivo settings diretamente?
+- usar ponteiros para funcao no fantasma
+
+
+------------------------------ done
+
++- Criar pasta de assets separada

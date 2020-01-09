@@ -29,14 +29,14 @@ player_speed_grid_size_factor: 5
 
 catched
 distrib_catched_target_offset[-15]: 0
-distrib_catched_target_offset[-14]: 1
+distrib_catched_target_offset[-14]: 0
 distrib_catched_target_offset[-13]: 0
-distrib_catched_target_offset[-12]: 0
+distrib_catched_target_offset[-12]: 1
 distrib_catched_target_offset[-11]: 0
 distrib_catched_target_offset[-10]: 0
 distrib_catched_target_offset[-9]: 0
-distrib_catched_target_offset[-8]: 1
-distrib_catched_target_offset[-7]: 0
+distrib_catched_target_offset[-8]: 0
+distrib_catched_target_offset[-7]: 1
 distrib_catched_target_offset[-6]: 0
 distrib_catched_target_offset[-5]: 0
 distrib_catched_target_offset[-4]: 0
@@ -44,21 +44,21 @@ distrib_catched_target_offset[-3]: 0
 distrib_catched_target_offset[-2]: 0
 distrib_catched_target_offset[-1]: 0
 distrib_catched_target_offset[0]: 0
-distrib_catched_target_offset[1]: 2
+distrib_catched_target_offset[1]: 0
 distrib_catched_target_offset[2]: 0
 distrib_catched_target_offset[3]: 0
 distrib_catched_target_offset[4]: 0
-distrib_catched_target_offset[5]: 1
-distrib_catched_target_offset[6]: 1
+distrib_catched_target_offset[5]: 0
+distrib_catched_target_offset[6]: 0
 distrib_catched_target_offset[7]: 0
 distrib_catched_target_offset[8]: 0
-distrib_catched_target_offset[9]: 0
+distrib_catched_target_offset[9]: 1
 distrib_catched_target_offset[10]: 0
-distrib_catched_target_offset[11]: 1
+distrib_catched_target_offset[11]: 0
 distrib_catched_target_offset[12]: 0
 distrib_catched_target_offset[13]: 0
 distrib_catched_target_offset[14]: 0
-distrib_catched_target_offset[15]: 0
+distrib_catched_target_offset[15]: 1
 
 catcher
 distrib_catcher_target_offset[-15]: 0
@@ -69,7 +69,7 @@ distrib_catcher_target_offset[-11]: 0
 distrib_catcher_target_offset[-10]: 0
 distrib_catcher_target_offset[-9]: 0
 distrib_catcher_target_offset[-8]: 0
-distrib_catcher_target_offset[-7]: 0
+distrib_catcher_target_offset[-7]: 1
 distrib_catcher_target_offset[-6]: 0
 distrib_catcher_target_offset[-5]: 0
 distrib_catcher_target_offset[-4]: 0
@@ -83,7 +83,7 @@ distrib_catcher_target_offset[3]: 0
 distrib_catcher_target_offset[4]: 0
 distrib_catcher_target_offset[5]: 0
 distrib_catcher_target_offset[6]: 0
-distrib_catcher_target_offset[7]: 0
+distrib_catcher_target_offset[7]: 1
 distrib_catcher_target_offset[8]: 0
 distrib_catcher_target_offset[9]: 0
 distrib_catcher_target_offset[10]: 0
