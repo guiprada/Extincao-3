@@ -4,11 +4,14 @@
 - sistema de camera e grid maior
 - player automatico( baseado em uma rede neural evolutiva)
 - novo fantasma( depende do player automatico por causa dos testes)
+--  usar ponteiros para funcao no fantasma
+--  sistema todo baseado em acoes
+
 - Gerar audio proceduralmente e eliminar os assets :)
 - Criar player inteligente
 - velocidade baseada em metabolismo!
 - fazer os objetos usarem o arquivo settings diretamente?
-- usar ponteiros para funcao no fantasma
+
 
 
 ------------------------------ done
