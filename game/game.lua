@@ -356,7 +356,8 @@ function game.update(dt)
 
 				len = #to_be_respawned
 				if ( len == (len_ghosts -1) ) then
-					print("You win!")
+					--print("You win!")
+					gamestate.switch("victory")
 					for i=1, #ghosts, 1 do
 						ghosts[i].is_active = false
 					end

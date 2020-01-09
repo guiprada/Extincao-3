@@ -50,7 +50,7 @@ function menu.draw()
 
     --fps
     love.graphics.setColor(1, 0, 0)
-    love.graphics.printf(love.timer.getFPS(), 0, height-12, width, "right")
+    love.graphics.printf(love.timer.getFPS(), 0, height-32, width, "right")
 
 
 end

@@ -32,11 +32,6 @@ end
 
 function pill.new(pos_index, pill_time)
     local value = {}
-    --value.fitness = 0
-    -- value.is_active = false
-    -- value.x = 0
-    -- value.y = 0
-    -- value.fitness = 0
 
     value.pos_index = pos_index
     value.grid_pos = grid.grid_valid_pos[pos_index]
