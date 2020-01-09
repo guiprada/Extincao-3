@@ -1,5 +1,8 @@
 ------------------------------ todo
 
+- sistema de camera e grid maior
+- player automatico( baseado em uma rede neural evolutiva)
+- novo fantasma( depende do player automatico por causa dos testes)
 - Gerar audio proceduralmente e eliminar os assets :)
 - Atualizar a love
 - Criar player inteligente
