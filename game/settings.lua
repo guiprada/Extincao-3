@@ -3,6 +3,7 @@ local settings = {}
 -- general game settings
 settings.screen_width = 1920
 settings.screen_height = 1080
+settings.fullscreen = true
 
 -- ghost module settings
 settings.ghost_genetic_on = true  	-- liga e desliga e GA

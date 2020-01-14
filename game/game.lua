@@ -47,10 +47,10 @@ local resets = 0 -- contador de resets
 local to_be_respawned = {}
 
 -- timer para alternar o ghost_state
-local ghost_state_timer = timer.new(settings.ghost_scatter_time)
+local ghost_state_timer = {}
 
 -- timer para reativar um fantasma
-local ghost_respawn_timer = timer.new(settings.ghost_respawn_time)
+local ghost_respawn_timer = {}
 
 -- para o maze_canvas
 local maze_canvas = {}
@@ -70,14 +70,26 @@ function game.load(args)
 	local n_ghosts = args.n_ghosts
 	local ghost_respawn_time = args.ghost_respawn_time
 
+	freightened_on_restart_timer = {}
+	just_restarted = false
+
+	ghost_state = "scattering" -- controla o estado dos fantasmas
+	paused = true  -- para pausar e despausar
+	resets = 0 -- contador de resets
+
+	--fila para armazenar os indices dos objetos a serem reiniciados
+	to_be_respawned = {}
+
+	-- timer para alternar o ghost_state
+	ghost_state_timer = timer.new(settings.ghost_scatter_time)
+
+	-- timer para reativar um fantasma
+	ghost_respawn_timer = timer.new(settings.ghost_respawn_time)
+
+
 	if ghost_respawn_time then
 		ghost_respawn_timer = timer.new(ghost_respawn_time)
 	end
-
-
-	love.window.setMode(settings.screen_width or 0,
-						settings.screen_height or 0,
-						{fullscreen=true, resizable=false, vsync=true})
 
 	local default_width = love.graphics.getWidth()-- atualiza
 	local default_height = love.graphics.getHeight() -- atualiza
@@ -270,10 +282,11 @@ function game.draw()
 	player.draw(come_come, grid_size)
 
 	-- hud
-	-- reseta scale and translate
-	-- love.graphics.origin()
+
+	--reseta scale and translate
+	love.graphics.origin()
 	--
-	-- love.graphics.setColor(1, 0, 0)
+	love.graphics.setColor(1, 0, 0)
 	-- love.graphics.print("capturado: " .. reporter.player_catched, 10,
 	-- 					font_size - 22)
 	-- love.graphics.print("resets: " .. resets, w/5,  font_size -22)

@@ -154,7 +154,7 @@ distrib_catched_target_offset[14]: 0
 distrib_catched_target_offset[15]: 0
 
 catcher
-distrib_catcher_target_offset[-15]: 1
+distrib_catcher_target_offset[-15]: 0
 distrib_catcher_target_offset[-14]: 0
 distrib_catcher_target_offset[-13]: 0
 distrib_catcher_target_offset[-12]: 0

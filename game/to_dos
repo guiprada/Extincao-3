@@ -15,12 +15,13 @@
 - velocidade baseada em metabolismo!
 - respawn baseado em pilulas ingeridas pelos fantasminhas
 
+
 ------------------------------- maybe
 - fazer os objetos usarem o arquivo settings diretamente?
 
 
 ------------------------------ done
-
++- consertar o fps nas fases
 +- Criar pasta de assets separada
 +- Atualizar a love
 +- Criar tela de vitoria
