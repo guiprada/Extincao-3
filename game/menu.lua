@@ -63,7 +63,8 @@ end
 
 function menu.keypressed(key, scancode, isrepeat)
     if key == "return" then
-        gamestate.switch("game")
+        gamestate.switch("game", {  n_ghosts = 10,
+                                    ghost_respawn_time = 120})
     elseif key == "escape" then
         love.event.quit(0)
     end

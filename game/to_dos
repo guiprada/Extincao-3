@@ -1,7 +1,9 @@
 ------------------------------ todo
 
-- sistema para salvar e carregar uma populacao
+- criar fases com dificuldade progressiva
 - sistema de camera e grid maior
+- editor de mapa
+- sistema para salvar e carregar uma populacao
 - player automatico( baseado em uma rede neural evolutiva)
 - novo fantasma( depende do player automatico por causa dos testes)
 --  usar ponteiros para funcao no fantasma
@@ -10,6 +12,8 @@
 - Gerar audio proceduralmente e eliminar os assets :)
 - Criar player inteligente
 - velocidade baseada em metabolismo!
+
+------------------------------- maybe
 - fazer os objetos usarem o arquivo settings diretamente?
 
 

@@ -2,9 +2,7 @@
 
 local grid = {}
 
-function grid.init(grid_width_n, grid_height_n, grid_size, lookahead)
-	grid.grid_width_n = grid_width_n
-	grid.grid_height_n = grid_height_n
+function grid.init(grid_size, lookahead, grid_types)
 	grid.grid_size = grid_size
 	grid.lookahead = lookahead
 
@@ -17,7 +15,7 @@ function grid.init(grid_width_n, grid_height_n, grid_size, lookahead)
 	-- each bit representing an enabled direction in the order
 	-- up, down, left, right
 
-	grid.grid_types =   { --   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56
+	grid.grid_types =   grid_types or { --   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56
 							{ 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 }, --1
 							{ 16,  5,  3,  3,  3,  3,  7,  3,  3,  3,  3,  3,  6, 16, 16,  5,  3,  3,  3,  3,  3,  7,  3,  3,  3,  3,  7,  3,  3,  7,  3,  3,  3,  3,  7,  3,  3,  3,  3,  3,  6, 16, 16,  5,  3,  3,  3,  3,  3,  7,  3,  3,  3,  3,  6, 16 }, --2
 							{ 16, 12, 16, 16, 16, 16, 12, 16, 16, 16, 16, 16, 12, 16, 16, 12, 16, 16, 16, 16, 16, 12, 16, 16, 16, 16, 12, 16, 16, 12, 16, 16, 16, 16, 12, 16, 16, 16, 16, 16, 12, 16, 16, 12, 16, 16, 16, 16, 16, 12, 16, 16, 16, 16, 12, 16 }, --3
@@ -83,12 +81,15 @@ function grid.init(grid_width_n, grid_height_n, grid_size, lookahead)
 						}
 
 
+grid.grid_width_n = #grid.grid_types[1]
+grid.grid_height_n = #grid.grid_types
+
 	-- grid.grid_directions matrix is defined dinamicaly based on grid_types
 	-- it stores the enabled movements for each cell
 	--
-	for i=1,grid_width_n do
+	for i=1,grid.grid_width_n do
 		grid.grid_directions[i] = {}
-		for j=1,grid_height_n do
+		for j=1,grid.grid_height_n do
 			--print("logging")
 			local tile_type = grid.grid_types[j][i] -- invertido
 			-- daqui para frente a matriz é [pos_x][pos_y]
@@ -125,8 +126,8 @@ function grid.init(grid_width_n, grid_height_n, grid_size, lookahead)
 	end
 
 	grid.grid_valid_pos = {}
-	for i=1, grid_width_n do
-		for j=1,grid_height_n do
+	for i=1, grid.grid_width_n do
+		for j=1,grid.grid_height_n do
 			if (grid.grid_types[j][i]~= 16 and grid.grid_types[j][i]~= 0 and (j<=15 or j>=30)) then
 				local value = {}
 				value.x = i

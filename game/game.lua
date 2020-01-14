@@ -60,7 +60,14 @@ local active_ghost_counter = 0
 
 --------------------------------------------------------------------------------
 
-function game.load()
+function game.load(args)
+	local n_ghosts = args.n_ghosts
+	local ghost_respawn_time = args.ghost_respawn_time
+	
+	if ghost_respawn_time then
+		ghost_respawn_timer = timer.new(ghost_respawn_time)
+	end
+
 	love.window.setMode(settings.screen_width or 0,
 						settings.screen_height or 0,
 						{fullscreen=true, resizable=false, vsync=true})
@@ -79,9 +86,7 @@ function game.load()
 	-- print("grid_size is: " .. grid_size)
 
 	reporter.init()
-	grid.init(	settings.grid_width_n,
-				settings.grid_height_n,
-				grid_size, lookahead)
+	grid.init(	grid_size, lookahead)
 	player.init(grid_size, lookahead)
 	ghost.init(	settings.ghost_fitness_on,
 				settings.ghost_target_spread,
@@ -125,7 +130,7 @@ function game.load()
 	end
 	--print("adding some pills and")
 
-	for i=1, settings.n_ghosts,1 do
+	for i=1, n_ghosts or settings.n_ghosts,1 do
 		-- encontra posicao valida, gene pos_index
 		local pos_index = love.math.random(1, #grid.grid_valid_pos)
 
