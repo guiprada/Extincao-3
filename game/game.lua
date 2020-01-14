@@ -16,10 +16,12 @@ local resizer = require "resizer"
 local settings = require "settings"
 local reporter = require "reporter"
 local shaders = require "shaders"
-
+local particle = require "particle"
 --------------------------------------------------------------------------------
 
 local text_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 35)
+
+local N_PARTICLES = 250
 
 local grid_size = 0 -- will be set by resizer
 local lookahead = 0 -- will be set after grid_size
@@ -80,7 +82,7 @@ function game.load(args)
 	local default_width = love.graphics.getWidth()-- atualiza
 	local default_height = love.graphics.getHeight() -- atualiza
 
-	grid.load()
+	grid.load(args.grid_types)
 
 	--print(grid.grid_width_n, grid.grid_height_n)
 	grid_size = resizer.init_resizer(	default_width, default_height,
@@ -202,7 +204,7 @@ function game.load(args)
 												grid_size*(j-1),
 												grid_size, grid_size)
 				else
-					love.graphics.setColor(0, 0, 0, 1)
+					love.graphics.setColor(0, 0, 0, 0)
 					love.graphics.rectangle("fill",
 											grid_size*(i-1),
 											grid_size*(j-1),
@@ -213,6 +215,11 @@ function game.load(args)
 	love.graphics.setCanvas()
 
 	flip_sound = love.audio.newSource("audio/tic.wav", "static")
+
+	game.particles = {}
+	for i=1,N_PARTICLES,1 do
+		game.particles[i] = particle.new()
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -220,6 +227,10 @@ end
 function game.draw()
 	total_target = 0
 	active_ghost_counter = 0 -- usado no hud
+
+	for i=1,N_PARTICLES,1 do
+		game.particles[i]:draw()
+	end
 
 	resizer.draw_fix()
 
@@ -231,8 +242,6 @@ function game.draw()
     love.graphics.setBlendMode("alpha", "premultiplied")
 	love.graphics.draw(maze_canvas)
 	love.graphics.setBlendMode("alpha") -- volta ao modo normal
-
-
 
 	--pills
 	for i=1, #pills, 1 do
@@ -262,16 +271,16 @@ function game.draw()
 
 	-- hud
 	-- reseta scale and translate
-	love.graphics.origin()
-
-	love.graphics.setColor(1, 0, 0)
-	love.graphics.print("capturado: " .. reporter.player_catched, 10,
-						font_size - 22)
-	love.graphics.print("resets: " .. resets, w/5,  font_size -22)
-	love.graphics.print("capturados: " .. reporter.ghosts_catched, 2*w/5,
-						font_size - 22)
-	love.graphics.print("ativos: " 	.. active_ghost_counter, 3*w/5,
-									font_size -22)
+	-- love.graphics.origin()
+	--
+	-- love.graphics.setColor(1, 0, 0)
+	-- love.graphics.print("capturado: " .. reporter.player_catched, 10,
+	-- 					font_size - 22)
+	-- love.graphics.print("resets: " .. resets, w/5,  font_size -22)
+	-- love.graphics.print("capturados: " .. reporter.ghosts_catched, 2*w/5,
+	-- 					font_size - 22)
+	-- love.graphics.print("ativos: " 	.. active_ghost_counter, 3*w/5,
+	-- 								font_size -22)
 
 	if ( not come_come.is_active ) then
 		love.graphics.print( "'enter' para ir de novo", 3*w/4 -5, font_size - 22)
@@ -300,6 +309,10 @@ function game.update(dt)
 	--if (dt > 0.06 ) then print("ops, dt too high, physics wont work  dt= " .. dt) end
 
 	if ( not paused and (dt<0.06)) then --  dt tem que ser baixo para nao bugar a fisica
+		for i=1,N_PARTICLES,1 do
+			game.particles[i]:update(dt)
+		end
+
 		-- calcula posicao media dos fantasmas
 		local average_ghost_pos = {}
 		average_ghost_pos.x = utils.average(ghosts, "x")

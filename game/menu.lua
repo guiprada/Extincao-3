@@ -1,6 +1,7 @@
 local utils = require "utils"
 local gamestate = require "gamestate"
 local particle = require "particle"
+local levels = require "levels"
 
 local N_PARTICLES = 250
 
@@ -61,9 +62,10 @@ function menu.update(dt)
 end
 
 function menu.keypressed(key, scancode, isrepeat)
-    if key == "return" then
-        gamestate.switch("game", {  n_ghosts = 10,
-                                    ghost_respawn_time = 120})
+    if key == "a" then
+        gamestate.switch("game", levels[1])
+    elseif key == "return" then
+        gamestate.switch("game", levels[2])
     elseif key == "escape" then
         love.event.quit(0)
     end
