@@ -23,7 +23,7 @@ for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
 	reporter.distrib_catcher_target_offset[i] = 0
 end
 
-reporter.init = function ()
+reporter.init = function (grid)
     -- save the configuration used in the run to file
     io.output(reporter.config_file)
     io.write("the Configuration used is:")
@@ -50,7 +50,7 @@ reporter.init = function ()
     io.write("\nghost_scatter_time: " .. settings.ghost_scatter_time)
     io.write("\nghost_respawn_time: " .. settings.ghost_respawn_time)
 
-    io.write("\nthe grid is: " .. settings.grid_width_n .. " x " .. settings.grid_height_n)
+    io.write("\nthe grid is: " .. grid.grid_width_n .. " x " .. grid.grid_height_n)
     io.write("\nplayer's start grid is: " .. settings.player_start_grid.x .. ", " .. settings.player_start_grid.y)
 
     io.write("\nghost_speed_max_factor: " .. settings.ghost_speed_max_factor )

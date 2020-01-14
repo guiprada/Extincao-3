@@ -2,19 +2,7 @@
 
 local grid = {}
 
-function grid.init(grid_size, lookahead, grid_types)
-	grid.grid_size = grid_size
-	grid.lookahead = lookahead
-
-	--grid.grid_types = {}
-	grid.grid_directions = {}
-
-	-- this matrix defines the map, it stores the tile type
-	-- there are 16 variations! so we are goig to encode then with a number between
-	-- 1 and 16 , we can get then with bits
-	-- each bit representing an enabled direction in the order
-	-- up, down, left, right
-
+function grid.load(grid_types)
 	grid.grid_types =   grid_types or { --   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56
 							{ 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 }, --1
 							{ 16,  5,  3,  3,  3,  3,  7,  3,  3,  3,  3,  3,  6, 16, 16,  5,  3,  3,  3,  3,  3,  7,  3,  3,  3,  3,  7,  3,  3,  7,  3,  3,  3,  3,  7,  3,  3,  3,  3,  3,  6, 16, 16,  5,  3,  3,  3,  3,  3,  7,  3,  3,  3,  3,  6, 16 }, --2
@@ -81,8 +69,24 @@ function grid.init(grid_size, lookahead, grid_types)
 						}
 
 
-grid.grid_width_n = #grid.grid_types[1]
-grid.grid_height_n = #grid.grid_types
+	grid.grid_width_n = #grid.grid_types[1]
+	grid.grid_height_n = #grid.grid_types
+end
+
+function grid.init(grid_size, lookahead)
+	grid.grid_size = grid_size
+	grid.lookahead = lookahead
+
+	--grid.grid_types = {}
+	grid.grid_directions = {}
+
+	-- this matrix defines the map, it stores the tile type
+	-- there are 16 variations! so we are goig to encode then with a number between
+	-- 1 and 16 , we can get then with bits
+	-- each bit representing an enabled direction in the order
+	-- up, down, left, right
+
+
 
 	-- grid.grid_directions matrix is defined dinamicaly based on grid_types
 	-- it stores the enabled movements for each cell

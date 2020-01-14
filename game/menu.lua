@@ -52,7 +52,6 @@ function menu.draw()
     love.graphics.setColor(1, 0, 0)
     love.graphics.printf(love.timer.getFPS(), 0, height-32, width, "right")
 
-
 end
 
 function menu.update(dt)

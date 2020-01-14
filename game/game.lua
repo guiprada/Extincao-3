@@ -41,10 +41,14 @@ local paused = true  -- para pausar e despausar
 
 local resets = 0 -- contador de resets
 
-local to_be_respawned = {} -- fila para armazenar os indices dos objetos a serem reiniciados
+--fila para armazenar os indices dos objetos a serem reiniciados
+local to_be_respawned = {}
 
-local ghost_state_timer = timer.new(settings.ghost_scatter_time) -- timer para alternar o ghost_state
-local ghost_respawn_timer = timer.new(settings.ghost_respawn_time) --39-- timer para reativar um fantasma
+-- timer para alternar o ghost_state
+local ghost_state_timer = timer.new(settings.ghost_scatter_time)
+
+-- timer para reativar um fantasma
+local ghost_respawn_timer = timer.new(settings.ghost_respawn_time)
 
 -- para o maze_canvas
 local maze_canvas = {}
@@ -63,10 +67,11 @@ local active_ghost_counter = 0
 function game.load(args)
 	local n_ghosts = args.n_ghosts
 	local ghost_respawn_time = args.ghost_respawn_time
-	
+
 	if ghost_respawn_time then
 		ghost_respawn_timer = timer.new(ghost_respawn_time)
 	end
+
 
 	love.window.setMode(settings.screen_width or 0,
 						settings.screen_height or 0,
@@ -75,7 +80,12 @@ function game.load(args)
 	local default_width = love.graphics.getWidth()-- atualiza
 	local default_height = love.graphics.getHeight() -- atualiza
 
-	grid_size = resizer.init_resizer(default_width, default_height, settings.grid_width_n, settings.grid_height_n)
+	grid.load()
+
+	--print(grid.grid_width_n, grid.grid_height_n)
+	grid_size = resizer.init_resizer(	default_width, default_height,
+										grid.grid_width_n,
+										grid.grid_height_n)
 	lookahead = grid_size/2
 
 	speed = (settings.player_speed_grid_size_factor*grid_size)
@@ -85,7 +95,7 @@ function game.load(args)
 	-- print("ghost_speed: " .. ghost_speed)
 	-- print("grid_size is: " .. grid_size)
 
-	reporter.init()
+	reporter.init(grid)
 	grid.init(	grid_size, lookahead)
 	player.init(grid_size, lookahead)
 	ghost.init(	settings.ghost_fitness_on,
@@ -177,8 +187,8 @@ function game.load(args)
 	love.graphics.setCanvas(maze_canvas)
 		love.graphics.clear()
 		love.graphics.setBlendMode("alpha")
-		for i=1, settings.grid_width_n do
-			for j=1,settings.grid_height_n do
+		for i=1, grid.grid_width_n do
+			for j=1,grid.grid_height_n do
 				if (grid.grid_types[j][i]==16) then
 					love.graphics.setColor(0.7, 0.8, 0.8, 1)
 					love.graphics.rectangle("fill",
@@ -260,12 +270,11 @@ function game.draw()
 	love.graphics.print("resets: " .. resets, w/5,  font_size -22)
 	love.graphics.print("capturados: " .. reporter.ghosts_catched, 2*w/5,
 						font_size - 22)
-	love.graphics.print("ativos: " .. active_ghost_counter, 3*w/5,  font_size -22)
-
-	love.graphics.print(tostring(love.timer.getFPS( )), 5, h -3*font_size -10)
+	love.graphics.print("ativos: " 	.. active_ghost_counter, 3*w/5,
+									font_size -22)
 
 	if ( not come_come.is_active ) then
-		love.graphics.print( "'r' para ir de novo", 3*w/4 -5, font_size - 22)
+		love.graphics.print( "'enter' para ir de novo", 3*w/4 -5, font_size - 22)
 	end
 
 	-- tela de pause
@@ -279,6 +288,10 @@ function game.draw()
 			-- love.graphics.rectangle("fill", 0, 0, w, h)
 			--
 	end
+
+	--fps
+	love.graphics.setColor(1, 0, 0)
+	love.graphics.printf(love.timer.getFPS(), 0, settings.screen_height-32, settings.screen_width, "right")
 
 end
 --------------------------------------------------------------------------------

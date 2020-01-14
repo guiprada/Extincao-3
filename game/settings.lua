@@ -21,10 +21,6 @@ settings.ghost_fear_spread = 50
 settings.pill_genetic_on = false-- liga e desliga o GA para pilulas
 settings.pill_precise_crossover_on = false
 
--- grid module settings
-settings.grid_width_n = 56
-settings.grid_height_n = 31
-
 -- player settings
 settings.player_start_grid = {}
 settings.player_start_grid.x = 28
