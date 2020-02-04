@@ -287,13 +287,13 @@ function game.draw()
 	love.graphics.origin()
 	--
 	love.graphics.setColor(1, 0, 0)
-	-- love.graphics.print("capturado: " .. reporter.player_catched, 10,
-	-- 					font_size - 22)
-	-- love.graphics.print("resets: " .. resets, w/5,  font_size -22)
-	-- love.graphics.print("capturados: " .. reporter.ghosts_catched, 2*w/5,
-	-- 					font_size - 22)
-	-- love.graphics.print("ativos: " 	.. active_ghost_counter, 3*w/5,
-	-- 								font_size -22)
+	love.graphics.print("capturado: " .. reporter.player_catched, 10,
+						font_size - 22)
+	love.graphics.print("resets: " .. resets, w/5,  font_size -22)
+	love.graphics.print("capturados: " .. reporter.ghosts_catched, 2*w/5,
+						font_size - 22)
+	love.graphics.print("ativos: " 	.. active_ghost_counter, 3*w/5,
+									font_size -22)
 
 	if ( not come_come.is_active ) then
 		love.graphics.print( "'enter' para ir de novo", 3*w/4 -5, font_size - 22)
