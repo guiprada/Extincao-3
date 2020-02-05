@@ -163,12 +163,12 @@ function ghost.selection(in_table)
 end
 
 function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
+    print("logging")
     local mom = {}
     local dad = {}
     mom, dad = ghost.selection(ghosts)
 
     local son = {}
-
     son.fear_target =  math.floor( (mom.fear_target + dad.fear_target)/2 + love.math.random(-5, 5) )
     son.fear_group = math.floor( (mom.fear_group + dad.fear_group)/2 + love.math.random(-5, 5) )
 

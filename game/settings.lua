@@ -3,7 +3,7 @@ local settings = {}
 -- general game settings
 settings.screen_width = 1920
 settings.screen_height = 1080
-settings.fullscreen = true
+settings.fullscreen = false
 
 -- ghost module settings
 settings.ghost_genetic_on = true  	-- liga e desliga e GA
@@ -36,7 +36,7 @@ settings.restart_pill_time = 3
 
 settings.ghost_chase_time = 12 -- testado 3.99
 settings.ghost_scatter_time = 7 --testado com 2
-settings.ghost_respawn_time = 0 -- should be non zero  --  5 --15--20 testado
+settings.ghost_respawn_time = 30 -- should be non zero  --  5 --15--20 testado
 
 settings.speed_boost_on = true
 settings.ghost_speed_max_factor = 1.1 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma

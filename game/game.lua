@@ -4,7 +4,6 @@
 -- kitten killing globals
 local game = {}
 
---print("ow yeah")
 local gamestate = require "gamestate"
 local utils = require "utils"
 local grid = require "grid"
@@ -68,7 +67,7 @@ local active_ghost_counter = 0
 
 function game.load(args)
 	local n_ghosts = args.n_ghosts
-	local ghost_respawn_time = args.ghost_respawn_time
+	local ghost_respawn_time = args.ghost_respawn_time or settings.ghost_respawn_time
 
 	freightened_on_restart_timer = {}
 	just_restarted = false
@@ -83,13 +82,7 @@ function game.load(args)
 	-- timer para alternar o ghost_state
 	ghost_state_timer = timer.new(settings.ghost_scatter_time)
 
-	-- timer para reativar um fantasma
-	ghost_respawn_timer = timer.new(settings.ghost_respawn_time)
-
-
-	if ghost_respawn_time then
-		ghost_respawn_timer = timer.new(ghost_respawn_time)
-	end
+	ghost_respawn_timer = timer.new(ghost_respawn_time)
 
 	local default_width = love.graphics.getWidth()-- atualiza
 	local default_height = love.graphics.getHeight() -- atualiza
@@ -228,10 +221,10 @@ function game.load(args)
 
 	flip_sound = love.audio.newSource("audio/tic.wav", "static")
 
-	game.particles = {}
-	for i=1,N_PARTICLES,1 do
-		game.particles[i] = particle.new()
-	end
+	-- game.particles = {}
+	-- for i=1,N_PARTICLES,1 do
+	-- 	game.particles[i] = particle.new()
+	-- end
 end
 
 --------------------------------------------------------------------------------
@@ -240,9 +233,9 @@ function game.draw()
 	total_target = 0
 	active_ghost_counter = 0 -- usado no hud
 
-	for i=1,N_PARTICLES,1 do
-		game.particles[i]:draw()
-	end
+	-- for i=1,N_PARTICLES,1 do
+	-- 	game.particles[i]:draw()
+	-- end
 
 	resizer.draw_fix()
 
@@ -322,9 +315,9 @@ function game.update(dt)
 	--if (dt > 0.06 ) then print("ops, dt too high, physics wont work  dt= " .. dt) end
 
 	if ( not paused and (dt<0.06)) then --  dt tem que ser baixo para nao bugar a fisica
-		for i=1,N_PARTICLES,1 do
-			game.particles[i]:update(dt)
-		end
+		-- for i=1,N_PARTICLES,1 do
+		-- 	game.particles[i]:update(dt)
+		-- end
 
 		-- calcula posicao media dos fantasmas
 		local average_ghost_pos = {}
@@ -382,7 +375,6 @@ function game.update(dt)
 			if(ghosts[i].is_active) then
 				active_ghost_counter = active_ghost_counter +1
 			end
-			--
 
 			if ( is_active_before_update==true and
 					ghosts[i].is_active == false) then -- foi pego
@@ -417,7 +409,7 @@ function game.update(dt)
 
 				-- e spawna
 				local i = table.remove(to_be_respawned, 1)
-				if ( ghost_genetic_on) then
+				if ( settings.ghost_genetic_on) then
 					ghost.crossover(ghosts[i], ghosts, pills)--, spawn_grid_pos)
 				else
 					-- encontra posicao de spawn
@@ -490,5 +482,13 @@ function game.keypressed(key, scancode, isrepeat)
 	   	--love.event.quit(0)
    	end
 end
+
+-- function game.unload()
+-- 	come_come = nil
+-- 	ghosts = nil
+-- 	pills = nil
+-- 	game.particles = nil
+-- 	maze_canvas = nil
+-- end
 
 return  game

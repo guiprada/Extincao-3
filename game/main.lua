@@ -7,7 +7,6 @@ local gamestate = require "gamestate"
 local settings = require "settings"
 
 function love.load()
-    print(settings.screen_width)
     love.window.setMode(settings.screen_width or 0,
                         settings.screen_height or 0,
                         {fullscreen=settings.fullscreen, resizable=false, vsync=true})
