@@ -1,24 +1,26 @@
 ------------------------------ todo
 
+- camera
+- mudar para um sistema de objetos
 - criar fases com dificuldade progressiva
 - sistema de camera e grid maior
 - editor de mapa
 - sistema para salvar e carregar uma populacao
 - player automatico( baseado em uma rede neural evolutiva)
 - novo fantasma( depende do player automatico por causa dos testes)
---  usar ponteiros para funcao no fantasma
---  sistema todo baseado em acoes
+- usar ponteiros para funcao no fantasma
+- sistema todo baseado em acoes
+- usar ponteiros para funcao para as opcoes
 
-- Gerar audio proceduralmente e eliminar os assets :)
-- Criar player inteligente
+- Gerar audio e fontes proceduralmente e eliminar os assets :)
 
 - velocidade baseada em metabolismo!
-- respawn baseado em pilulas ingeridas pelos fantasminhas
+- respawn baseado em pilulas ingeridas pelos fantasminhas(metabolismo)
 
+- eliminar gamestate.null_func = nil -- poderia ser eliminada?
 
 ------------------------------- maybe
 - fazer os objetos usarem o arquivo settings diretamente?
-
 
 ------------------------------ done
 +- consertar o fps nas fases

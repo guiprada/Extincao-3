@@ -15,8 +15,6 @@ local settings = require "settings"
 local reporter = require "reporter"
 local shaders = require "shaders"
 local particle = require "particle"
--------------------------------------------------------------------------------
-
 --------------------------------------------------------------------------------
 
 function game.load(args)
@@ -52,13 +50,14 @@ function game.load(args)
 	game.maze_canvas = {}
 	-- para o som do troca de estados do fantasma
 	game.flip_sound = true
-	game.pause_text = 	"\n\n'enter' para tentar de novo \n\n"
-						.. "'esc' para sair\n\n"
-						.. "'spaco' para pausar\n\n"
+	game.pause_text = 	"\n\n'enter' try again \n\n"
+						.. "'esc' to exit\n\n"
+						.. "'spacebar' to pause\n\n"
 
 
 	local n_ghosts = args.n_ghosts
-	local ghost_respawn_time = args.ghost_respawn_time or settings.ghost_respawn_time
+	local ghost_respawn_time = 	args.ghost_respawn_time or
+								settings.ghost_respawn_time
 
 	-- timer para alternar o game.ghost_state
 	game.ghost_state_timer = timer.new(settings.ghost_scatter_time)
@@ -215,10 +214,12 @@ function game.draw()
 	total_target = 0
 	local active_ghost_counter = 0 -- usado no hud
 
+	-- particles
 	for i=1,game.n_particles,1 do
 		game.particles[i]:draw()
 	end
 
+	-- resize screen
 	resizer.draw_fix()
 
 	local w = love.graphics.getWidth()-- atualiza
@@ -262,16 +263,17 @@ function game.draw()
 	love.graphics.origin()
 	--
 	love.graphics.setColor(1, 0, 0)
-	love.graphics.print("capturado: " .. reporter.player_catched, 10,
-						game.font_size - 22)
+	love.graphics.print("capturado: " .. reporter.player_catched,
+						10, game.font_size - 22)
 	love.graphics.print("resets: " .. game.resets, w/5,  game.font_size -22)
-	love.graphics.print("capturados: " .. reporter.ghosts_catched, 2*w/5,
-						game.font_size - 22)
+	love.graphics.print("capturados: " .. reporter.ghosts_catched,
+						2*w/5, game.font_size - 22)
 	love.graphics.print("ativos: " 	.. active_ghost_counter, 3*w/5,
 									game.font_size -22)
 
 	if ( not game.player.is_active ) then
-		love.graphics.print( "'enter' para ir de novo", 3*w/4 -5, game.font_size - 22)
+		love.graphics.print( 	"'enter' para ir de novo",
+								3*w/4 -5, game.font_size - 22)
 	end
 
 	-- tela de pause
@@ -279,7 +281,10 @@ function game.draw()
 			love.graphics.setColor(0, 0, 0, 0.8)
 			love.graphics.rectangle("fill", w/4 , h/4, w/2, h/2)
 			love.graphics.setColor(1, 1, 0)
-			love.graphics.printf(game.pause_text, game.text_font, w/4, h/4, w/2,"center")
+			love.graphics.printf(	game.pause_text,
+									game.text_font,
+									w/4, h/4, w/2,
+									"center")
 
 			-- love.graphics.setColor(0, 0, 0, 0.1)
 			-- love.graphics.rectangle("fill", 0, 0, w, h)
@@ -288,15 +293,20 @@ function game.draw()
 
 	--fps
 	love.graphics.setColor(1, 0, 0)
-	love.graphics.printf(love.timer.getFPS(), 0, settings.screen_height-32, settings.screen_width, "right")
+	love.graphics.printf(	love.timer.getFPS(),
+	 						0, settings.screen_height-32, settings.screen_width,
+							"right")
 
 end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 function game.update(dt)
-	--if (dt > 0.06 ) then print("ops, dt too high, physics wont work  dt= " .. dt) end
+	-- dt should not be to high
+	if (dt > 0.06 ) then
+	print("ops, dt too high, physics wont work, skipping  dt= " .. dt)
+	end
 
-	if ( not game.paused and (dt<0.06)) then --  dt tem que ser baixo para nao bugar a fisica
+	if ( not game.paused and (dt<0.06)) then
 		for i=1,game.n_particles,1 do
 			game.particles[i]:update(dt)
 		end
@@ -306,7 +316,6 @@ function game.update(dt)
 		average_ghost_pos.x = utils.average(game.ghosts, "x")
 		average_ghost_pos.y = utils.average(game.ghosts, "y")
 
-		-- local total_dist_to_group = 0
 		local total_pill_fitness = 0
 		local active_pill_count = 0
 
@@ -314,7 +323,8 @@ function game.update(dt)
 		-- o pill update  tbem faz modificoes no game.ghost_state
 		if ( timer.update(game.ghost_state_timer, dt)== true) then
 			--state_change_timer = state_change_reset_time
-			if ( game.ghost_state == "scattering") then -- nao faz nada caso game.ghost_state == "freightened"
+			if ( game.ghost_state == "scattering") then
+			-- nao faz nada caso game.ghost_state == "freightened"
 				game.ghost_state = "chasing"
 				for i=1, #game.ghosts, 1 do
 					ghost.flip_direction(game.ghosts[i])
@@ -335,7 +345,9 @@ function game.update(dt)
 		-- end
 
 		-- pilula de reset
-		if(timer.update(game.freightened_on_restart_timer, dt) and game.just_restarted) then
+		if(	timer.update(game.freightened_on_restart_timer, dt) and
+			game.just_restarted) then
+
 			game.ghost_state = "scattering"
 			--game.player.speed = game.speed
 			timer.reset(game.ghost_state_timer)
@@ -349,13 +361,18 @@ function game.update(dt)
 		for i=1, #game.ghosts, 1 do
 			local is_active_before_update = game.ghosts[i].is_active
 
-			ghost.update(game.ghosts[i], game.player, game.pills, average_ghost_pos, dt, game.ghost_state, game.grid_size, game.lookahead)
-			total_fitness = total_fitness + game.ghosts[i].fitness
-			-- total_dist_to_group = total_dist_to_group + game.ghosts[i].dist_to_group
-			
-			if ( is_active_before_update==true and
-					game.ghosts[i].is_active == false) then -- foi pego
+			ghost.update(	game.ghosts[i],
+							game.player,
+							game.pills,
+							average_ghost_pos,
+							dt,
+							game.ghost_state)
 
+			total_fitness = total_fitness + game.ghosts[i].fitness
+
+			if (is_active_before_update==true and
+				game.ghosts[i].is_active == false)
+				then -- foi pego
 				reporter.report_catch(game.ghosts[i], game.ghosts)
 
 				local len_respawn =  #game.to_be_respawned
@@ -379,8 +396,10 @@ function game.update(dt)
 			end
 		end
 
-		--respawns
-		if ( timer.update(game.ghost_respawn_timer,dt) )then --and game.ghost_state == "freightened") then -- continua respawnando mesma sem player
+		--respawns, continua respawnando mesma sem player
+		if ( timer.update(game.ghost_respawn_timer,dt) )
+			--and game.ghost_state == "freightened")
+			then
 			if (#game.to_be_respawned > 0) then
 				--print("respawned")
 
@@ -461,6 +480,37 @@ function game.keypressed(key, scancode, isrepeat)
 end
 
 function game.unload()
+	game.text_font = nil
+	game.n_particles = nil
+	game.grid_size = nil
+	game.lookahead = nil
+	game.font_size = nil
+	game.ghost_speed = nil
+	game.speed = nil
+
+	-- tables para os objetos de jogo
+	game.player = nil
+	game.ghosts = nil
+	game.pills = nil
+	game.freightened_on_restart_timer = nil
+	game.just_restarted = nil
+	game.freightened_on_restart_timer = nil
+	game.just_restarted = nil
+	game.ghost_state = nil
+	game.paused = nil
+	game.resets = nil
+
+	--fila para armazenar os indices dos objetos a serem reiniciados
+	game.to_be_respawned = nil
+	-- timer para alternar o game.ghost_state
+	game.ghost_state_timer = nil
+	-- timer para reativar um fantasma
+	game.ghost_respawn_timer = nil
+	-- para o game.maze_canvas
+	game.maze_canvas = nil
+	-- para o som do troca de estados do fantasma
+	game.flip_sound = nil
+	game.pause_text = nil
 	game.particles = nil
 end
 

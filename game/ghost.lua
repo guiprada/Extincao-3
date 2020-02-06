@@ -163,7 +163,6 @@ function ghost.selection(in_table)
 end
 
 function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
-    print("logging")
     local mom = {}
     local dad = {}
     mom, dad = ghost.selection(ghosts)

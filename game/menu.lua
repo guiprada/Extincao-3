@@ -1,38 +1,38 @@
+menu = {}
+
 local utils = require "utils"
 local gamestate = require "gamestate"
 local particle = require "particle"
 local levels = require "levels"
 
-local N_PARTICLES = 250
+menu.n_particles = 250
 
-local menu = {}
+
 
 local width = love.graphics.getWidth()
 local height = love.graphics.getHeight()
 
-menu.text_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 20)
-menu.title_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 50)
-menu.title_font_back = love.graphics.newFont(
-                                        "fonts/PressStart2P-Regular.ttf", 51)
-
-menu.title = [[
-extinction
-]]
-menu.text = [[
-'enter' to start game
-'esc' to exit
-]]
-
 function menu.load()
+    -- initialize
+    menu.text_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 20)
+    menu.title_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 50)
+    menu.title_font_back = love.graphics.newFont(
+                                            "fonts/PressStart2P-Regular.ttf", 51)
+
+    menu.title = "extinction"
+
+    menu.text = "'enter' to start game\n" .. "'esc' to exit "
+
+    -- create particles
     menu.particles = {}
-    for i=1,N_PARTICLES,1 do
+    for i=1,menu.n_particles,1 do
         menu.particles[i] = particle.new()
     end
 end
 
 function menu.draw()
     --particles
-    for i=1,N_PARTICLES,1 do
+    for i=1,menu.n_particles,1 do
         menu.particles[i]:draw()
     end
 
@@ -56,7 +56,7 @@ function menu.draw()
 end
 
 function menu.update(dt)
-    for i=1,N_PARTICLES,1 do
+    for i=1,menu.n_particles,1 do
         menu.particles[i]:update(dt)
     end
 end
@@ -72,6 +72,11 @@ function menu.keypressed(key, scancode, isrepeat)
 end
 
 function menu.unload()
+    menu.text_font = nil
+    menu.title_font = nil
+    menu.title_font_back = nil
+    menu.title = nil
+    menu.text = nil
 	menu.particles = nil
 end
 
