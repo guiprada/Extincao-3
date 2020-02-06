@@ -221,10 +221,11 @@ function game.load(args)
 
 	flip_sound = love.audio.newSource("audio/tic.wav", "static")
 
-	-- game.particles = {}
-	-- for i=1,N_PARTICLES,1 do
-	-- 	game.particles[i] = particle.new()
-	-- end
+	-- particles
+	game.particles = {}
+	for i=1,N_PARTICLES,1 do
+		game.particles[i] = particle.new()
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -233,9 +234,9 @@ function game.draw()
 	total_target = 0
 	active_ghost_counter = 0 -- usado no hud
 
-	-- for i=1,N_PARTICLES,1 do
-	-- 	game.particles[i]:draw()
-	-- end
+	for i=1,N_PARTICLES,1 do
+		game.particles[i]:draw()
+	end
 
 	resizer.draw_fix()
 
@@ -315,9 +316,9 @@ function game.update(dt)
 	--if (dt > 0.06 ) then print("ops, dt too high, physics wont work  dt= " .. dt) end
 
 	if ( not paused and (dt<0.06)) then --  dt tem que ser baixo para nao bugar a fisica
-		-- for i=1,N_PARTICLES,1 do
-		-- 	game.particles[i]:update(dt)
-		-- end
+		for i=1,N_PARTICLES,1 do
+			game.particles[i]:update(dt)
+		end
 
 		-- calcula posicao media dos fantasmas
 		local average_ghost_pos = {}
@@ -483,12 +484,8 @@ function game.keypressed(key, scancode, isrepeat)
    	end
 end
 
--- function game.unload()
--- 	come_come = nil
--- 	ghosts = nil
--- 	pills = nil
--- 	game.particles = nil
--- 	maze_canvas = nil
--- end
+function game.unload()
+	game.particles = nil
+end
 
 return  game

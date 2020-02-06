@@ -24,17 +24,17 @@ menu.text = [[
 ]]
 
 function menu.load()
-    -- menu.particles = {}
-    -- for i=1,N_PARTICLES,1 do
-    --     menu.particles[i] = particle.new()
-    -- end
+    menu.particles = {}
+    for i=1,N_PARTICLES,1 do
+        menu.particles[i] = particle.new()
+    end
 end
 
 function menu.draw()
     --particles
-    -- for i=1,N_PARTICLES,1 do
-    --     menu.particles[i]:draw()
-    -- end
+    for i=1,N_PARTICLES,1 do
+        menu.particles[i]:draw()
+    end
 
     --title
     love.graphics.setColor(1, 1, 0)
@@ -56,9 +56,9 @@ function menu.draw()
 end
 
 function menu.update(dt)
-    -- for i=1,N_PARTICLES,1 do
-    --     menu.particles[i]:update(dt)
-    -- end
+    for i=1,N_PARTICLES,1 do
+        menu.particles[i]:update(dt)
+    end
 end
 
 function menu.keypressed(key, scancode, isrepeat)
@@ -71,9 +71,9 @@ function menu.keypressed(key, scancode, isrepeat)
     end
 end
 
--- function menu.unload()
--- 	menu.particles = nil
--- end
+function menu.unload()
+	menu.particles = nil
+end
 
 
 return menu
