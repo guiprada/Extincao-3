@@ -8,7 +8,7 @@ function victory.load()
     victory.n_particles = 250
 
     victory.width = love.graphics.getWidth()
-    victory.height = love.graphics.get``Height``()
+    victory.height = love.graphics.getHeight()
 
     victory.text_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 20)
     victory.title_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 50)
