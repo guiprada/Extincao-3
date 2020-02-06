@@ -1,5 +1,7 @@
 ------------------------------ todo
 
+- sistema de gamestate multiloader
+- gamestate gerador de particulas
 - camera
 - mudar para um sistema de objetos
 - criar fases com dificuldade progressiva
