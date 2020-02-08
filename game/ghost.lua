@@ -38,9 +38,9 @@ end
 
 function ghost.new(pos_index, pilgrin_gene, target_offset, target_offset_freightned, try_order, fear_target, fear_group, chase_feared_gene, scatter_feared_gene, speed, pills)
     local value = {}
-    value.grid_pos = {} -- fenotipo de pos_index
+    value.grid_pos = {} -- pos_index phenotype
     value.pill_debounce = {}
-    value.home = {} -- determinado por pos_index, e um fenotipo
+    value.home = {} -- determined by pos_index, it is a phenotype
     value.try_order = {} -- gene
 
     value.enabled_dir = {}
@@ -61,7 +61,7 @@ function ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offse
     value.n_catches = 0
     value.n_pills = 0
     value.fitness = 0
-    --value.home_pill_fitness = 0
+
     value.home_pill_index = 0
     value.speed_boost = 0
     value.dist_to_group = 0
@@ -99,16 +99,17 @@ function ghost.reset(value, pos_index, pilgrin_gene, target_offset, target_offse
     value.home.x = value.grid_pos.x
     value.home.y = value.grid_pos.y
 
-    -- escolhe direcao inicial
+    -- choose initial direction
     value.enabled_dir = grid.get_enabled_directions(value.grid_pos)
 
-    --value.try_order = {} -- nao destroi a velha, pois e usada por ghost.highest_fitness_genome
+    --value.try_order = {}
+    -- dont destroy the old one, it is used by ghost.highest_fitness_genome
     value.try_order[1] = try_order[1]
     value.try_order[2] = try_order[2]
     value.try_order[3] = try_order[3]
     value.try_order[4] = try_order[4]
 
-    -- e habilita uma direcao valida
+    -- finds a valid direction
     if(not direction) then
         for i=1, #value.try_order, 1 do
             if ( value.enabled_dir[value.try_order[i]] == true) then
@@ -194,7 +195,7 @@ function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
         this_direction = mom.direction
     end
 
-    -- recessivo para o gene peregrino
+    -- recessive for the pilgrin_gene
     if( mom.pilgrin_gene == dad.pilgrin_gene ) then
         son.pilgrin_gene = mom.pilgrin_gene
     else
@@ -217,7 +218,7 @@ function ghost.crossover (value, ghosts, pills, spawn_grid_pos)
     --print(son.pos_index)
 
     son.target_offset = math.floor((mom.target_offset + dad.target_offset)/2)
-    -- ate run10
+
     if (love.math.random(0, 10)<=3) then -- mutate
         son.target_offset = son.target_offset + math.floor(love.math.random(-2, 2))
     end
@@ -293,7 +294,7 @@ function ghost.regen(value, pills, spawn_grid_pos)
 
     local target_offset = love.math.random(-ghost.ghost_target_spread, ghost.ghost_target_spread)
     local target_offset_freightned = love.math.random(-ghost.ghost_target_spread, ghost.ghost_target_spread)
-    -- faz um gene try_order valido
+    -- build a valid try_order gene
     local try_order = {}
     for i=1, 4, 1 do
         try_order[i] = i
@@ -338,11 +339,10 @@ function ghost.draw(value, state)
             end
         end
 
-
         --love.graphics.setColor( (1/value.target_offset) + 0.3, 0.5, 0.3)
         love.graphics.circle("fill", value.x, value.y, ghost.grid_size*0.5)
 
-        -- "bando"
+        -- assign  colors based on pos_index
         if (value.pos_index < #grid.grid_valid_pos/4 )then
             love.graphics.setColor(1, 1, 1)
         elseif (value.pos_index < (#grid.grid_valid_pos/4)*2 )then
@@ -375,7 +375,8 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
         value.n_updates = value.n_updates + 1
         value.fitness = value.n_catches + (value.n_pills*0.001)/value.n_updates
 
-        -- atualiza distacia_media do player, poderiamos usar para colisao
+        -- updates average distance to player and group,
+        -- it is used for collision
         value.dist_to_target = utils.dist(target, value)
         value.dist_to_group = utils.dist(average_ghost_pos, value)
 
@@ -484,8 +485,8 @@ function ghost.update(value, target, pills, average_ghost_pos, dt, state)
             ghost.find_next_dir(value, target, state, average_ghost_pos)
         end
 
-        -- checa se o fantasma excedeu a velocidade maxima
-        -- caso tenha excedido ele a limita usand this_speed, mas mantem o valor de value.speed para calcular o fitness
+        -- checks if the ghost has exceeded max speed
+        -- if yes, limit it but keep self.speed to calculate fitness
         local this_speed = value.speed + value.speed_boost
         if ( (this_speed) > (ghost.ghost_speed_max_factor * ghost.ghost_speed) ) then
             this_speed = ghost.ghost_speed_max_factor * ghost.ghost_speed
