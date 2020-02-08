@@ -6,8 +6,12 @@ levels[n] = {}
 --levels[n].pause_text
 levels[n].ghost_respawn_time = 15
 --levels[n].ghost_scatter_time
---levels[n].font_size
+
 --levels[n].font
+--levels[n].font_size
+--levels[n].font_size_small
+--levels[n].font_size_big
+
 --levels[n].player_speed_grid_size_factor
 --levels[n].ghost_fitness_on
 --levels[n].ghost_target_spread

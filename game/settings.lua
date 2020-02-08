@@ -14,7 +14,9 @@ settings.player_start_grid = {}
 settings.player_start_grid.x = 28
 settings.player_start_grid.y = 18
 
--- game texts
+------ the settings bellow are overriden by level settings ---------------------
+
+- game texts
 settings.font = "fonts/PressStart2P-Regular.ttf"
 settings.pause_text = "\n\n'enter' try again \n\n"
 						.. "'esc' to exit\n\n"
@@ -22,8 +24,6 @@ settings.pause_text = "\n\n'enter' try again \n\n"
 settings.font_size = 32
 settings.font_size_small = 20
 settings.font_size_big = 48
-
------- the settings bellow are overriden by level settings ---------------------
 
 -- sounds
 settings.ghost_flip_sound = love.audio.newSource("audio/tic.wav", "static")

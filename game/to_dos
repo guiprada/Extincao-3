@@ -6,36 +6,39 @@
 
 - fix reporter
 
-- grid creating blocks and combining functions
+- gamestate multiloader system
+- particle generator gamestate
 
-- sistema de gamestate multiloader
-- gamestate gerador de particulas
 - collision notification with function call
 
 - basic color system using unpack
 - Particle should have color options
 
 - camera
-- mudar para um sistema de objetos
-- criar fases com dificuldade progressiva
-- sistema de camera e grid maior
-- editor de mapa
-- sistema para salvar e carregar uma populacao
-- player automatico( baseado em uma rede neural evolutiva)
-- novo fantasma( depende do player automatico por causa dos testes)
-- usar ponteiros para funcao no fantasma
-- sistema todo baseado em acoes
-- usar ponteiros para funcao para as opcoes
 
-- Gerar audio e fontes proceduralmente e eliminar os assets :)
+- progressive level up system
 
-- velocidade baseada em metabolismo!
-- respawn baseado em pilulas ingeridas pelos fantasminhas(metabolismo)
+- camera subsystems
+- bigger than screen grids
+- grid editor
+- grid creating blocks and combining functions
 
-+- eliminar gamestate.null_func = nil -- poderia ser eliminada?
+- population saving and restoring system
+
+- Player bot based on evolutionary neural netvork
+- new action based ghost( depends on automatic player for testing)
+- ghosts should use function pointer for actions intead of ifs
+
+- use predefined functions to select options behavior
+
+- procedure generated audio clips
+
+- metabolism based speed
+- metabolism based respawning
 
 ------------------------------ done
-+- consertar o fps nas fases
-+- Criar pasta de assets separada
-+- Atualizar a love
-+- Criar tela de vitoria
++- fix fps on game.lua
++- separated assets folder
++- update to love 11.3
++- victory gamestate
++- eliminate gamestate.null_func = nil on gamestate framework

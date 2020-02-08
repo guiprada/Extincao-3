@@ -21,6 +21,7 @@ function game.load(args)
 	local default_width = love.graphics.getWidth()
 	local default_height = love.graphics.getHeight()
 
+	game.paused = true
 	game.just_restarted = true
 	game.resets = 0
 	game.pause_text = args.pause_text or settings.pause_text
@@ -103,11 +104,11 @@ function game.load(args)
 	game.player = Player:new(grid_pos, game.speed)
 
 
-	-- timer  de estado freightened no restart
+	-- create freightened on restart timer
 	game.freightened_on_restart_timer = timer.new(	args.restart_pill_time or
 													settings.restart_pill_time)
 
-	-- pilulas
+	-- pills
 	game.pills = {}
 	local n_pills = args.n_pills or settings.n_pills
 	for i=1, n_pills, 1 do
@@ -123,7 +124,7 @@ function game.load(args)
 	local n_ghosts = args.n_ghosts or settings.n_ghosts
 	game.ghosts = {}
 	for i=1, n_ghosts,1 do
-		-- encontra posicao valida, gene pos_index
+		-- find a valid position
 		local pos_index = love.math.random(1, #grid.grid_valid_pos)
 
 		local pilgrin_gene
@@ -138,13 +139,14 @@ function game.load(args)
 		local target_offset_freightned = love.math.random(
 												-settings.ghost_target_spread,
 												settings.ghost_target_spread)
-		-- faz um gene try_order valido
+		-- build a valid try_order gene
 		local try_order = {}
 		for i=1, 4, 1 do
 			try_order[i] = i
 		end
 		utils.array_shuffler(try_order)
 
+		-- creates fear genes
 		local fear_target = love.math.random(0, settings.ghost_fear_spread)
 		local fear_group = love.math.random(0, settings.ghost_fear_spread)
 
@@ -164,7 +166,7 @@ function game.load(args)
 								game.pills)
 	end
 
-    -- cria o canvas para o game.maze_canvas
+    -- render the game.maze_canvas
 	game.maze_canvas = love.graphics.newCanvas(default_width, default_height)
 	love.graphics.setCanvas(game.maze_canvas)
 		love.graphics.clear()
@@ -196,7 +198,7 @@ function game.load(args)
 
 	game.ghost_flip_sound = args.ghost_flip_sound or settings.ghost_flip_sound
 
-	-- particles	game.particles = {}
+	-- creates the background particles
 	game.n_particles = args.n_particles or settings.n_particles
 	game.particles = {}
 	for i=1, game.n_particles,1 do
@@ -206,7 +208,7 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 function game.draw()
-	local active_ghost_counter = 0 -- usado no hud
+	local active_ghost_counter = 0 -- used on hud
 
 	-- particles
 	for i=1,game.n_particles,1 do
@@ -216,14 +218,14 @@ function game.draw()
 	-- resize screen
 	resizer.draw_fix()
 
-	local w = love.graphics.getWidth()-- atualiza
-	local h = love.graphics.getHeight() -- atualiza
+	local w = love.graphics.getWidth()
+	local h = love.graphics.getHeight()
 
-	-- game.maze_canvas
+	-- draw the game.maze_canvas
 	love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setBlendMode("alpha", "premultiplied")
 	love.graphics.draw(game.maze_canvas)
-	love.graphics.setBlendMode("alpha") -- volta ao modo normal
+	love.graphics.setBlendMode("alpha") -- back to normal mode
 
 	--game.pills
 	for i=1, #game.pills, 1 do
@@ -237,22 +239,19 @@ function game.draw()
 	end
 	--game.ghosts
 	for i=1, #game.ghosts, 1 do
-		--print(game.ghosts[i].n_updates)
-
 		if (game.ghosts[i].is_active )then
 			active_ghost_counter = active_ghost_counter +1
 		end
 		ghost.draw(game.ghosts[i], game.ghost_state)
-		--print(game.ghosts[i].fitness)
 	end
 
-	-- jogador
+	-- draw player
 	love.graphics.setShader()
 	game.player:draw()
 
 	-- hud
 
-	--reseta scale and translate
+	--reset scale and translate
 	love.graphics.origin()
 	love.graphics.setFont(game.text_font_small)
 
@@ -266,19 +265,16 @@ function game.draw()
 		love.graphics.print("'enter' para ir de novo", 3*w/4 -5, 0)
 	end
 
-	-- tela de pause
+	-- pause screen
 	if (game.paused) then
 			love.graphics.setColor(0, 0, 0, 0.8)
-			love.graphics.rectangle("fill", w/4 , h/4, w/2, h/2)
+			--love.graphics.rectangle("fill", w/4 , h/4, w/2, h/2)
+			love.graphics.rectangle("fill", 0 , 0, w, h)
 			love.graphics.setColor(1, 1, 0)
 			love.graphics.printf(	game.pause_text,
 									game.text_font,
 									w/4, h/4, w/2,
 									"center")
-
-			-- love.graphics.setColor(0, 0, 0, 0.1)
-			-- love.graphics.rectangle("fill", 0, 0, w, h)
-			--
 	end
 
 	--fps
@@ -288,7 +284,6 @@ function game.draw()
 							settings.screen_height-32,
 							settings.screen_width,
 							"right")
-
 end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -306,7 +301,7 @@ function game.update(dt)
 			game.particles[i]:update(dt)
 		end
 
-		-- calculates average_ghost_pos
+		-- calculate average_ghost_pos
 		local average_ghost_pos = {}
 		average_ghost_pos.x = utils.average(game.ghosts, "x")
 		average_ghost_pos.y = utils.average(game.ghosts, "y")
@@ -339,7 +334,6 @@ function game.update(dt)
 			game.just_restarted) then
 
 			game.ghost_state = "scattering"
-			--game.player.speed = game.speed
 			timer.reset(game.ghost_state_timer)
 			pill.pills_active = true
 			game.just_restarted = false
@@ -374,21 +368,19 @@ function game.update(dt)
 			end
 		end
 
-		--respawns, continua respawnando mesma sem player
+		--respawns, it respaws even without player
 		if ( timer.update(game.ghost_respawn_timer,dt) )
-			--and game.ghost_state == "freightened")
 			then
 			if (#game.to_be_respawned > 0) then
-				--print("respawned")
 
-				-- e spawna
+				-- and spawns
 				local i = table.remove(game.to_be_respawned, 1)
 				if ( settings.ghost_genetic_on) then
 					ghost.crossover(game.ghosts[i],
 									game.ghosts,
 									game.pills)
 				else
-					-- encontra posicao de spawn
+					-- find spawning position
 					local spawn_grid_pos = {}
 					if ( game.player.grid_pos.x > (grid.grid_width_n/2) ) then
 						spawn_grid_pos = {x=7, y= 21}
@@ -465,9 +457,8 @@ function game.keypressed(key, scancode, isrepeat)
 		game.player:reset(grid_pos, game.speed, game.grid_size, game.lookahead)
    	elseif (key == "escape") then
 		reporter.stop()
-		-------------
 		gamestate.switch("menu")
-	   	--love.event.quit(0)
+
    	end
 end
 

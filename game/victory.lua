@@ -18,7 +18,7 @@ function victory.load()
                                         "fonts/PressStart2P-Regular.ttf", 51)
 
     victory.title = "Well  Done!!!"
-    victory.text = "'enter' go to menu"
+    victory.text = "'enter' or 'esc' go to menu"
 
 
     victory.particles = {}
@@ -73,7 +73,7 @@ function victory.update(dt)
 end
 
 function victory.keypressed(key, scancode, isrepeat)
-    if key == "return" then
+    if key == "return" or key == "escape" then
         gamestate.switch("menu")
     end
 end

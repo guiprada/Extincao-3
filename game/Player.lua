@@ -5,7 +5,6 @@ local Player = {}
 
 function Player.init(grid_size, player_click)
     Player.grid_size = grid_size
-
     Player.plip_sound = player_click
     Player.plip_sound:setVolume(0.3)
     Player.plip_sound:setPitch(0.9)
@@ -68,8 +67,6 @@ function Player:draw()
         love.graphics.line(self.x, self.y, self.front.x, self.front.y)
     end
 end
-
-
 
 function Player:update(dt)
     --speed*dt, which is the distance travelled cant be bigger than the tile
@@ -156,7 +153,7 @@ function Player:update(dt)
     	end
 
         if(love.keyboard.isDown("left") and love.keyboard.isDown("right")) then
-            --does nothing, but also does not change
+        --does nothing, but also does not change
 
     	elseif love.keyboard.isDown("left") then
             self.next_direction = "left"
@@ -165,7 +162,7 @@ function Player:update(dt)
         end
 
         if(love.keyboard.isDown("up") and love.keyboard.isDown("down")) then
-            --does nothing, but also does not change
+        --does nothing, but also does not change
     	elseif love.keyboard.isDown("up") then
     		self.next_direction = "up"
         elseif love.keyboard.isDown("down") then
