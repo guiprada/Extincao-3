@@ -16,6 +16,6 @@ function love.load()
     gamestate.register("game", require "game")
     gamestate.register("victory", require "victory")
     -- go to state menu
-    gamestate.switch("victory")
+    gamestate.switch("menu")
     --print("logging")
 end
