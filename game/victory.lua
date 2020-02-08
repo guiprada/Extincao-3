@@ -5,15 +5,17 @@ local gamestate = require "gamestate"
 local Particle = require "Particle"
 
 function victory.load()
-    victory.n_particles = 250
+    victory.n_particles = 25000
 
     victory.width = love.graphics.getWidth()
     victory.height = love.graphics.getHeight()
 
-    victory.text_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 20)
-    victory.title_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 50)
+    victory.text_font = love.graphics.newFont(
+                                        "fonts/PressStart2P-Regular.ttf", 20)
+    victory.title_font = love.graphics.newFont(
+                                        "fonts/PressStart2P-Regular.ttf", 50)
     victory.title_font_back = love.graphics.newFont(
-                                            "fonts/PressStart2P-Regular.ttf", 51)
+                                        "fonts/PressStart2P-Regular.ttf", 51)
 
     victory.title = "Well  Done!!!"
     victory.text = "'enter' go to menu"
@@ -39,7 +41,7 @@ function victory.draw()
                             victory.height/4,
                             victory.width,
                             "center" )
-    love.graphics.setColor(0, 1, 1)
+    love.graphics.setColor(0, 1, 0.5)
     love.graphics.printf(   victory.title,
                             victory.title_font,
                             0,

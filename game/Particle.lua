@@ -14,7 +14,7 @@ function Particle:new(camera, o)
 
 	o.max_size = love.math.random(1,PARTICLE_MAX_SIZE)
 
-	o.camera = camera or nil-- it can be nil
+	o.camera = camera or nil -- it can be nil
 
 	o:reset()
 	return o
@@ -49,7 +49,10 @@ end
 
 function Particle:draw()
 	local decay = (self.timer/self.max_timer)
-	love.graphics.setColor(self.color_r, self.color_b, self.color_b, self.color_a * decay)
+	love.graphics.setColor(	self.color_r,
+							self.color_b,
+							self.color_b,
+							self.color_a * decay)
 	love.graphics.circle('fill', self.x, self.y, self.max_size * decay)
 end
 

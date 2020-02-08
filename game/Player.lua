@@ -63,7 +63,10 @@ function Player:draw()
         -- front dot
         love.graphics.setColor(1, 0, 1)
         --love.graphics.setColor(138/255,43/255,226/255, 0.9)
-        love.graphics.circle("fill", self.front.x, self.front.y, Player.grid_size/5)
+        love.graphics.circle(   "fill",
+                                self.front.x,
+                                self.front.y,
+                                Player.grid_size/5)
         -- front line, mesma cor
         -- love.graphics.setColor(1, 0, 1)
         love.graphics.line(self.x, self.y, self.front.x, self.front.y)
@@ -73,12 +76,13 @@ end
 
 
 function Player:update(dt)
-    -- --speed*dt, which is the distance travelled cant be bigger than the tile
-    -- --grid_size*1.5 or the physics wont work
-    -- if Player.speed*dt > grid_size*1.5 then
-    --     print("Player speed > grid_size", Player.speed*dt)
-    --     love.event.quit(0)
-    -- end
+    --speed*dt, which is the distance travelled cant be bigger than the tile
+    --grid_size*1.5 or the physics wont work
+    if self.speed*dt > Player.grid_size*1.5 then
+        print("physics sanity check failed, Player speed > grid_size")
+        love.event.quit(0)
+    end
+
     -- print(self.speed)
     if (self.is_active) then
         if self.direction ~= "idle" then
@@ -119,20 +123,28 @@ function Player:update(dt)
         -- apply next_direction
         if self.next_direction ~= "idle" then
             local grid_center = grid.get_grid_center(self)
-            --print(self.enabled_directions[1], self.enabled_directions[2], self.enabled_directions[3], self.enabled_directions[4])
-            if self.next_direction == "up" and self.enabled_directions[1] == true then
+
+            if  self.next_direction == "up" and
+                self.enabled_directions[1] == true then
+
                 self.direction = self.next_direction
                 self.relay_x = self.x - grid_center.x
                 self.relay_x_counter = self.relay_times
-            elseif self.next_direction == "down" and self.enabled_directions[2] == true then
+            elseif  self.next_direction == "down" and
+                    self.enabled_directions[2] == true then
+
                 self.direction = self.next_direction
                 self.relay_x = self.x - grid_center.x
                 self.relay_x_counter = self.relay_times
-            elseif self.next_direction == "left" and self.enabled_directions[3] == true then
+            elseif  self.next_direction == "left" and
+                    self.enabled_directions[3] == true then
+
                 self.direction = self.next_direction
                 self.relay_y = self.y - grid_center.y
                 self.relay_y_counter = self.relay_times
-            elseif self.next_direction == "right" and self.enabled_directions[4] == true then
+            elseif  self.next_direction == "right" and
+                    self.enabled_directions[4] == true then
+
                 self.direction = self.next_direction
                 self.relay_y = self.y - grid_center.y
                 self.relay_y_counter = self.relay_times
@@ -147,22 +159,22 @@ function Player:update(dt)
             grid.center_on_grid(self)
     	end
 
-        if (love.keyboard.isDown("left") and love.keyboard.isDown("right") ) then
+        if(love.keyboard.isDown("left") and love.keyboard.isDown("right")) then
             --does nothing, but also does not change
+
     	elseif love.keyboard.isDown("left") then
             self.next_direction = "left"
         elseif love.keyboard.isDown("right") then
     		self.next_direction = "right"
         end
 
-        if (love.keyboard.isDown("up") and love.keyboard.isDown("down") ) then
+        if(love.keyboard.isDown("up") and love.keyboard.isDown("down")) then
             --does nothing, but also does not change
     	elseif love.keyboard.isDown("up") then
     		self.next_direction = "up"
         elseif love.keyboard.isDown("down") then
     		self.next_direction = "down"
     	end
-
     end
 end
 

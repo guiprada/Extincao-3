@@ -15,9 +15,10 @@ local height = love.graphics.getHeight()
 function menu.load()
     -- initialize
     menu.text_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 20)
-    menu.title_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 50)
+    menu.title_font = love.graphics.newFont(
+                                        "fonts/PressStart2P-Regular.ttf", 50)
     menu.title_font_back = love.graphics.newFont(
-                                            "fonts/PressStart2P-Regular.ttf", 51)
+                                        "fonts/PressStart2P-Regular.ttf", 51)
 
     menu.title = "extinction"
 

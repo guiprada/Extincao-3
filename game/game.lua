@@ -43,11 +43,14 @@ function game.load(args)
 										grid.grid_width_n,
 										grid.grid_height_n)
 
-	-- registering a font
+	-- registering fonts
 	game.font_size = args.font_size or settings.font_size
 	game.text_font = love.graphics.newFont(args.font or settings.font,
 											game.font_size)
-	love.graphics.setFont(game.text_font)
+
+	game.font_size_small = args.font_size_small or settings.font_size_small
+	game.text_font_small = love.graphics.newFont(args.font or settings.font,
+											game.font_size_small)
 
 	-- grid
 	game.lookahead = game.grid_size/2
@@ -82,7 +85,8 @@ function game.load(args)
 				game.lookahead,
 				reporter)
 	pill.init(	args.pill_genetic_on or settings.pill_genetic_on,
-				args.pill_precise_crossover_on or settings.pill_precise_crossover_on,
+				args.pill_precise_crossover_on or
+					settings.pill_precise_crossover_on,
 				game.grid_size,
 				game.lookahead)
 
@@ -249,19 +253,16 @@ function game.draw()
 
 	--reseta scale and translate
 	love.graphics.origin()
-	--
-	love.graphics.setColor(1, 0, 0)
-	love.graphics.print("capturado: " .. reporter.player_catched,
-						10, game.font_size - 22)
-	love.graphics.print("resets: " .. game.resets, w/5,  game.font_size -22)
-	love.graphics.print("capturados: " .. reporter.ghosts_catched,
-						2*w/5, game.font_size - 22)
-	love.graphics.print("ativos: " 	.. active_ghost_counter, 3*w/5,
-									game.font_size -22)
+	love.graphics.setFont(game.text_font_small)
+
+	love.graphics.setColor(1, 1, 0)
+	love.graphics.print("capturado: " .. reporter.player_catched, 10, 0)
+	love.graphics.print("resets: " .. game.resets, w/5, 0)
+	love.graphics.print("capturados: " .. reporter.ghosts_catched, 2*w/5, 0)
+	love.graphics.print("ativos: " 	.. active_ghost_counter, 3*w/5, 0)
 
 	if ( not game.player.is_active ) then
-		love.graphics.print( 	"'enter' para ir de novo",
-								3*w/4 -5, game.font_size - 22)
+		love.graphics.print("'enter' para ir de novo", 3*w/4 -5, 0)
 	end
 
 	-- tela de pause
@@ -282,7 +283,9 @@ function game.draw()
 	--fps
 	love.graphics.setColor(1, 0, 0)
 	love.graphics.printf(	love.timer.getFPS(),
-	 						0, settings.screen_height-32, settings.screen_width,
+	 						0,
+							settings.screen_height-32,
+							settings.screen_width,
 							"right")
 
 end
@@ -441,13 +444,17 @@ function game.keypressed(key, scancode, isrepeat)
 		has_shown_menu = true
 	   	if (game.paused) then game.paused = false
 	   	else game.paused = true end
-	elseif (key == "return" and game.player.is_active==false and (not game.paused)) then
+	elseif (key == "return" and
+			game.player.is_active==false and
+			(not game.paused)) then
+
 		game.ghost_state = "freightened"
 
 		timer.reset(game.freightened_on_restart_timer)
 		game.just_restarted = true
 		pill.pills_active = false
-		local grid_pos = {x=settings.player_start_grid.x, y=settings.player_start_grid.y}
+		local grid_pos = {	x=settings.player_start_grid.x,
+							y=settings.player_start_grid.y}
 		game.player:reset(grid_pos, game.speed, game.grid_size, game.lookahead)
    	elseif (key == "escape") then
 		reporter.stop()

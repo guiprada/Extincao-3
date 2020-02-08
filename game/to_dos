@@ -11,6 +11,7 @@
 - sistema de gamestate multiloader
 - gamestate gerador de particulas
 
+- color system
 - camera
 - mudar para um sistema de objetos
 - criar fases com dificuldade progressiva
