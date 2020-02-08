@@ -1,9 +1,39 @@
 local levels = {}
 
-levels[1] = {}
-levels[1].n_ghosts = 2
-levels[1].ghost_respawn_time = 15
-levels[1].grid_types =
+local n = 1
+
+levels[n] = {}
+--levels[n].pause_text
+levels[n].ghost_respawn_time = 15
+--levels[n].ghost_scatter_time
+--levels[n].font_size
+--levels[n].font
+--levels[n].player_speed_grid_size_factor
+--levels[n].ghost_fitness_on
+--levels[n].ghost_target_spread
+--levels[n].ghost_target_offset_freightned_on
+--levels[n].ghost_migration_on
+--levels[n].ghost_selective_migration_on
+--levels[n].speed_boost_on
+--levels[n].ghost_speed_max_factor
+--levels[n].ghost_fear_on
+--levels[n].ghost_go_home_on_scatter
+--levels[n].ghost_chase_feared_gene_on
+--levels[n].ghost_scatter_feared_gene_on
+--levels[n].pill_genetic_on
+--levels[n].pill_precise_crossover_on
+
+--levels[n].player_start_grid = {}
+--levels[n].player_start_grid.x = 1
+--levels[n].player_start_grid.y = 1
+
+--levels[n].restart_pill_time
+--levels[n].n_pills
+levels[n].n_particles = 250
+
+levels[n].n_ghosts = 2
+
+levels[n].grid_types =
 { --   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56
     { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 }, --1
     { 16,  5,  3,  3,  3,  3,  7,  3,  3,  3,  3,  3,  6, 16, 16,  5,  3,  3,  3,  3,  3,  7,  3,  3,  3,  3,  7,  3,  3,  7,  3,  3,  3,  3,  7,  3,  3,  3,  3,  3,  6, 16, 16,  5,  3,  3,  3,  3,  3,  7,  3,  3,  3,  3,  6, 16 }, --2
@@ -69,10 +99,11 @@ levels[1].grid_types =
     { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 }, --62
 }
 
-levels[2] = {}
-levels[2].n_ghosts = 20
-levels[2].ghost_respawn_time = 15
-levels[2].grid_types =
+n = n +1
+levels[n] = {}
+levels[n].n_ghosts = 20
+levels[n].ghost_respawn_time = 15
+levels[n].grid_types =
 { --   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56
     { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 }, --1
     { 16,  5,  3,  3,  3,  3,  7,  3,  3,  3,  3,  3,  6, 16, 16,  5,  3,  3,  3,  3,  3,  7,  3,  3,  3,  3,  7,  3,  3,  7,  3,  3,  3,  3,  7,  3,  3,  3,  3,  3,  6, 16, 16,  5,  3,  3,  3,  3,  3,  7,  3,  3,  3,  3,  6, 16 }, --2

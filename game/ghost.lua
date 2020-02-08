@@ -1,10 +1,10 @@
 -- Guilherme Cunha Prada 2019
-
 local grid = require "grid"
 local utils = require "utils"
 
 local ghost = {}
 
+-- defaults
 ghost.ghost_fitness_on = false
 ghost.ghost_target_offset_freightned_on = false
 ghost.ghost_migration_on = true

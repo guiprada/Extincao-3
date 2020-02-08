@@ -7,7 +7,6 @@ local utils = require "utils"
 
 gamestate.states = {}
 
-
 --gamestate.null_func = function() end
 gamestate.null_func = nil -- poderia ser eliminada
 
@@ -57,9 +56,10 @@ function gamestate.register(name, callbacks)
 end
 
 function gamestate.switch(name, args)
-    if gamestate.current then
+    if gamestate.current and gamestate.current.unload then
         gamestate.current.unload()
     end
+
     gamestate.current = gamestate.states[name]
     assign(love, gamestate.current)
     gamestate.current.load(args)

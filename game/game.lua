@@ -15,54 +15,14 @@ local settings = require "settings"
 local reporter = require "reporter"
 local shaders = require "shaders"
 local particle = require "particle"
-------------------------------------------------------------------init variables
-
-game.text_font = {}-- will be set by resizer
-game.n_particles = 250
-game.grid_size = 0 -- will be set by resizer
-game.lookahead = 0 -- will be set after game.grid_size
-game.font_size = 0 -- will be set after game.grid_size
-game.ghost_speed = 0 -- will be set in love.load(), needs speed being set
-game.speed = 0 -- will be set in love.load(), needs game.grid_size being set
-
--- tables for game objects,  will be set by game.start()
-game.player = {}
-game.ghosts = {} -- it is an array
-game.pills = {} -- it is an array
-game.particles = {}
-
-game.freightened_on_restart_timer = {} --  will be set by game.start()
-game.just_restarted = false --  will be set by game.start()
-
--- init state
-game.freightened_on_restart_timer = {}
-game.just_restarted = false
-game.ghost_state = "" -- controla o estado dos fantasmas
-game.paused = true  -- para pausar e despausar
-game.resets = 0 -- contador de game.resets
-
---fila para armazenar os indices dos objetos a serem reiniciados
-game.to_be_respawned = {}
--- timer para alternar o game.ghost_state
-game.ghost_state_timer = {}
--- timer para reativar um fantasma
-game.ghost_respawn_timer = {}
--- para o game.maze_canvas
-game.maze_canvas = {}
--- para o som do troca de estados do fantasma
-game.flip_sound = true
-game.pause_text = 	""
-
-game.font_size = 0 --  will be set by game.start()
-
-game.maze_canvas = {} --  will be set by game.start()
-
-game.flip_sound = {} --  will be set by game.start()
 
 -----------------------------------------------------------------------callbacks
 function game.load(args)
+	local default_width = love.graphics.getWidth()
+	local default_height = love.graphics.getHeight()
+
+	game.just_restarted = true
 	game.resets = 0
-	game.n_particles = args.n_particles or settings.n_particles
 	game.pause_text = args.pause_text or settings.pause_text
 
 
@@ -76,15 +36,13 @@ function game.load(args)
 								settings.ghost_scatter_time
 	game.ghost_state_timer = timer.new(ghost_scatter_time)
 
-	local default_width = love.graphics.getWidth()
-	local default_height = love.graphics.getHeight()
 
 	grid.load(args.grid_types)	-- if args.grid_types == null
 	 							-- it will use grid.grid_types
-
 	game.grid_size = resizer.init_resizer(	default_width, default_height,
 										grid.grid_width_n,
 										grid.grid_height_n)
+
 	-- registering a font
 	game.font_size = args.font_size or settings.font_size
 	game.text_font = love.graphics.newFont(args.font or settings.font,
@@ -103,26 +61,30 @@ function game.load(args)
 	reporter.init(grid)
 	grid.init(	game.grid_size, game.lookahead)
 	player.init(game.grid_size, game.lookahead)
-	ghost.init(	settings.ghost_fitness_on,
-				settings.ghost_target_spread,
-				settings.ghost_target_offset_freightned_on,
-				settings.ghost_migration_on,
-				settings.ghost_selective_migration_on,
+	ghost.init(	args.ghost_fitness_on or settings.ghost_fitness_on,
+				args.ghost_target_spread or settings.ghost_target_spread,
+				args.ghost_target_offset_freightned_on or
+					settings.ghost_target_offset_freightned_on,
+				args.ghost_migration_on or settings.ghost_migration_on,
+				args.ghost_selective_migration_on or
+					settings.ghost_selective_migration_on,
 				game.ghost_speed,
-				settings.speed_boost_on,
-				settings.ghost_speed_max_factor,
-				settings.ghost_fear_on,
-				settings.ghost_go_home_on_scatter,
-				settings.ghost_chase_feared_gene_on,
-				settings.ghost_scatter_feared_gene_on,
+				args.speed_boost_on or settings.speed_boost_on,
+				args.ghost_speed_max_factor or settings.ghost_speed_max_factor,
+				args.ghost_fear_on or settings.ghost_fear_on,
+				args.ghost_go_home_on_scatter or
+					settings.ghost_go_home_on_scatter,
+				args.ghost_chase_feared_gene_on or
+					settings.ghost_chase_feared_gene_on,
+				args.ghost_scatter_feared_gene_on or
+					settings.ghost_scatter_feared_gene_on,
 				game.grid_size,
 				game.lookahead,
 				reporter)
-	pill.init(	settings.pill_genetic_on,
-				settings.pill_precise_crossover_on,
+	pill.init(	args.pill_genetic_on or settings.pill_genetic_on,
+				args.pill_precise_crossover_on or settings.pill_precise_crossover_on,
 				game.grid_size,
 				game.lookahead)
-
 
 	--start player
 	local grid_pos = {}
@@ -137,11 +99,13 @@ function game.load(args)
 
 
 	-- timer  de estado freightened no restart
-	game.freightened_on_restart_timer = timer.new(settings.restart_pill_time)
+	game.freightened_on_restart_timer = timer.new(	args.restart_pill_time or
+													settings.restart_pill_time)
 
 	-- pilulas
 	game.pills = {}
-	for i=1, settings.n_pills, 1 do
+	local n_pills = args.n_pills or settings.n_pills
+	for i=1, n_pills, 1 do
 		local rand = love.math.random(1, #grid.grid_valid_pos)
 		game.pills[i] = pill.new(rand, settings.pill_time)
 	end
@@ -228,12 +192,12 @@ function game.load(args)
 	game.flip_sound = args.flip_sound or settings.flip_sound
 
 	-- particles	game.particles = {}
+	game.n_particles = args.n_particles or settings.n_particles
 	game.particles = {}
-	for i=1,game.n_particles,1 do
+	for i=1, game.n_particles,1 do
 		game.particles[i] = particle.new()
 	end
 end
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 function game.draw()
@@ -432,8 +396,7 @@ function game.update(dt)
 			end
 		end
 
-		--pilulas
-
+		--pill
 		for i=1, #game.pills, 1 do
 			local is_active_before_update = game.pills[i].is_active
 			pill.update(game.pills[i], game.pills, game.player, dt, settings.pill_time)
@@ -460,7 +423,7 @@ function game.update(dt)
 			end
 		end
 
-		-- player, depois de game.ghosts, para pegar a mudanca de estado( player catched)
+		-- player, after game.ghosts to get player_catched
 		player.update(game.player, dt)
 
 		-- check victory, should be the last thing done in this function
@@ -502,31 +465,25 @@ function game.unload()
 	game.font_size = nil
 	game.ghost_speed = nil
 	game.speed = nil
-
-	-- tables para os objetos de jogo
 	game.player = nil
 	game.ghosts = nil
 	game.pills = nil
+	game.particles = nil
 	game.freightened_on_restart_timer = nil
 	game.just_restarted = nil
 	game.freightened_on_restart_timer = nil
-	game.just_restarted = nil
 	game.ghost_state = nil
 	game.paused = nil
 	game.resets = nil
-
-	--fila para armazenar os indices dos objetos a serem reiniciados
 	game.to_be_respawned = nil
-	-- timer para alternar o game.ghost_state
 	game.ghost_state_timer = nil
-	-- timer para reativar um fantasma
 	game.ghost_respawn_timer = nil
-	-- para o game.maze_canvas
 	game.maze_canvas = nil
-	-- para o som do troca de estados do fantasma
 	game.flip_sound = nil
 	game.pause_text = nil
-	game.particles = nil
+	game.font_size = nil
+	game.maze_canvas = nil
+	game.flip_sound = nil
 end
 
 return  game
