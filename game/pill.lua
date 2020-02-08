@@ -120,11 +120,15 @@ function pill.crossover(value, pills, pill_time)
 
         temp_grid_pos.x = temp_grid_pos.x + love.math.random(-5,5)
         if( temp_grid_pos.x < 2) then temp_grid_pos.x = 2 end
-        if( temp_grid_pos.x > (grid.grid_width_n -1)) then temp_grid_pos.x = grid.grid_width_n -1 end
+        if( temp_grid_pos.x > (grid.grid_width_n -1)) then
+            temp_grid_pos.x = grid.grid_width_n -1
+        end
 
         temp_grid_pos.y = temp_grid_pos.y + love.math.random(-5,5)
         if( temp_grid_pos.y < 2) then temp_grid_pos.y = 2 end
-        if( temp_grid_pos.y > (grid.grid_height_n -1)) then temp_grid_pos.y = grid.grid_height_n -1 end
+        if( temp_grid_pos.y > (grid.grid_height_n -1)) then
+            temp_grid_pos.y = grid.grid_height_n -1
+        end
 
 
         if(grid.is_grid_way(temp_grid_pos.x, temp_grid_pos.y)) then

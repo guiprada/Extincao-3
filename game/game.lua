@@ -383,7 +383,9 @@ function game.update(dt)
 				-- e spawna
 				local i = table.remove(game.to_be_respawned, 1)
 				if ( settings.ghost_genetic_on) then
-					ghost.crossover(game.ghosts[i], game.ghosts, game.pills)--, spawn_grid_pos)
+					ghost.crossover(game.ghosts[i],
+									game.ghosts,
+									game.pills)
 				else
 					-- encontra posicao de spawn
 					local spawn_grid_pos = {}
@@ -402,7 +404,11 @@ function game.update(dt)
 		--pill
 		for i=1, #game.pills, 1 do
 			local is_active_before_update = game.pills[i].is_active
-			pill.update(game.pills[i], game.pills, game.player, dt, settings.pill_time)
+			pill.update(game.pills[i],
+						game.pills,
+						game.player,
+						dt,
+						settings.pill_time)
 			if(game.pills[i].is_active) then
 				active_pill_count = active_pill_count + 1
 				total_pill_fitness = total_pill_fitness + game.pills[i].fitness
