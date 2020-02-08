@@ -14,7 +14,7 @@ local resizer = require "resizer"
 local settings = require "settings"
 local reporter = require "reporter"
 local shaders = require "shaders"
-local particle = require "particle"
+local Particle = require "Particle"
 
 -----------------------------------------------------------------------callbacks
 function game.load(args)
@@ -195,7 +195,7 @@ function game.load(args)
 	game.n_particles = args.n_particles or settings.n_particles
 	game.particles = {}
 	for i=1, game.n_particles,1 do
-		game.particles[i] = particle.new()
+		game.particles[i] = Particle:new()
 	end
 end
 --------------------------------------------------------------------------------

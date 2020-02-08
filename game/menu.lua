@@ -2,7 +2,7 @@ menu = {}
 
 local utils = require "utils"
 local gamestate = require "gamestate"
-local particle = require "particle"
+local Particle = require "Particle"
 local levels = require "levels"
 
 menu.n_particles = 250
@@ -26,7 +26,7 @@ function menu.load()
     -- create particles
     menu.particles = {}
     for i=1,menu.n_particles,1 do
-        menu.particles[i] = particle.new()
+        menu.particles[i] = Particle:new()
     end
 end
 

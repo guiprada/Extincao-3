@@ -2,7 +2,7 @@ local victory = {}
 
 local utils = require "utils"
 local gamestate = require "gamestate"
-local particle = require "particle"
+local Particle = require "Particle"
 
 function victory.load()
     victory.n_particles = 250
@@ -21,7 +21,7 @@ function victory.load()
 
     victory.particles = {}
     for i=1,victory.n_particles,1 do
-        victory.particles[i] = particle.new()
+        victory.particles[i] = Particle:new()
     end
 end
 
