@@ -23,7 +23,7 @@ for i=-settings.ghost_target_spread, settings.ghost_target_spread, 1 do
 	reporter.distrib_catcher_target_offset[i] = 0
 end
 
-reporter.init = function (grid)
+function reporter.init(grid, args)
     -- save the configuration used in the run to file
     io.output(reporter.config_file)
     io.write("the Configuration used is:")

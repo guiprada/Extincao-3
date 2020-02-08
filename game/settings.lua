@@ -34,6 +34,7 @@ settings.player_start_grid.y = 18
 -- gameplay settings
 settings.n_ghosts = 20 --at least 3
 settings.n_pills = 6	-- at least 2
+settings.n_particles = 250
 
 settings.pill_time = 3	-- tempo de duracao da pilula
 settings.restart_pill_time = 3
@@ -46,5 +47,15 @@ settings.speed_boost_on = true
 settings.ghost_speed_max_factor = 1.1 		-- controla a velocidade maxima do fantasma em proporcao a velocidade inicial do fantasma
 
 settings.player_speed_grid_size_factor = 5 -- speed = player_speed_grid_size_factor* grid_size
+
+-- game texts
+settings.font = "fonts/PressStart2P-Regular.ttf"
+settings.pause_text = "\n\n'enter' try again \n\n"
+						.. "'esc' to exit\n\n"
+						.. "'spacebar' to pause\n\n"
+settings.font_size = 26
+
+-- sounds
+settings.flip_sound = love.audio.newSource("audio/tic.wav", "static")
 
 return settings

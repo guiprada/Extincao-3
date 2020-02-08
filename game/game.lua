@@ -15,73 +15,91 @@ local settings = require "settings"
 local reporter = require "reporter"
 local shaders = require "shaders"
 local particle = require "particle"
---------------------------------------------------------------------------------
+------------------------------------------------------------------init variables
 
+game.text_font = {}-- will be set by resizer
+game.n_particles = 250
+game.grid_size = 0 -- will be set by resizer
+game.lookahead = 0 -- will be set after game.grid_size
+game.font_size = 0 -- will be set after game.grid_size
+game.ghost_speed = 0 -- will be set in love.load(), needs speed being set
+game.speed = 0 -- will be set in love.load(), needs game.grid_size being set
+
+-- tables for game objects,  will be set by game.start()
+game.player = {}
+game.ghosts = {} -- it is an array
+game.pills = {} -- it is an array
+game.particles = {}
+
+game.freightened_on_restart_timer = {} --  will be set by game.start()
+game.just_restarted = false --  will be set by game.start()
+
+-- init state
+game.freightened_on_restart_timer = {}
+game.just_restarted = false
+game.ghost_state = "" -- controla o estado dos fantasmas
+game.paused = true  -- para pausar e despausar
+game.resets = 0 -- contador de game.resets
+
+--fila para armazenar os indices dos objetos a serem reiniciados
+game.to_be_respawned = {}
+-- timer para alternar o game.ghost_state
+game.ghost_state_timer = {}
+-- timer para reativar um fantasma
+game.ghost_respawn_timer = {}
+-- para o game.maze_canvas
+game.maze_canvas = {}
+-- para o som do troca de estados do fantasma
+game.flip_sound = true
+game.pause_text = 	""
+
+game.font_size = 0 --  will be set by game.start()
+
+game.maze_canvas = {} --  will be set by game.start()
+
+game.flip_sound = {} --  will be set by game.start()
+
+-----------------------------------------------------------------------callbacks
 function game.load(args)
-	game.text_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 35)
-	game.n_particles = 250
-	game.grid_size = 0 -- will be set by resizer
-	game.lookahead = 0 -- will be set after game.grid_size
-	game.font_size = 0 -- will be set after game.grid_size
-	game.ghost_speed = 0 -- will be set in love.load(), needs speed being set
-	game.speed = 0 -- will be set in love.load(), needs game.grid_size being set
-
-	-- tables para os objetos de jogo
-	game.player = {}
-	game.ghosts = {} -- e um array
-	game.pills = {} -- e um array
-	game.freightened_on_restart_timer = {}
-	game.just_restarted = false
-
-	-- init state
-	game.freightened_on_restart_timer = {}
-	game.just_restarted = false
-	game.ghost_state = "scattering" -- controla o estado dos fantasmas
-	game.paused = true  -- para pausar e despausar
-	game.resets = 0 -- contador de game.resets
-
-	--fila para armazenar os indices dos objetos a serem reiniciados
-	game.to_be_respawned = {}
-	-- timer para alternar o game.ghost_state
-	game.ghost_state_timer = {}
-	-- timer para reativar um fantasma
-	game.ghost_respawn_timer = {}
-	-- para o game.maze_canvas
-	game.maze_canvas = {}
-	-- para o som do troca de estados do fantasma
-	game.flip_sound = true
-	game.pause_text = 	"\n\n'enter' try again \n\n"
-						.. "'esc' to exit\n\n"
-						.. "'spacebar' to pause\n\n"
+	game.resets = 0
+	game.n_particles = args.n_particles or settings.n_particles
+	game.pause_text = args.pause_text or settings.pause_text
 
 
-	local n_ghosts = args.n_ghosts
+	-- respawn timer
 	local ghost_respawn_time = 	args.ghost_respawn_time or
 								settings.ghost_respawn_time
-
-	-- timer para alternar o game.ghost_state
-	game.ghost_state_timer = timer.new(settings.ghost_scatter_time)
-	-- timer para o respawn
 	game.ghost_respawn_timer = timer.new(ghost_respawn_time)
 
-	local default_width = love.graphics.getWidth()-- atualiza
-	local default_height = love.graphics.getHeight() -- atualiza
+	-- game.ghost_state timer
+	local ghost_scatter_time = 	args.ghost_scatter_time or
+								settings.ghost_scatter_time
+	game.ghost_state_timer = timer.new(ghost_scatter_time)
 
-	grid.load(args.grid_types)
+	local default_width = love.graphics.getWidth()
+	local default_height = love.graphics.getHeight()
 
-	--print(grid.grid_width_n, grid.grid_height_n)
+	grid.load(args.grid_types)	-- if args.grid_types == null
+	 							-- it will use grid.grid_types
+
 	game.grid_size = resizer.init_resizer(	default_width, default_height,
 										grid.grid_width_n,
 										grid.grid_height_n)
+	-- registering a font
+	game.font_size = args.font_size or settings.font_size
+	game.text_font = love.graphics.newFont(args.font or settings.font,
+											game.font_size)
+	love.graphics.setFont(game.text_font)
+
+	-- grid
 	game.lookahead = game.grid_size/2
 
-	game.speed = (settings.player_speed_grid_size_factor*game.grid_size)
-	game.ghost_speed = game.speed*1
+	local player_speed_grid_size_factor = args.player_speed_grid_size_factor or
+										settings.player_speed_grid_size_factor
+	game.speed = player_speed_grid_size_factor * game.grid_size
+	game.ghost_speed = game.speed * 1
 
-	-- print("player's speed: " .. game.speed)
-	-- print("game.ghost_speed: " .. game.ghost_speed)
-	-- print("game.grid_size is: " .. game.grid_size)
-
+	-- start subsystems
 	reporter.init(grid)
 	grid.init(	game.grid_size, game.lookahead)
 	player.init(game.grid_size, game.lookahead)
@@ -105,29 +123,37 @@ function game.load(args)
 				game.grid_size,
 				game.lookahead)
 
-	-- registrando uma fonte
-	game.font_size = game.grid_size
-	local font = love.graphics.newFont(game.font_size)
-	love.graphics.setFont(font)
 
-	--inicia player
+	--start player
 	local grid_pos = {}
-	grid_pos.x =  settings.player_start_grid.x
-	grid_pos.y =  settings.player_start_grid.y
+	if(args.player_start_grid)then
+		grid_pos.x =  args.player_start_grid.x
+		grid_pos.y =  args.player_start_grid.y
+	else
+		grid_pos.x = settings.player_start_grid.x
+		grid_pos.y = settings.player_start_grid.y
+	end
+	game.player = player.new(grid_pos, game.speed)
 
-    game.player = player.new(grid_pos, game.speed)
-	--print("you are up...")
+
 	-- timer  de estado freightened no restart
 	game.freightened_on_restart_timer = timer.new(settings.restart_pill_time)
 
 	-- pilulas
+	game.pills = {}
 	for i=1, settings.n_pills, 1 do
 		local rand = love.math.random(1, #grid.grid_valid_pos)
 		game.pills[i] = pill.new(rand, settings.pill_time)
 	end
-	--print("adding some game.pills and")
 
-	for i=1, n_ghosts or settings.n_ghosts,1 do
+	-- ghosts
+	game.ghost_state = "scattering"
+	-- stack for ghosts to be respawned
+	game.to_be_respawned = {}
+	-- game.ghosts array
+	local n_ghosts = args.n_ghosts or settings.n_ghosts
+	game.ghosts = {}
+	for i=1, n_ghosts,1 do
 		-- encontra posicao valida, gene pos_index
 		local pos_index = love.math.random(1, #grid.grid_valid_pos)
 
@@ -199,9 +225,9 @@ function game.load(args)
 		end
 	love.graphics.setCanvas()
 
-	game.flip_sound = love.audio.newSource("audio/tic.wav", "static")
+	game.flip_sound = args.flip_sound or settings.flip_sound
 
-	-- particles
+	-- particles	game.particles = {}
 	game.particles = {}
 	for i=1,game.n_particles,1 do
 		game.particles[i] = particle.new()
@@ -211,7 +237,6 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 function game.draw()
-	total_target = 0
 	local active_ghost_counter = 0 -- usado no hud
 
 	-- particles
@@ -247,7 +272,6 @@ function game.draw()
 
 		if (game.ghosts[i].is_active )then
 			active_ghost_counter = active_ghost_counter +1
-			total_target = total_target + game.ghosts[i].target_offset
 		end
 		ghost.draw(game.ghosts[i], game.ghost_state)
 		--print(game.ghosts[i].fitness)
@@ -306,12 +330,15 @@ function game.update(dt)
 	print("ops, dt too high, physics wont work, skipping  dt= " .. dt)
 	end
 
+	local len_respawn =  #game.to_be_respawned
+	local len_ghosts = #game.ghosts
+
 	if ( not game.paused and (dt<0.06)) then
 		for i=1,game.n_particles,1 do
 			game.particles[i]:update(dt)
 		end
 
-		-- calcula posicao media dos fantasmas
+		-- calculates average_ghost_pos
 		local average_ghost_pos = {}
 		average_ghost_pos.x = utils.average(game.ghosts, "x")
 		average_ghost_pos.y = utils.average(game.ghosts, "y")
@@ -319,12 +346,11 @@ function game.update(dt)
 		local total_pill_fitness = 0
 		local active_pill_count = 0
 
-		-- controlador do game.ghost_state
-		-- o pill update  tbem faz modificoes no game.ghost_state
+		-- game.ghost_state controller
+		-- game.ghost_state is also modified by the pills update
 		if ( timer.update(game.ghost_state_timer, dt)== true) then
-			--state_change_timer = state_change_reset_time
 			if ( game.ghost_state == "scattering") then
-			-- nao faz nada caso game.ghost_state == "freightened"
+			-- if game.ghost_state == "freightened" do nothing
 				game.ghost_state = "chasing"
 				for i=1, #game.ghosts, 1 do
 					ghost.flip_direction(game.ghosts[i])
@@ -340,11 +366,7 @@ function game.update(dt)
 			end
 		end
 
-		-- if(active_pill_count > 0) then
-		-- 	average_pill_fitness = total_pill_fitness/active_pill_count
-		-- end
-
-		-- pilula de reset
+		-- freightened_on_restart_timer
 		if(	timer.update(game.freightened_on_restart_timer, dt) and
 			game.just_restarted) then
 
@@ -375,23 +397,11 @@ function game.update(dt)
 				then -- foi pego
 				reporter.report_catch(game.ghosts[i], game.ghosts)
 
-				local len_respawn =  #game.to_be_respawned
-				local len_ghosts = #game.ghosts
 				if ( len_respawn ==0 ) then
 					table.insert(game.to_be_respawned, i)
 					timer.reset(game.ghost_respawn_timer)
 				elseif ( len_respawn < len_ghosts ) then
 					table.insert(game.to_be_respawned, i)
-				end
-
-				len = #game.to_be_respawned
-				if ( len == (len_ghosts -1) ) then
-					--print("You win!")
-					gamestate.switch("victory")
-					for i=1, len_ghosts, 1 do
-						game.ghosts[i].is_active = false
-					end
-					game_on = false
 				end
 			end
 		end
@@ -410,7 +420,7 @@ function game.update(dt)
 				else
 					-- encontra posicao de spawn
 					local spawn_grid_pos = {}
-					if ( game.player.grid_pos.x > (settings.grid_width_n/2) ) then
+					if ( game.player.grid_pos.x > (grid.grid_width_n/2) ) then
 						spawn_grid_pos = {x=7, y= 21}
 					else
 						spawn_grid_pos = {x=50, y= 21}
@@ -453,6 +463,11 @@ function game.update(dt)
 		-- player, depois de game.ghosts, para pegar a mudanca de estado( player catched)
 		player.update(game.player, dt)
 
+		-- check victory, should be the last thing done in this function
+		len = #game.to_be_respawned
+		if ( len == (len_ghosts -1) ) then
+			gamestate.switch("victory")
+		end
 	end
 end
 --------------------------------------------------------------------------------

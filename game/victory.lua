@@ -76,7 +76,7 @@ function victory.keypressed(key, scancode, isrepeat)
     end
 end
 
-function menu.unload()
+function victory.unload()
     victory.text_font = nil
     victory.title_font = nil
     victory.title_font_back = nil
