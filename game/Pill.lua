@@ -1,85 +1,91 @@
--- Guilherme Cunha Prada 2019
+-- Guilherme Cunha Prada 2020
+
+local Pill = {}
 
 local timer = require "timer"
 local grid = require "grid"
 local utils = require "utils"
-local pill = {}
-pill.pills_active = true
-pill.pill_genetic_on = true
-pill.pill_precise_crossover_on = false
-pill.grid_size = 0
-pill.lookahead = 0
 
-function pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookahead, warn_sound)
-    pill.pill_genetic_on = pill_genetic_on
-    pill.pill_precise_crossover_on = pill_precise_crossover_on
-    pill.grid_size = grid_size
-    pill.lookahead = lookahead
-    pill.warn_sound = warn_sound
+Pill.pills_active = true
+Pill.pill_genetic_on = true
+Pill.pill_precise_crossover_on = false
+Pill.grid_size = 0
+Pill.lookahead = 0
+
+function Pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookahead, warn_sound)
+    Pill.pill_genetic_on = pill_genetic_on
+    Pill.pill_precise_crossover_on = pill_precise_crossover_on
+    Pill.grid_size = grid_size
+    Pill.lookahead = lookahead
+    Pill.warn_sound = warn_sound
 end
 
-function pill.new(pos_index, pill_time)
-    local value = {}
+function Pill:new(pos_index, pill_time, o)
+    local o = o or {}
+    setmetatable(o, self)
+    self.__index = self
 
-    value.pos_index = pos_index
-    value.grid_pos = grid.grid_valid_pos[pos_index]
-    value.timer = {}
-    pill.reset(value, pill_time, grid_pos)
-    return value
+    o.pos_index = pos_index
+    o.grid_pos = grid.grid_valid_pos[pos_index]
+    o.timer = {}
+
+    o:reset(pill_time, grid_pos)
+
+    return o
 end
 
-function pill.draw(value)
-    if (value.is_active) then
+function Pill:draw()
+    if (self.is_active) then
         love.graphics.setColor(138/255,43/255,226/255, 0.9)
-        love.graphics.circle("fill", value.x, value.y, pill.grid_size*0.3)
+        love.graphics.circle("fill", self.x, self.y, Pill.grid_size*0.3)
     end
 end
 
 
-function pill.update(value, pills, target, dt, pill_time)
-    value.n_updates = value.n_updates + 1
-    value.fitness = value.n_ghost_pass/value.n_updates
-    if (value.is_active == false) then
-        if (timer.update(value.timer, dt)) then
-            if(pill.pill_genetic_on)then
-                pill.crossover(value, pills, pill_time)
+function Pill:update(pills, target, dt)
+    self.n_updates = self.n_updates + 1
+    self.fitness = self.n_ghost_pass/self.n_updates
+    if (self.is_active == false) then
+        if (timer.update(self.timer, dt)) then
+            if(Pill.pill_genetic_on)then
+                self:crossover( pills)
             else
                 local this_pos_index =  love.math.random(1, #grid.grid_valid_pos)
                 local this_pos = grid.grid_valid_pos[this_pos_index]
-                pill.reset(value, pill_time, this_pos)
+                self:reset(self.timer.reset_time, this_pos)
             end
-            pill.pills_active = true
-        elseif(value.timer.timer < 1)then
-            pill.warn_sound:play()
+            Pill.pills_active = true
+        elseif(self.timer.timer < 1)then
+            Pill.warn_sound:play()
         end
-    elseif (    (pill.pills_active) and
+    elseif (    (Pill.pills_active) and
                 (target.is_active)) then
-        local dist_to_player = utils.dist(value, target)
-        if ( dist_to_player < pill.lookahead) then
-            value.is_active = false
-            pill.pills_active = false
-            timer.reset(value.timer)
+        local dist_to_player = utils.dist(self, target)
+        if ( dist_to_player < Pill.lookahead) then
+            self.is_active = false
+            Pill.pills_active = false
+            timer.reset(self.timer)
         end
     end
 end
 
-function pill.reset( value, pill_time, grid_pos )
-    value.timer = timer.new(pill_time)
-    value.fitness = 0
-    value.n_ghost_pass = 0
-    value.n_updates = 0
+function Pill:reset(pill_time, grid_pos )
+    self.timer = timer.new(pill_time)
+    self.fitness = 0
+    self.n_ghost_pass = 0
+    self.n_updates = 0
 
-    local this_grid_pos = grid_pos or value.grid_pos
-    value.grid_pos.x = this_grid_pos.x
-    value.grid_pos.y = this_grid_pos.y
+    local this_grid_pos = grid_pos or self.grid_pos
+    self.grid_pos.x = this_grid_pos.x
+    self.grid_pos.y = this_grid_pos.y
 
-    local this_pos = grid.get_grid_center(value)
-    value.x = this_pos.x + love.math.random(-pill.grid_size*0.17, pill.grid_size*0.17)
-    value.y = this_pos.y + love.math.random(-pill.grid_size*0.17, pill.grid_size*0.17)
-    value.is_active = true
+    local this_pos = grid.get_grid_center(self)
+    self.x = this_pos.x + love.math.random(-Pill.grid_size*0.17, Pill.grid_size*0.17)
+    self.y = this_pos.y + love.math.random(-Pill.grid_size*0.17, Pill.grid_size*0.17)
+    self.is_active = true
 end
 
-function pill.selection(pills)
+function Pill.selection(pills)
     -- get the living
     local living_stack = {}
     for i=1, #pills, 1 do
@@ -94,11 +100,11 @@ function pill.selection(pills)
     --return utils.tables_get_highest(living_stack, "fitness"), living_stack[love.math.random(1, #living_stack)]
 end
 
-function pill.crossover(value, pills, pill_time)
+function Pill:crossover(pills)
     local son = {}
-    local mom, dad = pill.selection(pills)
+    local mom, dad = Pill.selection(pills)
 
-    if (pill.pill_precise_crossover_on) then
+    if (Pill.pill_precise_crossover_on) then
         son.x = math.floor((mom.x + dad.x)/2) --+ love.math.random(1, 8)j
         son.y = math.floor((mom.y + dad.y)/2) --+ love.math.random(1, 8)
         local temp_grid_pos = grid.get_grid_pos(son)
@@ -166,7 +172,9 @@ function pill.crossover(value, pills, pill_time)
         son.grid_pos = grid.grid_valid_pos[son.pos_index ]
     end
 
-    pill.reset(value, pill_time, son.grid_pos)
+    son.pill_time = (mom.timer.reset_time + dad.timer.reset_time)/2
+
+    Pill.reset(self, son.pill_time, son.grid_pos)
 end
 
-return pill
+return Pill

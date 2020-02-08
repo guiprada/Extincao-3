@@ -1,3 +1,5 @@
+-- Guilherme Cunha Prada 2020
+
 menu = {}
 
 local utils = require "utils"

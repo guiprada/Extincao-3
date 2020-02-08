@@ -1,4 +1,4 @@
--- Guilherme Cunha Prada 2019
+-- Guilherme Cunha Prada 2020
 
 local timer = {}
 

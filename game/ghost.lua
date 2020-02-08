@@ -1,4 +1,5 @@
 -- Guilherme Cunha Prada 2019
+
 local grid = require "grid"
 local utils = require "utils"
 

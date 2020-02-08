@@ -1,6 +1,4 @@
 -- Guilherme Cunha Prada 2020
---------------------------------------------------------------------------------
--- kitten killing globals
 
 local settings = {}
 

@@ -1,3 +1,5 @@
+-- Guilherme Cunha Prada 2020
+
 local shaders = {}
 
 shaders.red = love.graphics.newShader[[

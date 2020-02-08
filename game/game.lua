@@ -1,6 +1,6 @@
 -- Guilherme Cunha Prada 2020
 --------------------------------------------------------------------------------
--- kitten killing globals
+
 local game = {}
 
 local gamestate = require "gamestate"
@@ -9,7 +9,7 @@ local grid = require "grid"
 local ghost = require "ghost"
 local Player = require "Player"
 local timer = require "timer"
-local pill = require "pill"
+local Pill = require "Pill"
 local resizer = require "resizer"
 local settings = require "settings"
 local reporter = require "reporter"
@@ -85,7 +85,7 @@ function game.load(args)
 				game.grid_size,
 				game.lookahead,
 				reporter)
-	pill.init(	args.pill_genetic_on or settings.pill_genetic_on,
+	Pill.init(	args.pill_genetic_on or settings.pill_genetic_on,
 				args.pill_precise_crossover_on or
 					settings.pill_precise_crossover_on,
 				game.grid_size,
@@ -113,7 +113,7 @@ function game.load(args)
 	local n_pills = args.n_pills or settings.n_pills
 	for i=1, n_pills, 1 do
 		local rand = love.math.random(1, #grid.grid_valid_pos)
-		game.pills[i] = pill.new(rand, settings.pill_time)
+		game.pills[i] = Pill:new(rand, settings.pill_time)
 	end
 
 	-- ghosts
@@ -229,7 +229,7 @@ function game.draw()
 
 	--game.pills
 	for i=1, #game.pills, 1 do
-		pill.draw(game.pills[i])
+		game.pills[i]:draw()
 	end
 
 	if(game.ghost_state == "chasing") then
@@ -335,7 +335,7 @@ function game.update(dt)
 
 			game.ghost_state = "scattering"
 			timer.reset(game.ghost_state_timer)
-			pill.pills_active = true
+			Pill.pills_active = true
 			game.just_restarted = false
 		end
 
@@ -397,8 +397,7 @@ function game.update(dt)
 		--pill
 		for i=1, #game.pills, 1 do
 			local is_active_before_update = game.pills[i].is_active
-			pill.update(game.pills[i],
-						game.pills,
+			game.pills[i]:update(game.pills,
 						game.player,
 						dt,
 						settings.pill_time)
@@ -451,7 +450,7 @@ function game.keypressed(key, scancode, isrepeat)
 
 		timer.reset(game.freightened_on_restart_timer)
 		game.just_restarted = true
-		pill.pills_active = false
+		Pill.pills_active = false
 		local grid_pos = {	x=settings.player_start_grid.x,
 							y=settings.player_start_grid.y}
 		game.player:reset(grid_pos, game.speed, game.grid_size, game.lookahead)

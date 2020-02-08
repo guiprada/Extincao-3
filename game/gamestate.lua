@@ -1,6 +1,6 @@
 -- Guilherme Cunha Prada 2020
 --------------------------------------------------------------------------------
--- kitten killing globals
+
 local gamestate = {}
 
 local utils = require "utils"

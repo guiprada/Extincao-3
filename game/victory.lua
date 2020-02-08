@@ -1,3 +1,5 @@
+-- Guilherme Cunha Prada 2020
+
 local victory = {}
 
 local utils = require "utils"
