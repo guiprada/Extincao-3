@@ -13,6 +13,8 @@
 - collision notification with function call
 
 - basic color system using unpack
+- Particle should have color options
+
 - camera
 - mudar para um sistema de objetos
 - criar fases com dificuldade progressiva

@@ -23,10 +23,12 @@ settings.font_size = 32
 settings.font_size_small = 20
 settings.font_size_big = 48
 
--- sounds
-settings.flip_sound = love.audio.newSource("audio/tic.wav", "static")
-
 ------ the settings bellow are overriden by level settings ---------------------
+
+-- sounds
+settings.ghost_flip_sound = love.audio.newSource("audio/tic.wav", "static")
+settings.player_click = love.audio.newSource("audio/plip.wav", "static")
+settings.pill_warn_sound = love.audio.newSource("audio/warn.wav", "static")
 
 -- ghost module settings
 settings.ghost_genetic_on = true  	-- liga e desliga e GA

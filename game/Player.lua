@@ -3,14 +3,10 @@
 local grid = require "grid"
 local Player = {}
 
-Player.grid_size = 0
---Player.lookahead = 0
-
-function Player.init(grid_size)
+function Player.init(grid_size, player_click)
     Player.grid_size = grid_size
-    --Player.lookahead = lookahead
 
-    Player.plip_sound = love.audio.newSource("audio/plip.wav", "static")
+    Player.plip_sound = player_click
     Player.plip_sound:setVolume(0.3)
     Player.plip_sound:setPitch(0.9)
 end
@@ -42,7 +38,7 @@ function Player:reset(grid_pos, speed)
     self.x = pos.x
     self.y = pos.y
 
- -- so it enters the first on tile change
+    -- we set it negative so it enters the first on tile change
     self.last_grid_pos.x = -1
     self.last_grid_pos.y = -1
 

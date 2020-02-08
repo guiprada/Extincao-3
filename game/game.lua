@@ -63,7 +63,7 @@ function game.load(args)
 	-- start subsystems
 	reporter.init(grid)
 	grid.init(	game.grid_size, game.lookahead)
-	Player.init(game.grid_size, game.lookahead)
+	Player.init(game.grid_size, args.player_click or settings.player_click)
 	ghost.init(	args.ghost_fitness_on or settings.ghost_fitness_on,
 				args.ghost_target_spread or settings.ghost_target_spread,
 				args.ghost_target_offset_freightned_on or
@@ -88,7 +88,8 @@ function game.load(args)
 				args.pill_precise_crossover_on or
 					settings.pill_precise_crossover_on,
 				game.grid_size,
-				game.lookahead)
+				game.lookahead,
+				args.pill_warn_sound or settings.pill_warn_sound)
 
 	--start player
 	local grid_pos = {}
@@ -162,7 +163,7 @@ function game.load(args)
 								game.ghost_speed,
 								game.pills)
 	end
-	--print("some game.ghosts for you to catch :)")
+
     -- cria o canvas para o game.maze_canvas
 	game.maze_canvas = love.graphics.newCanvas(default_width, default_height)
 	love.graphics.setCanvas(game.maze_canvas)
@@ -193,7 +194,7 @@ function game.load(args)
 		end
 	love.graphics.setCanvas()
 
-	game.flip_sound = args.flip_sound or settings.flip_sound
+	game.ghost_flip_sound = args.ghost_flip_sound or settings.ghost_flip_sound
 
 	-- particles	game.particles = {}
 	game.n_particles = args.n_particles or settings.n_particles
@@ -321,14 +322,14 @@ function game.update(dt)
 				game.ghost_state = "chasing"
 				for i=1, #game.ghosts, 1 do
 					ghost.flip_direction(game.ghosts[i])
-					game.flip_sound:play()
+					game.ghost_flip_sound:play()
 				end
 				timer.reset(game.ghost_state_timer, settings.ghost_chase_time)
 			elseif ( game.ghost_state == "chasing") then
 				game.ghost_state = "scattering"
 				for i=1, #game.ghosts, 1 do
 					ghost.flip_direction(game.ghosts[i])
-					game.flip_sound:play()
+					game.ghost_flip_sound:play()
 				end
 			end
 		end
@@ -418,7 +419,7 @@ function game.update(dt)
 				game.ghost_state =  "freightened"
 				for i=1, #game.ghosts, 1 do
 					ghost.flip_direction(game.ghosts[i])
-					game.flip_sound:play()
+					game.ghost_flip_sound:play()
 				end
 				ghost.ghost_speed = game.ghost_speed / 1.5
 				game.player.speed = game.speed * 1.1
@@ -492,11 +493,10 @@ function game.unload()
 	game.ghost_state_timer = nil
 	game.ghost_respawn_timer = nil
 	game.maze_canvas = nil
-	game.flip_sound = nil
+	game.ghost_flip_sound = nil
 	game.pause_text = nil
 	game.font_size = nil
 	game.maze_canvas = nil
-	game.flip_sound = nil
 end
 
 return  game
