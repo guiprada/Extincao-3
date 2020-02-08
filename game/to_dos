@@ -1,7 +1,16 @@
 ------------------------------ todo
 
+- ghost class
+- pill class
+- timer class
+
+- fix reporter
+
+- grid creating blocks and combining functions
+
 - sistema de gamestate multiloader
 - gamestate gerador de particulas
+
 - camera
 - mudar para um sistema de objetos
 - criar fases com dificuldade progressiva

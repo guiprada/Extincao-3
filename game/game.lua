@@ -7,7 +7,7 @@ local gamestate = require "gamestate"
 local utils = require "utils"
 local grid = require "grid"
 local ghost = require "ghost"
-local player = require "player"
+local Player = require "Player"
 local timer = require "timer"
 local pill = require "pill"
 local resizer = require "resizer"
@@ -60,7 +60,7 @@ function game.load(args)
 	-- start subsystems
 	reporter.init(grid)
 	grid.init(	game.grid_size, game.lookahead)
-	player.init(game.grid_size, game.lookahead)
+	Player.init(game.grid_size, game.lookahead)
 	ghost.init(	args.ghost_fitness_on or settings.ghost_fitness_on,
 				args.ghost_target_spread or settings.ghost_target_spread,
 				args.ghost_target_offset_freightned_on or
@@ -95,7 +95,7 @@ function game.load(args)
 		grid_pos.x = settings.player_start_grid.x
 		grid_pos.y = settings.player_start_grid.y
 	end
-	game.player = player.new(grid_pos, game.speed)
+	game.player = Player:new(grid_pos, game.speed)
 
 
 	-- timer  de estado freightened no restart
@@ -243,7 +243,7 @@ function game.draw()
 
 	-- jogador
 	love.graphics.setShader()
-	player.draw(game.player, game.grid_size)
+	game.player:draw()
 
 	-- hud
 
@@ -424,7 +424,7 @@ function game.update(dt)
 		end
 
 		-- player, after game.ghosts to get player_catched
-		player.update(game.player, dt)
+		game.player:update(dt)
 
 		-- check victory, should be the last thing done in this function
 		len = #game.to_be_respawned
@@ -448,7 +448,7 @@ function game.keypressed(key, scancode, isrepeat)
 		game.just_restarted = true
 		pill.pills_active = false
 		local grid_pos = {x=settings.player_start_grid.x, y=settings.player_start_grid.y}
-		player.reset( game.player, grid_pos, game.speed, game.grid_size, game.lookahead)
+		game.player:reset(grid_pos, game.speed, game.grid_size, game.lookahead)
    	elseif (key == "escape") then
 		reporter.stop()
 		-------------
