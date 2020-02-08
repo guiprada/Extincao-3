@@ -399,8 +399,7 @@ function game.update(dt)
 			local is_active_before_update = game.pills[i].is_active
 			game.pills[i]:update(game.pills,
 						game.player,
-						dt,
-						settings.pill_time)
+						dt)
 			if(game.pills[i].is_active) then
 				active_pill_count = active_pill_count + 1
 				total_pill_fitness = total_pill_fitness + game.pills[i].fitness

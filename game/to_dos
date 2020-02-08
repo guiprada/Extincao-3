@@ -1,6 +1,5 @@
 ------------------------------ todo
 
-- pill class
 - timer class
 - ghost class
 
@@ -49,3 +48,6 @@
 +- update to love 11.3
 +- victory gamestate
 +- eliminate gamestate.null_func = nil on gamestate framework
++- Particle class
++- Player class
++- Pill class
