@@ -14,16 +14,24 @@ settings.player_start_grid = {}
 settings.player_start_grid.x = 28
 settings.player_start_grid.y = 18
 
+-- game texts
+settings.menu_n_particles = 500
+settings.menu_title = "extinction"
+settings.menu_text = "'enter' to start game\n" .. "'esc' to exit "
+
+settings.victory_title = "Well  Done!!!"
+settings.victory_text = "'enter' or 'esc' go to menu"
+
 ------ the settings bellow are overriden by level settings ---------------------
 
-- game texts
+-- game texts
 settings.font = "fonts/PressStart2P-Regular.ttf"
 settings.pause_text = "\n\n'enter' try again \n\n"
 						.. "'esc' to exit\n\n"
 						.. "'spacebar' to pause\n\n"
-settings.font_size = 32
+settings.font_size = 36
 settings.font_size_small = 20
-settings.font_size_big = 48
+settings.font_size_big = 56
 
 -- sounds
 settings.ghost_flip_sound = love.audio.newSource("audio/tic.wav", "static")
@@ -31,9 +39,8 @@ settings.player_click = love.audio.newSource("audio/plip.wav", "static")
 settings.pill_warn_sound = love.audio.newSource("audio/warn.wav", "static")
 
 -- ghost module settings
-settings.ghost_genetic_on = true  	-- liga e desliga e GA
-settings.ghost_fitness_on = true 	-- desliga a funcao fitness
--- liga e desliga e gene target_offset_freightned
+settings.ghost_genetic_on = true
+settings.ghost_fitness_on = true
 settings.ghost_target_offset_freightned_on = true
 settings.ghost_migration_on = true
 settings.ghost_selective_migration_on = false
@@ -45,7 +52,7 @@ settings.ghost_target_spread = 15
 settings.ghost_fear_spread = 50
 
 -- pill module settings
-settings.pill_genetic_on = false-- liga e desliga o GA para pilulas
+settings.pill_genetic_on = false
 settings.pill_precise_crossover_on = false
 
 -- gameplay settings
@@ -53,16 +60,14 @@ settings.n_ghosts = 20 --at least 3
 settings.n_pills = 6	-- at least 2
 settings.n_particles = 250
 
-settings.pill_time = 3	-- tempo de duracao da pilula
+settings.pill_time = 3
 settings.restart_pill_time = 3
 
-settings.ghost_chase_time = 12 -- testado 3.99
-settings.ghost_scatter_time = 7 --testado com 2
-settings.ghost_respawn_time = 30 -- should be non zero  --  5 --15--20 testado
+settings.ghost_chase_time = 12
+settings.ghost_scatter_time = 7
+settings.ghost_respawn_time = 30
 
 settings.speed_boost_on = true
--- controla a velocidade maxima do fantasma em proporcao a velocidade
--- inicial do fantasma
 settings.ghost_speed_max_factor = 1.1
 settings.player_speed_grid_size_factor = 5
 

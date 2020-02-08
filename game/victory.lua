@@ -3,6 +3,7 @@ local victory = {}
 local utils = require "utils"
 local gamestate = require "gamestate"
 local Particle = require "Particle"
+local settings = require "settings"
 
 function victory.load()
     victory.n_particles = 25000
@@ -10,15 +11,15 @@ function victory.load()
     victory.width = love.graphics.getWidth()
     victory.height = love.graphics.getHeight()
 
-    victory.text_font = love.graphics.newFont(
-                                        "fonts/PressStart2P-Regular.ttf", 20)
-    victory.title_font = love.graphics.newFont(
-                                        "fonts/PressStart2P-Regular.ttf", 50)
-    victory.title_font_back = love.graphics.newFont(
-                                        "fonts/PressStart2P-Regular.ttf", 51)
+    victory.text_font = love.graphics.newFont(  settings.font,
+                                                settings.font_size_small)
+    victory.title_font = love.graphics.newFont( settings.font,
+                                                settings.font_size_big)
+    victory.title_font_back = love.graphics.newFont(settings.font,
+                                                    settings.font_size_big + 1)
 
-    victory.title = "Well  Done!!!"
-    victory.text = "'enter' or 'esc' go to menu"
+    victory.title = settings.victory_title
+    victory.text = settings.victory_text
 
 
     victory.particles = {}

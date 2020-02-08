@@ -4,25 +4,25 @@ local utils = require "utils"
 local gamestate = require "gamestate"
 local Particle = require "Particle"
 local levels = require "levels"
-
-menu.n_particles = 250
-
-
+local settings = require "settings"
 
 local width = love.graphics.getWidth()
 local height = love.graphics.getHeight()
 
 function menu.load()
     -- initialize
-    menu.text_font = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 20)
-    menu.title_font = love.graphics.newFont(
-                                        "fonts/PressStart2P-Regular.ttf", 50)
-    menu.title_font_back = love.graphics.newFont(
-                                        "fonts/PressStart2P-Regular.ttf", 51)
+    menu.n_particles = settings.menu_n_particles
 
-    menu.title = "extinction"
+    menu.text_font = love.graphics.newFont( settings.font,
+                                            settings.font_size_small)
+    menu.title_font = love.graphics.newFont(    settings.font,
+                                                settings.font_size_big)
+    menu.title_font_back = love.graphics.newFont(    settings.font,
+                                                settings.font_size_big + 1)
 
-    menu.text = "'enter' to start game\n" .. "'esc' to exit "
+    menu.title = settings.menu_title
+
+    menu.text = settings.menu_text
 
     -- create particles
     menu.particles = {}

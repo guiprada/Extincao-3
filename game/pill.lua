@@ -1,17 +1,5 @@
 -- Guilherme Cunha Prada 2019
 
--- make a pill duration time * speed beest
-
--- fitness based on distance to the average of the group of pills positions, so they are borne closer
--- and how many ghosts have gone through then, so they are harder to catch, this may be uneed because
--- coevolution may do that already
-
--- duas sub_especies de pilulas, uma laranja que seja mais rara e silvestre,
--- ou seja ela nasce longe do grupo, ela pode dar um speed boost ou durar mais
--- ou os dois, o fenotipo apacere quando a distancia do grupo for maior que uma certa medida
--- e ela nasce cada vez mais longe pois seu fitness e calculado diferente, invertido,
--- ela nao gosta de fantasma e quer nascer longe
-
 local timer = require "timer"
 local grid = require "grid"
 local utils = require "utils"
@@ -130,7 +118,7 @@ function pill.crossover(value, pills, pill_time)
             temp_grid_pos.y = grid.grid_height_n -1
         end
 
-
+        -- find a valid position to spawn
         if(grid.is_grid_way(temp_grid_pos.x, temp_grid_pos.y)) then
             son.grid_pos.x = temp_grid_pos.x
             son.grid_pos.y = temp_grid_pos.y
