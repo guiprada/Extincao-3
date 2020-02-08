@@ -1,8 +1,8 @@
 ------------------------------ todo
 
-- ghost class
 - pill class
 - timer class
+- ghost class
 
 - fix reporter
 
@@ -10,6 +10,7 @@
 
 - sistema de gamestate multiloader
 - gamestate gerador de particulas
+- collision notification with function call
 
 - basic color system using unpack
 - camera
@@ -29,10 +30,7 @@
 - velocidade baseada em metabolismo!
 - respawn baseado em pilulas ingeridas pelos fantasminhas(metabolismo)
 
-- eliminar gamestate.null_func = nil -- poderia ser eliminada?
-
-------------------------------- maybe
-- fazer os objetos usarem o arquivo settings diretamente?
++- eliminar gamestate.null_func = nil -- poderia ser eliminada?
 
 ------------------------------ done
 +- consertar o fps nas fases
