@@ -86,8 +86,6 @@ function grid.init(grid_size, lookahead)
 	-- each bit representing an enabled direction in the order
 	-- up, down, left, right
 
-
-
 	-- grid.grid_directions matrix is defined dinamicaly based on grid_types
 	-- it stores the enabled movements for each cell
 	--
@@ -95,8 +93,8 @@ function grid.init(grid_size, lookahead)
 		grid.grid_directions[i] = {}
 		for j=1,grid.grid_height_n do
 			--print("logging")
-			local tile_type = grid.grid_types[j][i] -- invertido
-			-- daqui para frente a matriz é [pos_x][pos_y]
+			local tile_type = grid.grid_types[j][i] -- inverted
+			-- matrix is  [pos_x][pos_y]
 
 			if tile_type == 0 or tile_type == 16 then
 				grid.grid_directions[i][j] =  {false, false, false, false}
