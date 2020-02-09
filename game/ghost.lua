@@ -5,19 +5,19 @@ local utils = require "utils"
 
 local ghost = {}
 
--- defaults
-ghost.ghost_fitness_on = false
-ghost.ghost_target_offset_freightned_on = false
-ghost.ghost_migration_on = true
-ghost.ghost_selective_migration_on = true
-ghost.speed_boost_on = false
-ghost.ghost_speed_max_factor = 1
-ghost.ghost_speed = 0
-ghost.grid_size = 0
-ghost.ghost_fear_on = false
-ghost.ghost_go_home_on_scatter = false
-ghost.ghost_scatter_feared_gene_on = false
-ghost.ghost_chase_feared_gene_on = false
+-- -- defaults
+-- ghost.ghost_fitness_on = false
+-- ghost.ghost_target_offset_freightned_on = false
+-- ghost.ghost_migration_on = true
+-- ghost.ghost_selective_migration_on = true
+-- ghost.speed_boost_on = false
+-- ghost.ghost_speed_max_factor = 1
+-- ghost.ghost_speed = 0
+-- ghost.grid_size = 0
+-- ghost.ghost_fear_on = false
+-- ghost.ghost_go_home_on_scatter = false
+-- ghost.ghost_scatter_feared_gene_on = false
+-- ghost.ghost_chase_feared_gene_on = false
 
 function ghost.init( ghost_fitness_on, ghost_target_spread, ghost_target_offset_freightned_on, ghost_migration_on, ghost_selective_migration_on, ghost_speed, speed_boost_on, ghost_speed_max_factor, ghost_fear_on, ghost_go_home_on_scatter, ghost_chase_feared_gene_on, ghost_scatter_feared_gene_on, grid_size, lookahead, reporter)
     ghost.ghost_fitness_on = ghost_fitness_on

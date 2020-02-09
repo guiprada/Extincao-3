@@ -4,7 +4,6 @@ local resizer = {}
 
 resizer.offset_x = 0
 resizer.offset_y = 0
-resizer.default_size = 0
 
 function resizer.draw_fix()
     love.graphics.translate( resizer.offset_x, resizer.offset_y)

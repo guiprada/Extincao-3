@@ -1,6 +1,5 @@
 ------------------------------ todo
 
-- investigate Pill bug
 - timer class
 - ghost class
 
@@ -31,6 +30,8 @@
 
 - use predefined functions to select options behavior
 
+- where module settings should be?
+
 - procedure generated audio clips
 
 - metabolism based speed
@@ -54,3 +55,6 @@
 +- Particle class
 +- Player class
 +- Pill class
++- investigate Pill bug
++- Pill init
++- Add comments to Pill Class
