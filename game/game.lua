@@ -107,6 +107,7 @@ function game.load(args)
 	-- create freightened on restart timer
 	game.freightened_on_restart_timer = timer.new(	args.restart_pill_time or
 													settings.restart_pill_time)
+	game.just_restarted = false
 
 	-- pills
 	game.pills = {}
@@ -329,14 +330,16 @@ function game.update(dt)
 			end
 		end
 
-		-- freightened_on_restart_timer
-		if(	timer.update(game.freightened_on_restart_timer, dt) and
-			game.just_restarted) then
-
-			game.ghost_state = "scattering"
-			timer.reset(game.ghost_state_timer)
-			Pill.pills_active = true
-			game.just_restarted = false
+		-- freightened_on_restart pill
+		if	game.just_restarted then
+			if timer.update(game.freightened_on_restart_timer, dt) then
+				game.ghost_state = "scattering"
+				timer.reset(game.ghost_state_timer)
+				Pill.pills_active = true
+				game.just_restarted = false
+			elseif(game.freightened_on_restart_timer.timer < 1)then
+	            Pill.warn_sound:play()
+			end
 		end
 
 		reporter.global_frame_counter = reporter.global_frame_counter + 1
@@ -474,7 +477,6 @@ function game.unload()
 	game.particles = nil
 	game.freightened_on_restart_timer = nil
 	game.just_restarted = nil
-	game.freightened_on_restart_timer = nil
 	game.ghost_state = nil
 	game.paused = nil
 	game.resets = nil

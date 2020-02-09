@@ -7,7 +7,7 @@ local grid = require "grid"
 local utils = require "utils"
 
 function Pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookahead, warn_sound)
-    Pill.pills_active = false
+    Pill.pills_active = true
     Pill.pill_genetic_on = pill_genetic_on
     Pill.pill_precise_crossover_on = pill_precise_crossover_on
     Pill.grid_size = grid_size
@@ -40,7 +40,7 @@ end
 function Pill:update(pills, target, dt)
     self.n_updates = self.n_updates + 1
     self.fitness = self.n_ghost_pass/self.n_updates
-    if (Pill.is_active == false) then -- if pills are inactive(under effect)
+    if (self.is_active == false) then -- if pill is inactive(it is under effect)
         if (timer.update(self.timer, dt)) then -- update timers
             if(Pill.pill_genetic_on)then
                 self:crossover( pills)
@@ -49,17 +49,18 @@ function Pill:update(pills, target, dt)
                 local this_pos = grid.grid_valid_pos[this_pos_index]
                 self:reset(self.timer.reset_time, this_pos)
             end
+
             Pill.pills_active = true
         elseif(self.timer.timer < 1)then
             Pill.warn_sound:play()
         end
-    elseif (    (Pill.pills_active) and -- if pils are active
+    elseif (    (Pill.pills_active) and -- if pills are active
                 (target.is_active)) then -- and the player is active
         local dist_to_player = utils.dist(self, target)
         if ( dist_to_player < Pill.lookahead) then -- check collision
-            self.is_active = false  -- if yes activate pill effect
-            Pill.pills_active = false
-            timer.reset(self.timer)
+            self.is_active = false  -- if yes, activate pill effect
+            Pill.pills_active = false -- deactivate other pills
+            timer.reset(self.timer) -- and start pill timer
         end
     end
 end
