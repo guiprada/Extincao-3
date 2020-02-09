@@ -6,13 +6,13 @@ local timer = require "timer"
 local grid = require "grid"
 local utils = require "utils"
 
-Pill.pills_active = true
-Pill.pill_genetic_on = true
-Pill.pill_precise_crossover_on = false
-Pill.grid_size = 0
-Pill.lookahead = 0
+-- Pill.pill_genetic_on = true
+-- Pill.pill_precise_crossover_on = false
+-- Pill.grid_size = 0
+-- Pill.lookahead = 0
 
 function Pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookahead, warn_sound)
+    Pill.pills_active = true
     Pill.pill_genetic_on = pill_genetic_on
     Pill.pill_precise_crossover_on = pill_precise_crossover_on
     Pill.grid_size = grid_size

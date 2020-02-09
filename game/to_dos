@@ -35,6 +35,8 @@
 - metabolism based speed
 - metabolism based respawning
 
+- analytics
+
 ----- on pills
 - fitness based on distance to the average of the group of pills positions, so they are borne closer
 - and how many ghosts have gone through then, so they are harder to catch, this may be uneed because

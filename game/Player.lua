@@ -1,7 +1,7 @@
 -- Guilherme Cunha Prada 2020
+local Player = {}
 
 local grid = require "grid"
-local Player = {}
 
 function Player.init(grid_size, player_click)
     Player.grid_size = grid_size

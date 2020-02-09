@@ -14,8 +14,10 @@ settings.player_start_grid.y = 18
 
 -- game texts
 settings.menu_n_particles = 500
+
+-- 
 settings.menu_title = "extinction"
-settings.menu_text = "'enter' to start game\n" .. "'esc' to exit "
+settings.menu_text = "'enter' to start game\n" .. "'esc' to exit"
 
 settings.victory_title = "Well  Done!!!"
 settings.victory_text = "'enter' or 'esc' go to menu"
