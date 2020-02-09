@@ -26,7 +26,6 @@ function game.load(args)
 	game.resets = 0
 	game.pause_text = args.pause_text or settings.pause_text
 
-
 	-- respawn timer
 	local ghost_respawn_time = 	args.ghost_respawn_time or
 								settings.ghost_respawn_time
@@ -104,10 +103,10 @@ function game.load(args)
 	game.player = Player:new(grid_pos, game.speed)
 
 
-	-- create freightened on restart timer
+	-- create freightened on restart timer, it is not a pill
 	game.freightened_on_restart_timer = timer.new(	args.restart_pill_time or
 													settings.restart_pill_time)
-	game.just_restarted = false
+	game.just_restarted = false -- do not activate it first time
 
 	-- pills
 	game.pills = {}
@@ -330,7 +329,7 @@ function game.update(dt)
 			end
 		end
 
-		-- freightened_on_restart pill
+		-- freightened_on_restart_timer, it is not a pill
 		if	game.just_restarted then
 			if timer.update(game.freightened_on_restart_timer, dt) then
 				game.ghost_state = "scattering"
@@ -342,9 +341,11 @@ function game.update(dt)
 			end
 		end
 
+		-- update reporter  frame counter
 		reporter.global_frame_counter = reporter.global_frame_counter + 1
 		local total_fitness = 0
 
+		-- update ghosts
 		for i=1, #game.ghosts, 1 do
 			local is_active_before_update = game.ghosts[i].is_active
 
