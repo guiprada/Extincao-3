@@ -12,7 +12,7 @@ local utils = require "utils"
 -- Pill.lookahead = 0
 
 function Pill.init(pill_genetic_on, pill_precise_crossover_on, grid_size, lookahead, warn_sound)
-    Pill.pills_active = true
+    Pill.pills_active = false
     Pill.pill_genetic_on = pill_genetic_on
     Pill.pill_precise_crossover_on = pill_precise_crossover_on
     Pill.grid_size = grid_size
