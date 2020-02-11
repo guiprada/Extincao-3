@@ -39,6 +39,10 @@
 
 - analytics
 
+- improve rotation animation by rotating with cornering relay
+- create a grid_size agnostic positioning system, based on grid cell + some incell drift based on
+  grid_size fraction to allow grid_size switching on the fly
+
 ----- on pills
 - fitness based on distance to the average of the group of pills positions, so they are borne closer
 - and how many ghosts have gone through then, so they are harder to catch, this may be uneed because
