@@ -2,7 +2,7 @@
 
 local Pill = {}
 
-local timer = require "timer"
+local Timer = require "Timer"
 local grid = require "grid"
 local utils = require "utils"
 
@@ -22,9 +22,9 @@ function Pill:new(pos_index, pill_time, o)
 
     o.pos_index = pos_index
     o.grid_pos = grid.grid_valid_pos[pos_index]
-    o.timer = {}
+    o.timer = Timer:new(pill_time)
 
-    o:reset(pill_time, grid_pos)
+    o:reset(grid_pos)
 
     return o
 end
@@ -41,13 +41,13 @@ function Pill:update(pills, target, dt)
     self.n_updates = self.n_updates + 1
     self.fitness = self.n_ghost_pass/self.n_updates
     if (self.is_active == false) then -- if pill is inactive(it is under effect)
-        if (timer.update(self.timer, dt)) then -- update timers
+        if (self.timer:update(dt)) then -- update timers
             if(Pill.pill_genetic_on)then
                 self:crossover( pills)
             else
                 local this_pos_index =  love.math.random(1, #grid.grid_valid_pos)
                 local this_pos = grid.grid_valid_pos[this_pos_index]
-                self:reset(self.timer.reset_time, this_pos)
+                self:reset(this_pos)
             end
 
             Pill.pills_active = true
@@ -60,13 +60,13 @@ function Pill:update(pills, target, dt)
         if ( dist_to_player < Pill.lookahead) then -- check collision
             self.is_active = false  -- if yes, activate pill effect
             Pill.pills_active = false -- deactivate other pills
-            timer.reset(self.timer) -- and start pill timer
+            self.timer:reset() -- and start pill timer
         end
     end
 end
 
-function Pill:reset(pill_time, grid_pos )
-    self.timer = timer.new(pill_time)
+function Pill:reset(grid_pos)
+    self.timer:reset()
     self.fitness = 0
     self.n_ghost_pass = 0
     self.n_updates = 0
@@ -168,9 +168,7 @@ function Pill:crossover(pills)
         son.grid_pos = grid.grid_valid_pos[son.pos_index ]
     end
 
-    son.pill_time = (mom.timer.reset_time + dad.timer.reset_time)/2
-
-    Pill.reset(self, son.pill_time, son.grid_pos)
+    self:reset(son.grid_pos)
 end
 
 return Pill

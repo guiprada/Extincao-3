@@ -15,7 +15,7 @@ settings.player_start_grid.y = 18
 -- game texts
 settings.menu_n_particles = 500
 
--- 
+--
 settings.menu_title = "extinction"
 settings.menu_text = "'enter' to start game\n" .. "'esc' to exit"
 
@@ -69,6 +69,6 @@ settings.ghost_respawn_time = 30
 
 settings.speed_boost_on = true
 settings.ghost_speed_max_factor = 1.1
-settings.player_speed_grid_size_factor = 5
+settings.player_speed_factor = 5
 
 return settings

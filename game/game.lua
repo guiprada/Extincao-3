@@ -8,7 +8,7 @@ local utils = require "utils"
 local grid = require "grid"
 local ghost = require "ghost"
 local Player = require "Player"
-local timer = require "timer"
+local Timer = require "Timer"
 local Pill = require "Pill"
 local resizer = require "resizer"
 local settings = require "settings"
@@ -29,12 +29,12 @@ function game.load(args)
 	-- respawn timer
 	local ghost_respawn_time = 	args.ghost_respawn_time or
 								settings.ghost_respawn_time
-	game.ghost_respawn_timer = timer.new(ghost_respawn_time)
+	game.ghost_respawn_timer = Timer:new(ghost_respawn_time)
 
 	-- game.ghost_state timer
 	local ghost_scatter_time = 	args.ghost_scatter_time or
 								settings.ghost_scatter_time
-	game.ghost_state_timer = timer.new(ghost_scatter_time)
+	game.ghost_state_timer = Timer:new(ghost_scatter_time)
 
 
 	grid.load(args.grid_types)	-- if args.grid_types == null
@@ -55,9 +55,9 @@ function game.load(args)
 	-- grid
 	game.lookahead = game.grid_size/2
 
-	local player_speed_grid_size_factor = args.player_speed_grid_size_factor or
-										settings.player_speed_grid_size_factor
-	game.speed = player_speed_grid_size_factor * game.grid_size
+	local player_speed_factor = args.player_speed_factor or
+										settings.player_speed_factor
+	game.speed = player_speed_factor * game.grid_size
 	game.ghost_speed = game.speed * 1
 
 	-- start subsystems
@@ -104,7 +104,7 @@ function game.load(args)
 
 
 	-- create freightened on restart timer, it is not a pill
-	game.freightened_on_restart_timer = timer.new(	args.restart_pill_time or
+	game.freightened_on_restart_timer = Timer:new(	args.restart_pill_time or
 													settings.restart_pill_time)
 	game.just_restarted = false -- do not activate it first time
 
@@ -311,7 +311,7 @@ function game.update(dt)
 
 		-- game.ghost_state controller
 		-- game.ghost_state is also modified by the pills update
-		if ( timer.update(game.ghost_state_timer, dt)== true) then
+		if (game.ghost_state_timer:update(dt)== true) then
 			if ( game.ghost_state == "scattering") then
 			-- if game.ghost_state == "freightened" do nothing
 				game.ghost_state = "chasing"
@@ -319,7 +319,7 @@ function game.update(dt)
 					ghost.flip_direction(game.ghosts[i])
 					game.ghost_flip_sound:play()
 				end
-				timer.reset(game.ghost_state_timer, settings.ghost_chase_time)
+				game.ghost_state_timer:reset(settings.ghost_chase_time)
 			elseif ( game.ghost_state == "chasing") then
 				game.ghost_state = "scattering"
 				for i=1, #game.ghosts, 1 do
@@ -331,9 +331,9 @@ function game.update(dt)
 
 		-- freightened_on_restart_timer, it is not a pill
 		if	game.just_restarted then
-			if timer.update(game.freightened_on_restart_timer, dt) then
+			if game.freightened_on_restart_timer:update(dt) then
 				game.ghost_state = "scattering"
-				timer.reset(game.ghost_state_timer)
+				game.ghost_state_timer:reset()
 				Pill.pills_active = true
 				game.just_restarted = false
 			elseif(game.freightened_on_restart_timer.timer < 1)then
@@ -365,7 +365,7 @@ function game.update(dt)
 
 				if ( len_respawn ==0 ) then
 					table.insert(game.to_be_respawned, i)
-					timer.reset(game.ghost_respawn_timer)
+					game.ghost_respawn_timer:reset()
 				elseif ( len_respawn < len_ghosts ) then
 					table.insert(game.to_be_respawned, i)
 				end
@@ -373,7 +373,7 @@ function game.update(dt)
 		end
 
 		--respawns, it respaws even without player
-		if ( timer.update(game.ghost_respawn_timer,dt) )
+		if ( game.ghost_respawn_timer:update(dt) )
 			then
 			if (#game.to_be_respawned > 0) then
 
@@ -423,11 +423,12 @@ function game.update(dt)
 
 				ghost.ghost_speed = game.ghost_speed
 				game.player.speed = game.speed
-				timer.reset(game.ghost_state_timer)
+				game.ghost_state_timer:reset()
 			end
 		end
 
 		-- player, after game.ghosts to get player_catched
+		-- keyboard controls
 		if(love.keyboard.isDown("left") and love.keyboard.isDown("right")) then
             --does nothing, but also does not change
     	elseif love.keyboard.isDown("left") then
@@ -466,7 +467,7 @@ function game.keypressed(key, scancode, isrepeat)
 
 		game.ghost_state = "freightened"
 
-		timer.reset(game.freightened_on_restart_timer)
+		game.freightened_on_restart_timer:reset()
 		game.just_restarted = true
 		Pill.pills_active = false
 		local grid_pos = {	x=settings.player_start_grid.x,

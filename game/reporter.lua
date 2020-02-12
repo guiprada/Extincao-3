@@ -54,7 +54,7 @@ function reporter.init(grid, args)
     io.write("\nplayer's start grid is: " .. settings.player_start_grid.x .. ", " .. settings.player_start_grid.y)
 
     io.write("\nghost_speed_max_factor: " .. settings.ghost_speed_max_factor )
-    io.write("\nplayer_speed_grid_size_factor: " .. settings.player_speed_grid_size_factor )
+    io.write("\nplayer_speed_grid_size_factor: " .. settings.player_speed_factor )
 end
 
 function reporter.report_catch(this_ghost, ghosts)

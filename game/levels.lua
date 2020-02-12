@@ -14,7 +14,7 @@ levels[n].ghost_respawn_time = 15
 --levels[n].font_size_small
 --levels[n].font_size_big
 
---levels[n].player_speed_grid_size_factor
+--levels[n].player_speed_factor
 --levels[n].ghost_fitness_on
 --levels[n].ghost_target_spread
 --levels[n].ghost_target_offset_freightned_on
