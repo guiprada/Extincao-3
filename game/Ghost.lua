@@ -638,11 +638,6 @@ function Ghost:find_next_dir(target, state, average_ghost_pos)
             end
         end
 
-        -- calculate the destination, get the targets grid position and
-        -- "sum" it with the self.target_offset
-        local destination = {}
-        --print( state)
-
         if (target.is_active) then
             --io.output()
             if ( state == "chasing" ) then

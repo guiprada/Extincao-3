@@ -1,32 +1,31 @@
 ------------------------------ todo
 
+- Player and Ghost Class derived from new Class GridActor
+- GeneticGhost Class derived from Ghost
+
 - message bus
 
-- fix reporter
+-- maybe we should support a multiloader gamestate system
+    - gamestate multiloader system
+    - particle generator gamestate
 
-- gamestate multiloader system
-- particle generator gamestate
-
-- collision notification with function call
+- collision notification with function call or message
 
 - basic color system using unpack
 - Particle should have color options
 
-- camera
-
-- progressive level up system
-
-- camera subsystems
+- camera system
 - bigger than screen grids
+- progressive level up system
 - grid editor
 - grid creating blocks and combining functions
 
-- population saving and restoring system
-
-- Player bot based on evolutionary neural network
-- GeneticGhost Class derived from Ghost
-- new action based ghost( depends on automatic player for testing)
-- ghosts should use function pointer for actions intead of ifs
+-- ghosts overhaul
+    - population saving and restoring system
+    - fix reporter
+    - Player bot based on evolutionary neural network
+    - new action based ghost( depends on automatic player for testing)
+    - ghosts should use function pointer for actions intead of ifs
 
 - use predefined functions to select options behavior
 
