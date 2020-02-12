@@ -1,8 +1,5 @@
 ------------------------------ todo
 
-- timer class
-- ghost class
-
 - message bus
 
 - fix reporter
@@ -26,7 +23,8 @@
 
 - population saving and restoring system
 
-- Player bot based on evolutionary neural netvork
+- Player bot based on evolutionary neural network
+- GeneticGhost Class derived from Ghost
 - new action based ghost( depends on automatic player for testing)
 - ghosts should use function pointer for actions intead of ifs
 
@@ -65,3 +63,5 @@
 +- Pill init
 +- Add comments to Pill Class
 +- take keyboard controls out of Player class
++- timer class
++- ghost class
