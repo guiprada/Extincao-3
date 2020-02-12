@@ -62,5 +62,5 @@
 +- Pill init
 +- Add comments to Pill Class
 +- take keyboard controls out of Player class
-+- timer class
-+- ghost class
++- Timer class
++- Ghost class
