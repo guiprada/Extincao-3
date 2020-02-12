@@ -6,7 +6,7 @@ local game = {}
 local gamestate = require "gamestate"
 local utils = require "utils"
 local grid = require "grid"
-local ghost = require "ghost"
+local Ghost = require "Ghost"
 local Player = require "Player"
 local Timer = require "Timer"
 local Pill = require "Pill"
@@ -64,7 +64,7 @@ function game.load(args)
 	reporter.init(grid)
 	grid.init(	game.grid_size, game.lookahead)
 	Player.init(game.grid_size, args.player_click or settings.player_click)
-	ghost.init(	args.ghost_fitness_on or settings.ghost_fitness_on,
+	Ghost.init(	args.ghost_fitness_on or settings.ghost_fitness_on,
 				args.ghost_target_spread or settings.ghost_target_spread,
 				args.ghost_target_offset_freightned_on or
 					settings.ghost_target_offset_freightned_on,
@@ -153,7 +153,7 @@ function game.load(args)
 		local chase_feared_gene = love.math.random(1, 9)
 		local scatter_feared_gene = love.math.random(1, 5)
 
-	    game.ghosts[i] = ghost.new(	pos_index,
+	    game.ghosts[i] = Ghost:new(	pos_index,
 								pilgrin_gene,
 								target_offset,
 								target_offset_freightned,
@@ -242,7 +242,7 @@ function game.draw()
 		if (game.ghosts[i].is_active )then
 			active_ghost_counter = active_ghost_counter +1
 		end
-		ghost.draw(game.ghosts[i], game.ghost_state)
+		game.ghosts[i]:draw(game.ghost_state)
 	end
 
 	-- draw player
@@ -316,14 +316,14 @@ function game.update(dt)
 			-- if game.ghost_state == "freightened" do nothing
 				game.ghost_state = "chasing"
 				for i=1, #game.ghosts, 1 do
-					ghost.flip_direction(game.ghosts[i])
+					game.ghosts[i]:flip_direction()
 					game.ghost_flip_sound:play()
 				end
 				game.ghost_state_timer:reset(settings.ghost_chase_time)
 			elseif ( game.ghost_state == "chasing") then
 				game.ghost_state = "scattering"
 				for i=1, #game.ghosts, 1 do
-					ghost.flip_direction(game.ghosts[i])
+					game.ghosts[i]:flip_direction()
 					game.ghost_flip_sound:play()
 				end
 			end
@@ -349,7 +349,7 @@ function game.update(dt)
 		for i=1, #game.ghosts, 1 do
 			local is_active_before_update = game.ghosts[i].is_active
 
-			ghost.update(	game.ghosts[i],
+				game.ghosts[i]:update(
 							game.player,
 							game.pills,
 							average_ghost_pos,
@@ -380,8 +380,7 @@ function game.update(dt)
 				-- and spawns
 				local i = table.remove(game.to_be_respawned, 1)
 				if ( settings.ghost_genetic_on) then
-					ghost.crossover(game.ghosts[i],
-									game.ghosts,
+					game.ghosts[i]:crossover(game.ghosts,
 									game.pills)
 				else
 					-- find spawning position
@@ -392,7 +391,7 @@ function game.update(dt)
 						spawn_grid_pos = {x=50, y= 21}
 					end
 
-					ghost.regen(game.ghosts[i], game.pills, spawn_grid_pos)
+					game.ghosts[i]:regen(game.pills, spawn_grid_pos)
 				end
 
 			end
@@ -412,16 +411,16 @@ function game.update(dt)
 					game.pills[i].is_active == false ) then
 				game.ghost_state =  "freightened"
 				for i=1, #game.ghosts, 1 do
-					ghost.flip_direction(game.ghosts[i])
+					game.ghosts[i]:flip_direction()
 					game.ghost_flip_sound:play()
 				end
-				ghost.ghost_speed = game.ghost_speed / 1.5
+				Ghost.ghost_speed = game.ghost_speed / 1.5
 				game.player.speed = game.speed * 1.1
 			elseif (is_active_before_update== false and
 					game.pills[i].is_active == true ) then
 				game.ghost_state = "scattering"
 
-				ghost.ghost_speed = game.ghost_speed
+				Ghost.ghost_speed = game.ghost_speed
 				game.player.speed = game.speed
 				game.ghost_state_timer:reset()
 			end

@@ -1,5 +1,6 @@
-ghosts catched: 1  <>  player_catched: 1  <>  catches/catched:1 <> catches/frames:0.0015360983102919
-ghosts catched: 2  <>  player_catched: 1  <>  catches/catched:2 <> catches/frames:0.0027972027972028
-ghosts catched: 3  <>  player_catched: 1  <>  catches/catched:3 <> catches/frames:0.0025466893039049
-ghosts catched: 4  <>  player_catched: 1  <>  catches/catched:4 <> catches/frames:0.0032599837000815
-ghosts catched: 5  <>  player_catched: 1  <>  catches/catched:5 <> catches/frames:0.0039154267815192
+ghosts catched: 1  <>  player_catched: 0  <>  catches/catched:inf <> catches/frames:0.0021834061135371
+ghosts catched: 2  <>  player_catched: 3  <>  catches/catched:0.66666666666667 <> catches/frames:0.00015358623867301
+ghosts catched: 3  <>  player_catched: 4  <>  catches/catched:0.75 <> catches/frames:0.00017049329393044
+ghosts catched: 4  <>  player_catched: 4  <>  catches/catched:1 <> catches/frames:0.00022671881199343
+ghosts catched: 5  <>  player_catched: 4  <>  catches/catched:1.25 <> catches/frames:0.00028333427778093
+ghosts catched: 6  <>  player_catched: 4  <>  catches/catched:1.5 <> catches/frames:0.00033892560582952
