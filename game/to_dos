@@ -2,7 +2,7 @@
 
 - timer class
 - ghost class
-- take keyboard controls out of Player class
+
 - message bus
 
 - fix reporter
@@ -64,3 +64,4 @@
 +- investigate Pill bug
 +- Pill init
 +- Add comments to Pill Class
++- take keyboard controls out of Player class

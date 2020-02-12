@@ -428,6 +428,21 @@ function game.update(dt)
 		end
 
 		-- player, after game.ghosts to get player_catched
+		if(love.keyboard.isDown("left") and love.keyboard.isDown("right")) then
+            --does nothing, but also does not change
+    	elseif love.keyboard.isDown("left") then
+            game.player.next_direction = "left"
+        elseif love.keyboard.isDown("right") then
+    		game.player.next_direction = "right"
+        end
+
+        if(love.keyboard.isDown("up") and love.keyboard.isDown("down")) then
+            --does nothing, but also does not change
+    	elseif love.keyboard.isDown("up") then
+    		game.player.next_direction = "up"
+        elseif love.keyboard.isDown("down") then
+    		game.player.next_direction = "down"
+    	end
 		game.player:update(dt)
 
 		-- check victory, should be the last thing done in this function
