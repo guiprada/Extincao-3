@@ -1,8 +1,5 @@
 -- Guilherme Cunha Prada 2020
 local GridActor = require "GridActor"
-local grid_pos = {}
-grid_pos.x = 0
-grid_pos.y = 0
 local Player = GridActor:new()
 
 function Player.init(grid_size, player_click)
