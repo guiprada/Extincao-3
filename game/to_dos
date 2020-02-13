@@ -1,8 +1,7 @@
 ------------------------------ todo
 
-- Player and Ghost Class derived from new Class GridActor
 - GeneticGhost Class derived from Ghost
-
+- grid and others should auto init
 - message bus
 
 -- maybe we should support a multiloader gamestate system
@@ -55,6 +54,7 @@
 +- update to love 11.3
 +- victory gamestate
 +- eliminate gamestate.null_func = nil on gamestate framework
+
 +- Particle class
 +- Player class
 +- Pill class
@@ -64,3 +64,6 @@
 +- take keyboard controls out of Player class
 +- Timer class
 +- Ghost class
+
++- Player and Ghost Class derived from new Class GridActor
++- fix player sound

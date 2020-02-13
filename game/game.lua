@@ -100,7 +100,8 @@ function game.load(args)
 		grid_pos.x = settings.player_start_grid.x
 		grid_pos.y = settings.player_start_grid.y
 	end
-	game.player = Player:new(grid_pos, game.speed)
+	game.player = Player:new()
+	game.player:reset(grid_pos, game.speed)
 
 
 	-- create freightened on restart timer, it is not a pill
