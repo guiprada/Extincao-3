@@ -1,9 +1,12 @@
 ------------------------------ todo
-
-- grid.load and grid.init should be unified, grid should be a Class
+- Pill Class should be derived from GridActor
 - Ghost Class derived from GridActor
 - GeneticGhost Class derived from Ghost
 - grid and others should auto init
+
+
+- Grid:is_grid_way(x,y) should be moved to GridActor
+- Grid:get_dynamic_front(obj) should be removed once Ghost derives from GridActor
 - resizer overhaul
 - message bus
 - gamefied menu
@@ -70,3 +73,4 @@
 
 +- Player and Ghost Class derived from new Class GridActor
 +- fix player sound
++- grid.load and grid.init should be unified, grid should be a Class

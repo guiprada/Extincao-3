@@ -104,33 +104,34 @@ function Grid:generate_valid_pos()
 	end
 end
 
-function Grid:get_grid_center(obj)
+function Grid:get_grid_center(grid_pos)
 	-- returns the center of the grid that obj lays
 	local center = {}
-	center.x = (obj.grid_pos.x-1)*self.grid_size + math.ceil(self.grid_size/2)
-	center.y = (obj.grid_pos.y-1)*self.grid_size + math.ceil(self.grid_size/2)
+	center.x = (grid_pos.x-1)*self.grid_size + math.ceil(self.grid_size/2)
+	center.y = (grid_pos.y-1)*self.grid_size + math.ceil(self.grid_size/2)
 	return center
 end
 
-function Grid:center_on_grid(obj)
+function Grid:center_on_grid(pos)
 	-- centers obj on its own grid cell
-	local pos = self:get_grid_pos(obj)
-	obj.x = (pos.x-1)*self.grid_size + math.ceil(self.grid_size/2)
-	obj.y = (pos.y-1)*self.grid_size + math.ceil(self.grid_size/2)
+	local grid_pos = self:get_grid_pos(pos)
+	pos.x = (grid_pos.x-1)*self.grid_size + math.ceil(self.grid_size/2)
+	pos.y = (grid_pos.y-1)*self.grid_size + math.ceil(self.grid_size/2)
 end
 
-function Grid:center_on_grid_x(obj)
+function Grid:center_on_grid_x(pos)
 	-- centers obj on its own grid cell x axis
-	local pos = self:get_grid_pos(obj)
-	obj.x = (pos.x-1)*self.grid_size + math.ceil(self.grid_size/2)
+	local grid_pos = self:get_grid_pos(pos)
+	pos.x = (grid_pos.x-1)*self.grid_size + math.ceil(self.grid_size/2)
 end
 
-function Grid:center_on_grid_y(obj)
+function Grid:center_on_grid_y(pos)
 	-- centers obj on its own grid cell y axis
-	local pos = self:get_grid_pos(obj)
-	obj.y = (pos.y-1)*self.grid_size + math.ceil(self.grid_size/2)
+	local grid_pos = self:get_grid_pos(pos)
+	pos.y = (grid_pos.y-1)*self.grid_size + math.ceil(self.grid_size/2)
 end
 
+-- DELETE
 function Grid:get_dynamic_front(obj)
 	-- returns the point that is lookahead in front of the player
 	-- it does consider the direction obj is set
@@ -156,17 +157,17 @@ function Grid:get_dynamic_front(obj)
 	return point
 end
 
-function Grid:get_grid_pos(obj)
+function Grid:get_grid_pos(pos)
 	local grid_pos = {}
 
-	grid_pos.x = math.floor(obj.x / self.grid_size) + 1--lua arrays start at 1
-	grid_pos.y = math.floor(obj.y / self.grid_size) + 1 --lua arrays start at 1
+	grid_pos.x = math.floor(pos.x / self.grid_size) + 1--lua arrays start at 1
+	grid_pos.y = math.floor(pos.y / self.grid_size) + 1 --lua arrays start at 1
 	return grid_pos
 end
 
-function Grid:is_grid_wall(x, y)
-	if 	self.grid_types[y][x] == 16 or
-	 	self.grid_types[y][x] == 0 then	return true end
+function Grid:is_grid_wall(pos)
+	if 	self.grid_types[pos.y][pos.x] == 16 or
+	 	self.grid_types[pos.y][pos.x] == 0 then	return true end
 	return false
 end
 

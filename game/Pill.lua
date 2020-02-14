@@ -74,7 +74,7 @@ function Pill:reset(grid_pos)
     self.grid_pos.x = this_grid_pos.x
     self.grid_pos.y = this_grid_pos.y
 
-    local this_pos = Pill.grid:get_grid_center(self)
+    local this_pos = Pill.grid:get_grid_center(self.grid_pos)
     self.x = this_pos.x +
         love.math.random(-Pill.grid.grid_size*0.17, Pill.grid.grid_size*0.17)
     self.y = this_pos.y +

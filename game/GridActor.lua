@@ -150,11 +150,35 @@ function GridActor:center_on_grid_y()
 end
 
 function GridActor:get_grid_center()
-    return GridActor.grid:get_grid_center(self)
+    return GridActor.grid:get_grid_center(self.grid_pos)
 end
 
 function GridActor:get_dynamic_front()
     return GridActor.grid:get_dynamic_front(self)
+end
+
+function GridActor:get_dynamic_front()
+	-- returns the point that is lookahead in front of the player
+	-- it does consider the direction obj is set
+	local point = {}
+	-- the player has a dynamic center
+	if self.direction == "up" then
+		point.y = self.y - GridActor.grid.lookahead
+ 		point.x = self.x
+	elseif self.direction == "down" then
+		point.y = self.y + GridActor.grid.lookahead
+		point.x = self.x
+	elseif self.direction == "left" then
+		point.x = self.x - GridActor.grid.lookahead
+		point.y = self.y
+	elseif self.direction == "right" then
+		point.x = self.x + GridActor.grid.lookahead
+		point.y = self.y
+	else -- "idle"
+		point.y = self.y
+		point.x = self.x
+	end
+	return point
 end
 
 function GridActor:get_grid_pos()
@@ -171,7 +195,7 @@ end
 
 function GridActor:is_front_wall()
     local front_grid_pos = self:get_front_grid()
-    return GridActor.grid:is_grid_wall(front_grid_pos.x, front_grid_pos.y)
+    return GridActor.grid:is_grid_wall(front_grid_pos)
 end
 
 function  GridActor.get_grid_size()

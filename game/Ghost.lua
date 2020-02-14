@@ -129,7 +129,7 @@ function Ghost:reset(   pos_index,
     self.grid_pos.x = this_spawn_grid_pos.x
     self.grid_pos.y = this_spawn_grid_pos.y
 
-    local this_pos = Ghost.grid:get_grid_center(self)
+    local this_pos = Ghost.grid:get_grid_center(self.grid_pos)
     self.x = this_pos.x
     self.y = this_pos.y
 
@@ -547,7 +547,7 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
 
         -- check collision with wall
         local front_grid_pos = Ghost.grid:get_grid_pos(self.front)
-        if(Ghost.grid:is_grid_wall(front_grid_pos.x, front_grid_pos.y)) then
+        if(Ghost.grid:is_grid_wall(front_grid_pos)) then
             self.direction = "idle"
             self.next_direction = "idle"
             Ghost.grid:center_on_grid(self)
@@ -562,7 +562,7 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
         end
 
         --on tile center, or close
-        local dist_grid_center = utils.dist( Ghost.grid:get_grid_center(self), self)
+        local dist_grid_center = utils.dist( Ghost.grid:get_grid_center(self.grid_pos), self)
         if (dist_grid_center < Ghost.lookahead/8) then
             if ( self.direction == "up" or self.direction== "down") then
                 Ghost.grid:center_on_grid_x(self)
