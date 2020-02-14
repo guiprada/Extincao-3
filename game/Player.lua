@@ -2,8 +2,8 @@
 local GridActor = require "GridActor"
 local Player = GridActor:new()
 
-function Player.init(grid_size, player_click)
-    GridActor.init(grid_size)
+function Player.init(grid, player_click)
+    GridActor.init(grid)
 
     Player.plip_sound = player_click
     Player.plip_sound:setVolume(0.3)
@@ -39,7 +39,10 @@ function Player:draw()
     --player body :)
     if (self.is_active) then
         love.graphics.setColor(1, 1, 0)
-        love.graphics.circle("fill", self.x, self.y, GridActor.grid_size*0.55)
+        love.graphics.circle(   "fill",
+                                self.x,
+                                self.y,
+                                GridActor.grid.grid_size*0.55)
 
         -- front dot
         love.graphics.setColor(1, 0, 1)
@@ -47,7 +50,7 @@ function Player:draw()
         love.graphics.circle(   "fill",
                                 self.front.x,
                                 self.front.y,
-                                GridActor.grid_size/5)
+                                GridActor.grid.grid_size/5)
         -- front line, mesma cor
         -- love.graphics.setColor(1, 0, 1)
         love.graphics.line(self.x, self.y, self.front.x, self.front.y)

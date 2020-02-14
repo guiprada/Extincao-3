@@ -61,9 +61,9 @@ function game.load(args)
 	game.ghost_speed = game.speed * 1
 
 	-- start subsystems
-	reporter.init(grid)
 	grid.init(	game.grid_size, game.lookahead)
-	Player.init(game.grid_size, args.player_click or settings.player_click)
+	reporter.init(grid)
+	Player.init(grid, args.player_click or settings.player_click)
 	Ghost.init(	args.ghost_fitness_on or settings.ghost_fitness_on,
 				args.ghost_target_spread or settings.ghost_target_spread,
 				args.ghost_target_offset_freightned_on or
@@ -84,11 +84,10 @@ function game.load(args)
 				game.grid_size,
 				game.lookahead,
 				reporter)
-	Pill.init(	args.pill_genetic_on or settings.pill_genetic_on,
+	Pill.init(	grid,
+				args.pill_genetic_on or settings.pill_genetic_on,
 				args.pill_precise_crossover_on or
 					settings.pill_precise_crossover_on,
-				game.grid_size,
-				game.lookahead,
 				args.pill_warn_sound or settings.pill_warn_sound)
 
 	--start player
