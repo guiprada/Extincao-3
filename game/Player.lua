@@ -42,7 +42,7 @@ function Player:draw()
         love.graphics.circle(   "fill",
                                 self.x,
                                 self.y,
-                                GridActor.grid.grid_size*0.55)
+                                GridActor.get_grid_size()*0.55)
 
         -- front dot
         love.graphics.setColor(1, 0, 1)
@@ -50,7 +50,7 @@ function Player:draw()
         love.graphics.circle(   "fill",
                                 self.front.x,
                                 self.front.y,
-                                GridActor.grid.grid_size/5)
+                                GridActor.get_grid_size()/5)
         -- front line, mesma cor
         -- love.graphics.setColor(1, 0, 1)
         love.graphics.line(self.x, self.y, self.front.x, self.front.y)

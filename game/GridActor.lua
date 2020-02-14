@@ -174,4 +174,12 @@ function GridActor:is_front_wall()
     return GridActor.grid.is_grid_wall(front_grid_pos.x, front_grid_pos.y)
 end
 
+function  GridActor.get_grid_size()
+    return GridActor.grid.grid_size
+end
+
+function  GridActor.get_lookahead()
+    return GridActor.grid.lookahead
+end
+
 return GridActor
