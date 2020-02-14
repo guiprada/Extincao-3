@@ -1,6 +1,6 @@
 ------------------------------ todo
 
-- grid.load and grid.init should be unified
+- grid.load and grid.init should be unified, grid should be a Class
 - Ghost Class derived from GridActor
 - GeneticGhost Class derived from Ghost
 - grid and others should auto init
