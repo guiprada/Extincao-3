@@ -4,8 +4,9 @@
 - Ghost Class derived from GridActor
 - GeneticGhost Class derived from Ghost
 - grid and others should auto init
+- resizer overhaul
 - message bus
-
+- gamefied menu
 -- maybe we should support a multiloader gamestate system
     - gamestate multiloader system
     - particle generator gamestate

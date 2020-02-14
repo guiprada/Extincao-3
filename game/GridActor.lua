@@ -136,42 +136,42 @@ function GridActor:update(dt)
     	if(self:is_front_wall()) then
     		self.direction = "idle"
     		self.next_direction = "idle"
-            GridActor.grid.center_on_grid(self)
+            GridActor.grid:center_on_grid(self)
     	end
     end
 end
 
 function GridActor:center_on_grid_x()
-    GridActor.grid.center_on_grid_x(self)
+    GridActor.grid:center_on_grid_x(self)
 end
 
 function GridActor:center_on_grid_y()
-    GridActor.grid.center_on_grid_y(self)
+    GridActor.grid:center_on_grid_y(self)
 end
 
 function GridActor:get_grid_center()
-    return GridActor.grid.get_grid_center(self)
+    return GridActor.grid:get_grid_center(self)
 end
 
 function GridActor:get_dynamic_front()
-    return GridActor.grid.get_dynamic_front(self)
+    return GridActor.grid:get_dynamic_front(self)
 end
 
 function GridActor:get_grid_pos()
-    return GridActor.grid.get_grid_pos(self)
+    return GridActor.grid:get_grid_pos(self)
 end
 
 function GridActor:get_front_grid()
-    return GridActor.grid.get_grid_pos(self.front)
+    return GridActor.grid:get_grid_pos(self.front)
 end
 
 function GridActor:get_enabled_directions()
-    return GridActor.grid.get_enabled_directions(self.grid_pos)
+    return GridActor.grid:get_enabled_directions(self.grid_pos)
 end
 
 function GridActor:is_front_wall()
     local front_grid_pos = self:get_front_grid()
-    return GridActor.grid.is_grid_wall(front_grid_pos.x, front_grid_pos.y)
+    return GridActor.grid:is_grid_wall(front_grid_pos.x, front_grid_pos.y)
 end
 
 function  GridActor.get_grid_size()

@@ -1,11 +1,11 @@
 -- Guilherme Cunha Prada 2019
 
-local grid = require "grid"
 local utils = require "utils"
 
 local Ghost = {}
 
-function Ghost.init(ghost_fitness_on,
+function Ghost.init(Grid,
+                    ghost_fitness_on,
                     ghost_target_spread,
                     ghost_target_offset_freightned_on,
                     ghost_migration_on,
@@ -19,6 +19,7 @@ function Ghost.init(ghost_fitness_on,
                     grid_size,
                     lookahead,
                     reporter)
+    Ghost.grid = Grid
     Ghost.ghost_fitness_on = ghost_fitness_on
     Ghost.ghost_target_spread = ghost_target_spread
     Ghost.ghost_target_offset_freightned_on = ghost_target_offset_freightned_on
@@ -119,7 +120,7 @@ function Ghost:reset(   pos_index,
 
     self.speed = speed
 
-    local valid_grid_pos = grid.grid_valid_pos[pos_index]
+    local valid_grid_pos = Ghost.grid.grid_valid_pos[pos_index]
     self.pos_index = pos_index
     self.home.x = valid_grid_pos.x
     self.home.y = valid_grid_pos.y
@@ -128,7 +129,7 @@ function Ghost:reset(   pos_index,
     self.grid_pos.x = this_spawn_grid_pos.x
     self.grid_pos.y = this_spawn_grid_pos.y
 
-    local this_pos = grid.get_grid_center(self)
+    local this_pos = Ghost.grid:get_grid_center(self)
     self.x = this_pos.x
     self.y = this_pos.y
 
@@ -136,7 +137,7 @@ function Ghost:reset(   pos_index,
     self.home.y = self.grid_pos.y
 
     -- choose initial direction
-    self.enabled_dir = grid.get_enabled_directions(self.grid_pos)
+    self.enabled_dir = Ghost.grid:get_enabled_directions(self.grid_pos)
 
     --self.try_order = {}
     -- dont destroy the old one, it is used by Ghost.highest_fitness_genome
@@ -168,7 +169,7 @@ function Ghost:reset(   pos_index,
     self.last_grid_pos.y = -1
 
 
-    self.front = grid.get_dynamic_front(self)
+    self.front = Ghost.grid:get_dynamic_front(self)
 end
 
 function Ghost.selection(in_table)
@@ -248,8 +249,8 @@ function Ghost:crossover(ghosts, pills, spawn_grid_pos)
         son.pos_index = son.pos_index + math.floor(love.math.random(-50, 50))
         if (son.pos_index < 1) then
             son.pos_index = 1
-        elseif (son.pos_index > #grid.grid_valid_pos) then
-            son.pos_index = #grid.grid_valid_pos
+        elseif (son.pos_index > #Ghost.grid.grid_valid_pos) then
+            son.pos_index = #Ghost.grid.grid_valid_pos
         end
     end
     --print(son.pos_index)
@@ -348,7 +349,7 @@ end
 function Ghost:regen(pills, spawn_grid_pos)
     local this_spawn_grid_pos = spawn_grid_pos or self.grid_pos
 
-    local pos_index = love.math.random(1, #grid.grid_valid_pos)
+    local pos_index = love.math.random(1, #Ghost.grid.grid_valid_pos)
 
     local pilgrin_gene
     if ( love.math.random(0, 1) == 1) then
@@ -422,11 +423,11 @@ function Ghost:draw(state)
         love.graphics.circle("fill", self.x, self.y, Ghost.grid_size*0.5)
 
         -- assign  colors based on pos_index
-        if (self.pos_index < #grid.grid_valid_pos/4 )then
+        if (self.pos_index < #Ghost.grid.grid_valid_pos/4 )then
             love.graphics.setColor(1, 1, 1)
-        elseif (self.pos_index < (#grid.grid_valid_pos/4)*2 )then
+        elseif (self.pos_index < (#Ghost.grid.grid_valid_pos/4)*2 )then
             love.graphics.setColor(0.75, 0, 0.75)
-        elseif (self.pos_index < (#grid.grid_valid_pos/4)*3 )then
+        elseif (self.pos_index < (#Ghost.grid.grid_valid_pos/4)*3 )then
             love.graphics.setColor(0, 0.5, 0.5)
         else
             love.graphics.setColor(0.05, 0.05, 0.05)
@@ -462,7 +463,7 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
         self.dist_to_target = utils.dist(target, self)
         self.dist_to_group = utils.dist(average_ghost_pos, self)
 
-        self.front = grid.get_dynamic_front(self)
+        self.front = Ghost.grid:get_dynamic_front(self)
 
         self.is_feared = false
         if( Ghost.ghost_fear_on) then
@@ -475,7 +476,7 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
             end
         end
 
-        local this_grid_pos = grid.get_grid_pos(self)
+        local this_grid_pos = Ghost.grid:get_grid_pos(self)
 
         --check collision with target
         --print(target.is_active)
@@ -545,11 +546,11 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
         end
 
         -- check collision with wall
-        local front_grid_pos = grid.get_grid_pos(self.front)
-        if(grid.is_grid_wall(front_grid_pos.x, front_grid_pos.y)) then
+        local front_grid_pos = Ghost.grid:get_grid_pos(self.front)
+        if(Ghost.grid:is_grid_wall(front_grid_pos.x, front_grid_pos.y)) then
             self.direction = "idle"
             self.next_direction = "idle"
-            grid.center_on_grid(self)
+            Ghost.grid:center_on_grid(self)
         end
 
         --on change tile
@@ -561,12 +562,12 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
         end
 
         --on tile center, or close
-        local dist_grid_center = utils.dist( grid.get_grid_center(self), self)
+        local dist_grid_center = utils.dist( Ghost.grid:get_grid_center(self), self)
         if (dist_grid_center < Ghost.lookahead/8) then
             if ( self.direction == "up" or self.direction== "down") then
-                grid.center_on_grid_x(self)
+                Ghost.grid:center_on_grid_x(self)
             elseif ( self.direction == "left" or self.direction== "right") then
-                grid.center_on_grid_y(self)
+                Ghost.grid:center_on_grid_y(self)
             end
             self:find_next_dir(target, state, average_ghost_pos)
         end
@@ -591,11 +592,11 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
 end
 
 function Ghost:find_next_dir(target, state, average_ghost_pos)
-    self.enabled_dir = grid.get_enabled_directions(self.grid_pos)
+    self.enabled_dir = Ghost.grid:get_enabled_directions(self.grid_pos)
 
     --count = grid.count_enabled_directions(self.grid_pos)
-    if ( 	grid.grid_types[self.grid_pos.y][self.grid_pos.x]~=3 and-- invertido
-            grid.grid_types[self.grid_pos.y][self.grid_pos.x]~=12 ) then
+    if ( 	Ghost.grid.grid_types[self.grid_pos.y][self.grid_pos.x]~=3 and-- invertido
+            Ghost.grid.grid_types[self.grid_pos.y][self.grid_pos.x]~=12 ) then
         --check which one is closer to the target
         -- make a table to contain the posible destinations
         local maybe_dirs = {}
@@ -798,8 +799,8 @@ end
 
 function Ghost:wander(maybe_dirs)
     local destination = {}
-    local rand_grid = love.math.random(1, #grid.grid_valid_pos )
-    local this_grid_pos = grid.grid_valid_pos[rand_grid]
+    local rand_grid = love.math.random(1, #Ghost.grid.grid_valid_pos )
+    local this_grid_pos = Ghost.grid.grid_valid_pos[rand_grid]
 
     destination.x = this_grid_pos.x
     destination.y = this_grid_pos.y
@@ -816,7 +817,7 @@ function Ghost:go_home(maybe_dirs)
 end
 
 function Ghost:go_to_group(maybe_dirs, average_ghost_pos)
-    local this_grid_pos = grid.get_grid_pos(average_ghost_pos)
+    local this_grid_pos = Ghost.grid:get_grid_pos(average_ghost_pos)
 
     local destination = {}
     destination.x =  this_grid_pos.x

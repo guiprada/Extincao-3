@@ -3,8 +3,8 @@
 local settings = {}
 
 -- general game settings
-settings.screen_width = 1920
-settings.screen_height = 1080
+-- settings.screen_width = 1920
+-- settings.screen_height = 1080
 settings.fullscreen = true
 
 -- player settings

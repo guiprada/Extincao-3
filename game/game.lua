@@ -5,7 +5,7 @@ local game = {}
 
 local gamestate = require "gamestate"
 local utils = require "utils"
-local grid = require "grid"
+local Grid = require "Grid"
 local Ghost = require "Ghost"
 local Player = require "Player"
 local Timer = require "Timer"
@@ -18,8 +18,8 @@ local Particle = require "Particle"
 
 -----------------------------------------------------------------------callbacks
 function game.load(args)
-	local default_width = love.graphics.getWidth()
-	local default_height = love.graphics.getHeight()
+	game.default_width = love.graphics.getWidth()
+	game.default_height = love.graphics.getHeight()
 
 	game.paused = true
 	game.just_restarted = true
@@ -37,11 +37,14 @@ function game.load(args)
 	game.ghost_state_timer = Timer:new(ghost_scatter_time)
 
 
-	grid.load(args.grid_types)	-- if args.grid_types == null
-	 							-- it will use grid.grid_types
-	game.grid_size = resizer.init_resizer(	default_width, default_height,
-										grid.grid_width_n,
-										grid.grid_height_n)
+	game.grid_size = resizer.init_resizer(	game.default_width,
+											game.default_height,
+											Grid.get_width(args.grid_types),
+											Grid.get_height(args.grid_types))
+
+	game.grid = Grid:new()
+	game.grid:reset(args.grid_types, game.grid_size, game.grid_size/2)	-- if args.grid_types == null
+	 									-- it will use grid.defalt_map
 
 	-- registering fonts
 	game.font_size = args.font_size or settings.font_size
@@ -61,10 +64,11 @@ function game.load(args)
 	game.ghost_speed = game.speed * 1
 
 	-- start subsystems
-	grid.init(	game.grid_size, game.lookahead)
-	reporter.init(grid)
-	Player.init(grid, args.player_click or settings.player_click)
-	Ghost.init(	args.ghost_fitness_on or settings.ghost_fitness_on,
+
+	reporter.init(game.grid)
+	Player.init(game.grid, args.player_click or settings.player_click)
+	Ghost.init(	game.grid,
+				args.ghost_fitness_on or settings.ghost_fitness_on,
 				args.ghost_target_spread or settings.ghost_target_spread,
 				args.ghost_target_offset_freightned_on or
 					settings.ghost_target_offset_freightned_on,
@@ -84,7 +88,7 @@ function game.load(args)
 				game.grid_size,
 				game.lookahead,
 				reporter)
-	Pill.init(	grid,
+	Pill.init(	game.grid,
 				args.pill_genetic_on or settings.pill_genetic_on,
 				args.pill_precise_crossover_on or
 					settings.pill_precise_crossover_on,
@@ -112,7 +116,7 @@ function game.load(args)
 	game.pills = {}
 	local n_pills = args.n_pills or settings.n_pills
 	for i=1, n_pills, 1 do
-		local rand = love.math.random(1, #grid.grid_valid_pos)
+		local rand = love.math.random(1, #game.grid.grid_valid_pos)
 		game.pills[i] = Pill:new(rand, settings.pill_time)
 	end
 
@@ -125,7 +129,7 @@ function game.load(args)
 	game.ghosts = {}
 	for i=1, n_ghosts,1 do
 		-- find a valid position
-		local pos_index = love.math.random(1, #grid.grid_valid_pos)
+		local pos_index = love.math.random(1, #game.grid.grid_valid_pos)
 
 		local pilgrin_gene
 		if ( love.math.random(0, 1) == 1) then
@@ -167,19 +171,19 @@ function game.load(args)
 	end
 
     -- render the game.maze_canvas
-	game.maze_canvas = love.graphics.newCanvas(default_width, default_height)
+	game.maze_canvas = love.graphics.newCanvas(game.default_width, game.default_height)
 	love.graphics.setCanvas(game.maze_canvas)
 		love.graphics.clear()
 		love.graphics.setBlendMode("alpha")
-		for i=1, grid.grid_width_n do
-			for j=1,grid.grid_height_n do
-				if (grid.grid_types[j][i]==16) then
+		for i=1, game.grid.grid_width_n do
+			for j=1, game.grid.grid_height_n do
+				if (game.grid.grid_types[j][i]==16) then
 					love.graphics.setColor(0.7, 0.8, 0.8, 1)
 					love.graphics.rectangle("fill",
 											game.grid_size*(i-1),
 											game.grid_size*(j-1),
 											game.grid_size,game.grid_size)
-				elseif (grid.grid_types[j][i]==0) then
+				elseif (game.grid.grid_types[j][i]==0) then
 						love.graphics.setColor(0.15, 0.25, 0.35, 1)
 						love.graphics.rectangle("fill",
 												game.grid_size*(i-1),
@@ -281,8 +285,8 @@ function game.draw()
 	love.graphics.setColor(1, 0, 0)
 	love.graphics.printf(	love.timer.getFPS(),
 	 						0,
-							settings.screen_height-32,
-							settings.screen_width,
+							game.default_height - 32,
+							game.default_width,
 							"right")
 end
 --------------------------------------------------------------------------------
