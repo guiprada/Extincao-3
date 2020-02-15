@@ -1,5 +1,7 @@
 ------------------------------ todo
-- Pill Class should be derived from GridActor
+
+- Create a GridCollider Class to be responsible for collision detection
+- Pill Class should be derived  from GridCollider
 - Ghost Class derived from GridActor
 - GeneticGhost Class derived from Ghost
 - grid and others should auto init
