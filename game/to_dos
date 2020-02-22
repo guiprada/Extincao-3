@@ -2,6 +2,7 @@
 
 - Create a GridCollider Class to be responsible for collision detection
 - Pill Class should be derived  from GridCollider
+- GridActor should derive from GridCollider, it is a moving GridCollider
 - Ghost Class derived from GridActor
 - GeneticGhost Class derived from Ghost
 - grid and others should auto init
