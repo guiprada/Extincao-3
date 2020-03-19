@@ -116,7 +116,7 @@ function game.load(args)
 	game.pills = {}
 	local n_pills = args.n_pills or settings.n_pills
 	for i=1, n_pills, 1 do
-		local rand = love.math.random(1, #game.grid.grid_valid_pos)
+		local rand = love.math.random(1, #game.grid.valid_pos)
 		game.pills[i] = Pill:new(rand, settings.pill_time)
 	end
 
@@ -129,14 +129,7 @@ function game.load(args)
 	game.ghosts = {}
 	for i=1, n_ghosts,1 do
 		-- find a valid position
-		local pos_index = love.math.random(1, #game.grid.grid_valid_pos)
-
-		local pilgrin_gene
-		if ( love.math.random(0, 1) == 1) then
-			pilgrin_gene = true
-		else
-			pilgrin_gene = false
-		end
+		local pos_index = love.math.random(1, #game.grid.valid_pos)
 
 		local target_offset = love.math.random(	-settings.ghost_target_spread,
 												settings.ghost_target_spread)
@@ -158,7 +151,6 @@ function game.load(args)
 		local scatter_feared_gene = love.math.random(1, 5)
 
 	    game.ghosts[i] = Ghost:new(	pos_index,
-								pilgrin_gene,
 								target_offset,
 								target_offset_freightned,
 								try_order,

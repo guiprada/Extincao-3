@@ -38,7 +38,6 @@ function Ghost.init(Grid,
 end
 
 function Ghost:new( pos_index,
-                    pilgrin_gene,
                     target_offset,
                     target_offset_freightned,
                     try_order,
@@ -53,7 +52,7 @@ function Ghost:new( pos_index,
     setmetatable(o, self)
     self.__index = self
 
-    o.grid_pos = {} -- pos_index phenotype
+    o.grid_pos = {}
     o.pill_debounce = {}
     o.home = {} -- determined by pos_index, it is a phenotype
     o.try_order = {} -- gene
@@ -62,7 +61,6 @@ function Ghost:new( pos_index,
     o.last_grid_pos = {}
     o.front = {}
     o:reset(pos_index,
-            pilgrin_gene,
             target_offset,
             target_offset_freightned,
             try_order,
@@ -77,7 +75,6 @@ function Ghost:new( pos_index,
 end
 
 function Ghost:reset(   pos_index,
-                        pilgrin_gene,
                         target_offset,
                         target_offset_freightned,
                         try_order,
@@ -105,7 +102,6 @@ function Ghost:reset(   pos_index,
     self.dist_to_target = 0
     self.is_feared = false
 
-    self.pilgrin_gene = pilgrin_gene
     self.target_offset = target_offset
     self.target_offset_freightned = target_offset_freightned
     self.fear_target = fear_target
@@ -120,7 +116,7 @@ function Ghost:reset(   pos_index,
 
     self.speed = speed
 
-    local valid_grid_pos = Ghost.grid.grid_valid_pos[pos_index]
+    local valid_grid_pos = Ghost.grid.valid_pos[pos_index]
     self.pos_index = pos_index
     self.home.x = valid_grid_pos.x
     self.home.y = valid_grid_pos.y
@@ -233,24 +229,13 @@ function Ghost:crossover(ghosts, pills, spawn_grid_pos)
         this_direction = mom.direction
     end
 
-    -- recessive for the pilgrin_gene
-    if( mom.pilgrin_gene == dad.pilgrin_gene ) then
-        son.pilgrin_gene = mom.pilgrin_gene
-    else
-        if ( love.math.random(0, 3) == 1 ) then
-            son.pilgrin_gene = true
-        else
-            son.pilgrin_gene = false
-        end
-    end
-
     son.pos_index = math.floor((mom.pos_index + dad.pos_index)/2)
     if (love.math.random(0, 10)<=9) then -- mutate
         son.pos_index = son.pos_index + math.floor(love.math.random(-50, 50))
         if (son.pos_index < 1) then
             son.pos_index = 1
-        elseif (son.pos_index > #Ghost.grid.grid_valid_pos) then
-            son.pos_index = #Ghost.grid.grid_valid_pos
+        elseif (son.pos_index > #Ghost.grid.valid_pos) then
+            son.pos_index = #Ghost.grid.valid_pos
         end
     end
     --print(son.pos_index)
@@ -316,7 +301,6 @@ function Ghost:crossover(ghosts, pills, spawn_grid_pos)
     end
 
     self:reset( son.pos_index,
-                son.pilgrin_gene,
                 son.target_offset,
                 son.target_offset_freightned,
                 son.try_order,
@@ -333,7 +317,6 @@ end
 function Ghost:reactivate(pills, spawn_grid_pos)
     local this_spawn_grid_pos = spawn_grid_pos or self.grid_pos
     Ghost:reset(self.pos_index,
-                self.pilgrin_gene,
                 self.target_offset,
                 self.target_offset_freightned,
                 self.try_order,
@@ -349,14 +332,7 @@ end
 function Ghost:regen(pills, spawn_grid_pos)
     local this_spawn_grid_pos = spawn_grid_pos or self.grid_pos
 
-    local pos_index = love.math.random(1, #Ghost.grid.grid_valid_pos)
-
-    local pilgrin_gene
-    if ( love.math.random(0, 1) == 1) then
-        pilgrin_gene = true
-    else
-        pilgrin_gene = false
-    end
+    local pos_index = love.math.random(1, #Ghost.grid.valid_pos)
 
     local target_offset = love.math.random( -Ghost.ghost_target_spread,
                                             Ghost.ghost_target_spread)
@@ -378,7 +354,6 @@ function Ghost:regen(pills, spawn_grid_pos)
 
 
     self:reset( pos_index,
-                pilgrin_gene,
                 target_offset,
                 target_offset_freightned,
                 try_order,
@@ -423,11 +398,11 @@ function Ghost:draw(state)
         love.graphics.circle("fill", self.x, self.y, Ghost.grid_size*0.5)
 
         -- assign  colors based on pos_index
-        if (self.pos_index < #Ghost.grid.grid_valid_pos/4 )then
+        if (self.pos_index < #Ghost.grid.valid_pos/4 )then
             love.graphics.setColor(1, 1, 1)
-        elseif (self.pos_index < (#Ghost.grid.grid_valid_pos/4)*2 )then
+        elseif (self.pos_index < (#Ghost.grid.valid_pos/4)*2 )then
             love.graphics.setColor(0.75, 0, 0.75)
-        elseif (self.pos_index < (#Ghost.grid.grid_valid_pos/4)*3 )then
+        elseif (self.pos_index < (#Ghost.grid.valid_pos/4)*3 )then
             love.graphics.setColor(0, 0.5, 0.5)
         else
             love.graphics.setColor(0.05, 0.05, 0.05)
@@ -443,7 +418,6 @@ function Ghost:draw(state)
                                 Ghost.grid_size/4)
         --love.graphics.circle("fill", self.x, self.y, grid_size/6)
 
-        --if ( self.pilgrin_gene ) then
         if ( self.is_feared ) then
             love.graphics.setColor(1, 0, 0)
             love.graphics.circle("fill", midle.x, midle.y, Ghost.grid_size/5)
@@ -799,8 +773,8 @@ end
 
 function Ghost:wander(maybe_dirs)
     local destination = {}
-    local rand_grid = love.math.random(1, #Ghost.grid.grid_valid_pos )
-    local this_grid_pos = Ghost.grid.grid_valid_pos[rand_grid]
+    local rand_grid = love.math.random(1, #Ghost.grid.valid_pos )
+    local this_grid_pos = Ghost.grid.valid_pos[rand_grid]
 
     destination.x = this_grid_pos.x
     destination.y = this_grid_pos.y

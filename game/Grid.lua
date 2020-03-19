@@ -91,14 +91,14 @@ function Grid:generate_directions()
 end
 
 function Grid:generate_valid_pos()
-	self.grid_valid_pos = {}
+	self.valid_pos = {}
 	for i=1, self.grid_width_n do
 		for j=1,self.grid_height_n do
 			if (self.grid_types[j][i]~= 16 and self.grid_types[j][i]~= 0 and (j<=15 or j>=30)) then
 				local value = {}
 				value.x = i
 				value.y = j
-				table.insert(self.grid_valid_pos, value)
+				table.insert(self.valid_pos, value)
 			end
 		end
 	end

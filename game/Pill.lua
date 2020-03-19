@@ -19,7 +19,7 @@ function Pill:new(pos_index, pill_time, o)
     self.__index = self
 
     o.pos_index = pos_index
-    o.grid_pos = Pill.grid.grid_valid_pos[pos_index]
+    o.grid_pos = Pill.grid.valid_pos[pos_index]
     o.timer = Timer:new(pill_time)
 
     o:reset(grid_pos)
@@ -44,8 +44,8 @@ function Pill:update(pills, target, dt)
                 self:crossover( pills)
             else
                 local this_pos_index =
-                                love.math.random(1, #Pill.grid.grid_valid_pos)
-                local this_pos = Pill.grid.grid_valid_pos[this_pos_index]
+                                love.math.random(1, #Pill.grid.valid_pos)
+                local this_pos = Pill.grid.valid_pos[this_pos_index]
                 self:reset(this_pos)
             end
 
@@ -150,7 +150,7 @@ function Pill:crossover(pills)
             son.grid_pos.y = temp_grid_pos.y + 1
         else
             local this_pos_index = math.floor((mom.pos_index + dad.pos_index)/2)
-            local this_grid_pos = Pill.grid.grid_valid_pos[this_pos_index]
+            local this_grid_pos = Pill.grid.valid_pos[this_pos_index]
             son.grid_pos.x = this_grid_pos.x
             son.grid_pos.y = this_grid_pos.y
             --print("error")
@@ -161,11 +161,11 @@ function Pill:crossover(pills)
             son.pos_index = son.pos_index + math.floor(love.math.random(-3, 3))
             if (son.pos_index < 1) then
                 son.pos_index = 1
-            elseif (son.pos_index > #Pill.grid.grid_valid_pos) then
-                son.pos_index = #Pill.grid.grid_valid_pos
+            elseif (son.pos_index > #Pill.grid.valid_pos) then
+                son.pos_index = #Pill.grid.valid_pos
             end
         end
-        son.grid_pos = Pill.grid.grid_valid_pos[son.pos_index ]
+        son.grid_pos = Pill.grid.valid_pos[son.pos_index ]
     end
 
     self:reset(son.grid_pos)
