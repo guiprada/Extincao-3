@@ -41,7 +41,6 @@ settings.pill_warn_sound = love.audio.newSource("audio/warn.wav", "static")
 -- ghost module settings
 settings.ghost_genetic_on = true
 settings.ghost_fitness_on = true
-settings.ghost_target_offset_freightned_on = true
 settings.ghost_migration_on = true
 settings.ghost_selective_migration_on = false
 settings.ghost_fear_on = true

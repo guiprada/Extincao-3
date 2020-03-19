@@ -17,7 +17,6 @@ levels[n].ghost_respawn_time = 15
 --levels[n].player_speed_factor
 --levels[n].ghost_fitness_on
 --levels[n].ghost_target_spread
---levels[n].ghost_target_offset_freightned_on
 --levels[n].ghost_migration_on
 --levels[n].ghost_selective_migration_on
 --levels[n].speed_boost_on

@@ -3,7 +3,6 @@ the Configuration used is
 
 ghost_genetic_on: true
 ghost_fitness_on: true
-ghost_target_offset_freightned_on: true
 ghost_migration_on: true
 ghost_selective_migration_on: false
 ghost_fear_on: true

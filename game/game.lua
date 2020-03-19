@@ -70,8 +70,6 @@ function game.load(args)
 	Ghost.init(	game.grid,
 				args.ghost_fitness_on or settings.ghost_fitness_on,
 				args.ghost_target_spread or settings.ghost_target_spread,
-				args.ghost_target_offset_freightned_on or
-					settings.ghost_target_offset_freightned_on,
 				args.ghost_migration_on or settings.ghost_migration_on,
 				args.ghost_selective_migration_on or
 					settings.ghost_selective_migration_on,
@@ -133,9 +131,7 @@ function game.load(args)
 
 		local target_offset = love.math.random(	-settings.ghost_target_spread,
 												settings.ghost_target_spread)
-		local target_offset_freightned = love.math.random(
-												-settings.ghost_target_spread,
-												settings.ghost_target_spread)
+
 		-- build a valid try_order gene
 		local try_order = {}
 		for i=1, 4, 1 do
@@ -152,7 +148,6 @@ function game.load(args)
 
 	    game.ghosts[i] = Ghost:new(	pos_index,
 								target_offset,
-								target_offset_freightned,
 								try_order,
 								fear_target,
 								fear_group,

@@ -7,7 +7,6 @@ local Ghost = {}
 function Ghost.init(Grid,
                     ghost_fitness_on,
                     ghost_target_spread,
-                    ghost_target_offset_freightned_on,
                     ghost_migration_on,
                     ghost_selective_migration_on,
                     ghost_speed, speed_boost_on,
@@ -22,7 +21,6 @@ function Ghost.init(Grid,
     Ghost.grid = Grid
     Ghost.ghost_fitness_on = ghost_fitness_on
     Ghost.ghost_target_spread = ghost_target_spread
-    Ghost.ghost_target_offset_freightned_on = ghost_target_offset_freightned_on
     Ghost.ghost_migration_on = ghost_migration_on
     Ghost.ghost_selective_migration_on = ghost_selective_migration_on
     Ghost.ghost_speed = ghost_speed
@@ -39,7 +37,6 @@ end
 
 function Ghost:new( pos_index,
                     target_offset,
-                    target_offset_freightned,
                     try_order,
                     fear_target,
                     fear_group,
@@ -62,7 +59,6 @@ function Ghost:new( pos_index,
     o.front = {}
     o:reset(pos_index,
             target_offset,
-            target_offset_freightned,
             try_order,
             fear_target,
             fear_group,
@@ -76,7 +72,6 @@ end
 
 function Ghost:reset(   pos_index,
                         target_offset,
-                        target_offset_freightned,
                         try_order,
                         fear_target,
                         fear_group,
@@ -103,7 +98,6 @@ function Ghost:reset(   pos_index,
     self.is_feared = false
 
     self.target_offset = target_offset
-    self.target_offset_freightned = target_offset_freightned
     self.fear_target = fear_target
     self.fear_group = fear_group
     self.chase_feared_gene = chase_feared_gene
@@ -250,14 +244,6 @@ function Ghost:crossover(ghosts, pills, spawn_grid_pos)
     son.target_offset = love.math.random(   -Ghost.ghost_target_spread,
                                             Ghost.ghost_target_spread)
 
-    son.target_offset_freightned = math.floor(
-        (mom.target_offset_freightned + dad.target_offset_freightned)/2
-    )
-    if (love.math.random(0, 10)<=3) then -- mutate
-        son.target_offset_freightned =  son.target_offset_freightned +
-                                        math.floor(love.math.random(-2, 2))
-    end
-
     son.try_order = {} -- we should add mutation
 
     local this_rand = love.math.random(0, 10)
@@ -302,7 +288,6 @@ function Ghost:crossover(ghosts, pills, spawn_grid_pos)
 
     self:reset( son.pos_index,
                 son.target_offset,
-                son.target_offset_freightned,
                 son.try_order,
                 son.fear_target,
                 son.fear_group,
@@ -318,7 +303,6 @@ function Ghost:reactivate(pills, spawn_grid_pos)
     local this_spawn_grid_pos = spawn_grid_pos or self.grid_pos
     Ghost:reset(self.pos_index,
                 self.target_offset,
-                self.target_offset_freightned,
                 self.try_order,
                 self.fear_target,
                 self.fear_group,
@@ -336,9 +320,6 @@ function Ghost:regen(pills, spawn_grid_pos)
 
     local target_offset = love.math.random( -Ghost.ghost_target_spread,
                                             Ghost.ghost_target_spread)
-    local target_offset_freightned = love.math.random(
-                                            -Ghost.ghost_target_spread,
-                                            Ghost.ghost_target_spread)
     -- build a valid try_order gene
     local try_order = {}
     for i=1, 4, 1 do
@@ -355,7 +336,6 @@ function Ghost:regen(pills, spawn_grid_pos)
 
     self:reset( pos_index,
                 target_offset,
-                target_offset_freightned,
                 try_order,
                 fear_target,
                 fear_group,
@@ -646,9 +626,6 @@ function Ghost:find_next_dir(target, state, average_ghost_pos)
             elseif ( state == "scattering") then
                 if(self.fear)then
                     --print("feared")
-                    if ( not Ghost.target_offset_freightned_on ) then
-                        self.target_offset_freightned = self.target_offset
-                    end
                     if( Ghost.ghost_scatter_feared_gene_on ) then
                         if(self.scatter_feared_gene == 1)then
                             self:go_home(maybe_dirs)
@@ -675,9 +652,6 @@ function Ghost:find_next_dir(target, state, average_ghost_pos)
                 end
 
             elseif ( state == "freightened") then
-                if ( not Ghost.target_offset_freightned_on ) then
-                    self.target_offset_freightned = self.target_offset
-                end
                 self:wander(maybe_dirs)
                 --ghost.run_from_target(self, target, maybe_dirs)
                 --ghost.go_home(self, maybe_dirs)

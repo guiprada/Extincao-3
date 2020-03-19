@@ -30,7 +30,6 @@ function reporter.init(grid, args)
 
     io.write("\n\nghost_genetic_on: " .. tostring(settings.ghost_genetic_on))
     io.write("\nghost_fitness_on: " .. tostring(settings.ghost_fitness_on) )
-    io.write("\nghost_target_offset_freightned_on: " .. tostring(settings.ghost_target_offset_freightned_on))
     io.write("\nghost_migration_on: " .. tostring(settings.ghost_migration_on))
     io.write("\nghost_selective_migration_on: " .. tostring(settings.ghost_selective_migration_on))
     io.write("\nghost_fear_on: " .. tostring(settings.ghost_fear_on))
