@@ -5,7 +5,7 @@ local Grid = {}
 function Grid:new(o)
 	local o = o or {}
 	setmetatable(o, self)
-    self.__index = self
+	self.__index = self
 
 	o.grid_width_n = 0
 	o.grid_height_n = 0
@@ -40,7 +40,6 @@ function Grid:reset(grid_types, grid_size, lookahead)
 end
 
 function Grid:generate_directions()
-
 	-- this matrix defines the map, it stores the tile type
 	-- there are 16 variations! so we are goig to encode then with a number between
 	-- 1 and 16 , we can get then with bits

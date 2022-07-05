@@ -12,7 +12,6 @@ local Timer = require "Timer"
 local Pill = require "Pill"
 local resizer = require "resizer"
 local settings = require "settings"
-local reporter = require "reporter"
 local shaders = require "shaders"
 local Particle = require "Particle"
 
@@ -64,8 +63,6 @@ function game.load(args)
 	game.ghost_speed = game.speed * 1
 
 	-- start subsystems
-
-	reporter.init(game.grid)
 	Player.init(game.grid, args.player_click or settings.player_click)
 	Ghost.init(	game.grid,
 				args.ghost_fitness_on or settings.ghost_fitness_on,
@@ -84,8 +81,7 @@ function game.load(args)
 				args.ghost_scatter_feared_gene_on or
 					settings.ghost_scatter_feared_gene_on,
 				game.grid_size,
-				game.lookahead,
-				reporter)
+				game.lookahead)
 	Pill.init(	game.grid,
 				args.pill_genetic_on or settings.pill_genetic_on,
 				args.pill_precise_crossover_on or
@@ -146,7 +142,7 @@ function game.load(args)
 		local chase_feared_gene = love.math.random(1, 9)
 		local scatter_feared_gene = love.math.random(1, 5)
 
-	    game.ghosts[i] = Ghost:new(	pos_index,
+		game.ghosts[i] = Ghost:new(	pos_index,
 								target_offset,
 								try_order,
 								fear_target,
@@ -157,7 +153,7 @@ function game.load(args)
 								game.pills)
 	end
 
-    -- render the game.maze_canvas
+	-- render the game.maze_canvas
 	game.maze_canvas = love.graphics.newCanvas(game.default_width, game.default_height)
 	love.graphics.setCanvas(game.maze_canvas)
 		love.graphics.clear()
@@ -214,7 +210,7 @@ function game.draw()
 
 	-- draw the game.maze_canvas
 	love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setBlendMode("alpha", "premultiplied")
+	love.graphics.setBlendMode("alpha", "premultiplied")
 	love.graphics.draw(game.maze_canvas)
 	love.graphics.setBlendMode("alpha") -- back to normal mode
 
@@ -246,11 +242,11 @@ function game.draw()
 	love.graphics.origin()
 	love.graphics.setFont(game.text_font_small)
 
-	love.graphics.setColor(1, 1, 0)
-	love.graphics.print("capturado: " .. reporter.player_catched, 10, 0)
-	love.graphics.print("resets: " .. game.resets, w/5, 0)
-	love.graphics.print("capturados: " .. reporter.ghosts_catched, 2*w/5, 0)
-	love.graphics.print("ativos: " 	.. active_ghost_counter, 3*w/5, 0)
+	-- love.graphics.setColor(1, 1, 0)
+	-- love.graphics.print("capturado: " .. reporter.player_catched, 10, 0)
+	-- love.graphics.print("resets: " .. game.resets, w/5, 0)
+	-- love.graphics.print("capturados: " .. reporter.ghosts_catched, 2*w/5, 0)
+	-- love.graphics.print("ativos: " 	.. active_ghost_counter, 3*w/5, 0)
 
 	if ( not game.player.is_active ) then
 		love.graphics.print("'enter' para ir de novo", 3*w/4 -5, 0)
@@ -328,14 +324,11 @@ function game.update(dt)
 				Pill.pills_active = true
 				game.just_restarted = false
 			elseif(game.freightened_on_restart_timer.timer < 1)then
-	            Pill.warn_sound:play()
+				Pill.warn_sound:play()
 			end
 		end
 
-		-- update reporter  frame counter
-		reporter.global_frame_counter = reporter.global_frame_counter + 1
 		local total_fitness = 0
-
 		-- update ghosts
 		for i=1, #game.ghosts, 1 do
 			local is_active_before_update = game.ghosts[i].is_active
@@ -352,7 +345,7 @@ function game.update(dt)
 			if (is_active_before_update==true and
 				game.ghosts[i].is_active == false)
 				then -- foi pego
-				reporter.report_catch(game.ghosts[i], game.ghosts)
+				-- reporter.report_catch(game.ghosts[i], game.ghosts)
 
 				if ( len_respawn ==0 ) then
 					table.insert(game.to_be_respawned, i)
@@ -420,25 +413,25 @@ function game.update(dt)
 		-- player, after game.ghosts to get player_catched
 		-- keyboard controls
 		if(love.keyboard.isDown("left") and love.keyboard.isDown("right")) then
-            --does nothing, but also does not change
-    	elseif love.keyboard.isDown("left") then
-            game.player.next_direction = "left"
-        elseif love.keyboard.isDown("right") then
-    		game.player.next_direction = "right"
-        end
+			--does nothing, but also does not change
+		elseif love.keyboard.isDown("left") then
+			game.player.next_direction = "left"
+		elseif love.keyboard.isDown("right") then
+			game.player.next_direction = "right"
+		end
 
-        if(love.keyboard.isDown("up") and love.keyboard.isDown("down")) then
-            --does nothing, but also does not change
-    	elseif love.keyboard.isDown("up") then
-    		game.player.next_direction = "up"
-        elseif love.keyboard.isDown("down") then
-    		game.player.next_direction = "down"
-    	end
+		if(love.keyboard.isDown("up") and love.keyboard.isDown("down")) then
+			--does nothing, but also does not change
+		elseif love.keyboard.isDown("up") then
+			game.player.next_direction = "up"
+		elseif love.keyboard.isDown("down") then
+			game.player.next_direction = "down"
+		end
 		game.player:update(dt)
 
 		-- check victory, should be the last thing done in this function
-		len = #game.to_be_respawned
-		if ( len == (len_ghosts -1) ) then
+		local len = #game.to_be_respawned
+		if (len == (len_ghosts -1) ) then
 			gamestate.switch("victory")
 		end
 	end
@@ -447,54 +440,52 @@ end
 --------------------------------------------------------------------------------
 
 function game.keypressed(key, scancode, isrepeat)
-   	if (key == 'space') then
-		has_shown_menu = true
-	   	if (game.paused) then game.paused = false
-	   	else game.paused = true end
-	elseif (key == "return" and
-			game.player.is_active==false and
-			(not game.paused)) then
-
-		game.ghost_state = "freightened"
-
-		game.freightened_on_restart_timer:reset()
-		game.just_restarted = true
-		Pill.pills_active = false
-		local grid_pos = {	x=settings.player_start_grid.x,
+	if (key == 'space') then
+		game.paused = not game.paused
+	elseif	(key == "return") then
+		if (game.player.is_active == false) then
+			game.ghost_state = "freightened"
+			game.freightened_on_restart_timer:reset()
+			game.just_restarted = true
+			Pill.pills_active = false
+			local grid_pos = {	x=settings.player_start_grid.x,
 							y=settings.player_start_grid.y}
-		game.player:reset(grid_pos, game.speed, game.grid_size, game.lookahead)
-   	elseif (key == "escape") then
-		reporter.stop()
+			game.player:reset(grid_pos, game.speed, game.grid_size, game.lookahead)
+		else
+			game.paused = not game.paused
+		end
+	elseif (key == "escape") then
+		-- reporter.stop()
 		gamestate.switch("menu")
-
-   	end
+	end
 end
 
 function game.unload()
-	game.text_font = nil
-	game.n_particles = nil
-	game.grid_size = nil
-	game.lookahead = nil
-	game.font_size = nil
-	game.ghost_speed = nil
-	game.speed = nil
-	game.player = nil
-	game.ghosts = nil
-	game.pills = nil
-	game.particles = nil
-	game.freightened_on_restart_timer = nil
-	game.just_restarted = nil
-	game.ghost_state = nil
-	game.paused = nil
-	game.resets = nil
-	game.to_be_respawned = nil
-	game.ghost_state_timer = nil
-	game.ghost_respawn_timer = nil
-	game.maze_canvas = nil
-	game.ghost_flip_sound = nil
-	game.pause_text = nil
-	game.font_size = nil
-	game.maze_canvas = nil
+	game = {}
+	-- game.text_font = nil
+	-- game.n_particles = nil
+	-- game.grid_size = nil
+	-- game.lookahead = nil
+	-- game.font_size = nil
+	-- game.ghost_speed = nil
+	-- game.speed = nil
+	-- game.player = nil
+	-- game.ghosts = nil
+	-- game.pills = nil
+	-- game.particles = nil
+	-- game.freightened_on_restart_timer = nil
+	-- game.just_restarted = nil
+	-- game.ghost_state = nil
+	-- game.paused = nil
+	-- game.resets = nil
+	-- game.to_be_respawned = nil
+	-- game.ghost_state_timer = nil
+	-- game.ghost_respawn_timer = nil
+	-- game.maze_canvas = nil
+	-- game.ghost_flip_sound = nil
+	-- game.pause_text = nil
+	-- game.font_size = nil
+	-- game.maze_canvas = nil
 end
 
-return  game
+return game

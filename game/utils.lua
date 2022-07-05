@@ -27,14 +27,14 @@ function utils.array_append(t1, t2)
 end
 
 function utils.check_collision(x1,y1,w1,h1, x2,y2,w2,h2)
-  return x1 < x2+w2 and
-         x2 < x1+w1 and
-         y1 < y2+h2 and
-         y2 < y1+h1
+	return	x1 < x2+w2 and
+		 	x2 < x1+w1 and
+		 	y1 < y2+h2 and
+		 	y2 < y1+h1
 end
 
 function utils.dist(p1, p2)
-    return ( (p1.x - p2.x)^2 + (p1.y - p2.y)^2 )^0.5
+	return ((p1.x - p2.x)^2 + (p1.y - p2.y)^2 )^0.5
 end
 
 function utils.array_shuffler(array)
@@ -44,7 +44,7 @@ function utils.array_shuffler(array)
 	end
 end
 
-function utils.average( tables, indexer)
+function utils.average(tables, indexer)
 	-- returns the average of parameter indexer of a list of tables
 	local lenght = #tables
 	local average = 0
@@ -65,7 +65,7 @@ function utils.std_deviation(tables, indexer)
 	return std_dev
 end
 
-function utils.get_highest( tables, indexer)
+function utils.get_highest(tables, indexer)
 	local lenght = #tables
 	local highest = 1
 	for i=1, lenght, 1 do
@@ -76,7 +76,7 @@ function utils.get_highest( tables, indexer)
 	return tables[highest]
 end
 
-function utils.get_lowest( tables, indexer)
+function utils.get_lowest(tables, indexer)
 	local lenght = #tables
 	local lowest = 1
 	for i=1, lenght, 1 do
@@ -87,7 +87,7 @@ function utils.get_lowest( tables, indexer)
 	return tables[lowest]
 end
 
-function utils.get_highest_index( tables, indexer)
+function utils.get_highest_index(tables, indexer)
 	local lenght = #tables
 	local highest = 1
 	for i=1, lenght, 1 do
@@ -98,19 +98,12 @@ function utils.get_highest_index( tables, indexer)
 	return highest
 end
 
-function utils.remove_key( table, key)
-	for i=1,#table, 1 do
-		if (table[i]== key) then
-			table.remove(tables, i)
-		end
-	end
-end
-
-function utils.get_n_best( tables, indexer, n)
+function utils.get_n_best(tables, indexer, n)
 	local copy = {}
 	for i=1, #tables, 1 do
 		copy[i]= tables[i]
 	end
+
 	local highest_stack = {}
 
 	local limit = 3
@@ -120,7 +113,7 @@ function utils.get_n_best( tables, indexer, n)
 	for i=1, limit, 1 do
 		local new_top_index = utils.get_highest_index(copy, indexer)
 		table.insert(highest_stack, tables[new_top_index])
-		table.remove(copy, index)
+		table.remove(copy, new_top_index)
 	end
 	return highest_stack
 end

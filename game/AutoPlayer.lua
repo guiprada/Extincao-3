@@ -1,16 +1,16 @@
--- Guilherme Cunha Prada 2020
+-- Guilherme Cunha Prada 2022
 local GridActor = require "GridActor"
-local Player = GridActor:new()
+local AutoPlayer = GridActor:new()
 
-function Player.init(grid, player_click)
+function AutoPlayer.init(grid, AutoPlayer_click)
 	GridActor.init(grid)
 
-	Player.plip_sound = player_click
-	Player.plip_sound:setVolume(0.3)
-	Player.plip_sound:setPitch(0.9)
+	AutoPlayer.plip_sound = AutoPlayer_click
+	AutoPlayer.plip_sound:setVolume(0.3)
+	AutoPlayer.plip_sound:setPitch(0.9)
 end
 
-function Player:new(o)
+function AutoPlayer:new(o)
 	local o = GridActor:new(o or {})
 	setmetatable(o, self)
 	self.__index = self
@@ -21,11 +21,12 @@ function Player:new(o)
 	o.relay_x = 0
 	o.relay_y = 0
 	o.relay_times = 3 -- controls how many gameloops it takes to relay
+	o.nn = {}
 
 	return o
 end
 
-function Player:reset(grid_pos, speed)
+function AutoPlayer:reset(grid_pos, speed)
 	GridActor.reset(self, grid_pos, speed)
 
 	self.relay_x_counter = 0
@@ -35,10 +36,10 @@ function Player:reset(grid_pos, speed)
 	self.relay_times = 3 -- controls how many gameloops it takes to relay
 end
 
-function Player:draw()
-	--player body :)
+function AutoPlayer:draw()
+	--AutoPlayer body :)
 	if (self.is_active) then
-		love.graphics.setColor(1, 1, 0)
+		love.graphics.setColor(0.8, 0.8, 0)
 		love.graphics.circle(	"fill",
 								self.x,
 								self.y,
@@ -57,26 +58,8 @@ function Player:draw()
 	end
 end
 
-function Player:update(dt)
-	if (self.is_active) then
-		GridActor.update(self,dt)
-		-- relays mov for cornering
-		if self.relay_x_counter >= 1 then
-			self.x = self.x - self.relay_x/self.relay_times
-			self.relay_x_counter = self.relay_x_counter -1
-			if self.relay_x_counter == 0 then self:center_on_grid_x() end
-		end
+function AutoPlayer:update(dt)
 
-		if self.relay_y_counter >= 1 then
-			self.y = self.y - self.relay_y/self.relay_times
-			self.relay_y_counter = self.relay_y_counter -1
-			if self.relay_y_counter == 0 then self:center_on_grid_y() end
-		end
-
-		if self.changed_tile == true then
-			Player.plip_sound:play()
-		end
-	end
 end
 
-return Player
+return AutoPlayer

@@ -11,8 +11,8 @@ local PARTICLE_MAX_SIZE = 5
 
 function Particle:new(camera, o)
 	local o = o or {}
-    setmetatable(o, self)
-    self.__index = self
+	setmetatable(o, self)
+	self.__index = self
 
 	o.max_size = love.math.random(1,PARTICLE_MAX_SIZE)
 
