@@ -1,6 +1,8 @@
+
 -- Guilherme Cunha Prada 2020
 
 local Particle = {}
+local random = require "random"
 
 local width = love.graphics.getWidth()
 local height = love.graphics.getHeight()
@@ -14,7 +16,7 @@ function Particle:new(camera, o)
 	setmetatable(o, self)
 	self.__index = self
 
-	o.max_size = love.math.random(1,PARTICLE_MAX_SIZE)
+	o.max_size = random.random(1,PARTICLE_MAX_SIZE)
 
 	o.camera = camera or nil -- it can be nil
 
@@ -23,7 +25,7 @@ function Particle:new(camera, o)
 end
 
 function Particle:reset()
-	self.timer = love.math.random(PARTICLE_MIN_DURATION, PARTICLE_MAX_DURATION)
+	self.timer = random.random(PARTICLE_MIN_DURATION, PARTICLE_MAX_DURATION)
 	self.max_timer = self.timer
 
 	local drift_x = 0
@@ -32,12 +34,12 @@ function Particle:reset()
 		drift_x = -self.camera.x
 	end
 
-	self.x = drift_x + love.math.random( 1, width)
-	self.y =  love.math.random(1, height)
+	self.x = drift_x + random.random( 1, width)
+	self.y =  random.random(1, height)
 
-	self.color_r = love.math.random()
-	self.color_g = love.math.random()
-	self.color_b = love.math.random()
+	self.color_r = random.random()
+	self.color_g = random.random()
+	self.color_b = random.random()
 	self.color_a = 1
 end
 

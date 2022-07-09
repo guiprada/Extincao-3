@@ -8,12 +8,14 @@ local utils = require "utils"
 local Grid = require "Grid"
 local Ghost = require "Ghost"
 local Player = require "Player"
+local AutoPlayer = require "AutoPlayer"
 local Timer = require "Timer"
 local Pill = require "Pill"
 local resizer = require "resizer"
 local settings = require "settings"
 local shaders = require "shaders"
 local Particle = require "Particle"
+local random = require "random"
 
 -----------------------------------------------------------------------callbacks
 function game.load(args)
@@ -42,8 +44,7 @@ function game.load(args)
 											Grid.get_height(args.grid_types))
 
 	game.grid = Grid:new()
-	game.grid:reset(args.grid_types, game.grid_size, game.grid_size/2)	-- if args.grid_types == null
-	 									-- it will use grid.defalt_map
+	game.grid:reset(args.grid_types, game.grid_size, game.grid_size/2)	-- if args.grid_types == null it defaults to grid.defalt_map
 
 	-- registering fonts
 	game.font_size = args.font_size or settings.font_size
@@ -100,6 +101,10 @@ function game.load(args)
 	game.player = Player:new()
 	game.player:reset(grid_pos, game.speed)
 
+	--start bot
+	game.bot = AutoPlayer:new()
+	game.bot:reset(grid_pos, game.speed)
+
 
 	-- create freightened on restart timer, it is not a pill
 	game.freightened_on_restart_timer = Timer:new(	args.restart_pill_time or
@@ -110,7 +115,7 @@ function game.load(args)
 	game.pills = {}
 	local n_pills = args.n_pills or settings.n_pills
 	for i=1, n_pills, 1 do
-		local rand = love.math.random(1, #game.grid.valid_pos)
+		local rand = random.random(1, #game.grid.valid_pos)
 		game.pills[i] = Pill:new(rand, settings.pill_time)
 	end
 
@@ -123,9 +128,9 @@ function game.load(args)
 	game.ghosts = {}
 	for i=1, n_ghosts,1 do
 		-- find a valid position
-		local pos_index = love.math.random(1, #game.grid.valid_pos)
+		local pos_index = random.random(1, #game.grid.valid_pos)
 
-		local target_offset = love.math.random(	-settings.ghost_target_spread,
+		local target_offset = random.random(	-settings.ghost_target_spread,
 												settings.ghost_target_spread)
 
 		-- build a valid try_order gene
@@ -136,11 +141,11 @@ function game.load(args)
 		utils.array_shuffler(try_order)
 
 		-- creates fear genes
-		local fear_target = love.math.random(0, settings.ghost_fear_spread)
-		local fear_group = love.math.random(0, settings.ghost_fear_spread)
+		local fear_target = random.random(0, settings.ghost_fear_spread)
+		local fear_group = random.random(0, settings.ghost_fear_spread)
 
-		local chase_feared_gene = love.math.random(1, 9)
-		local scatter_feared_gene = love.math.random(1, 5)
+		local chase_feared_gene = random.random(1, 9)
+		local scatter_feared_gene = random.random(1, 5)
 
 		game.ghosts[i] = Ghost:new(	pos_index,
 								target_offset,
@@ -236,6 +241,9 @@ function game.draw()
 	love.graphics.setShader()
 	game.player:draw()
 
+	-- draw bot
+	game.bot:draw()
+
 	-- hud
 
 	--reset scale and translate
@@ -275,9 +283,10 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 function game.update(dt)
+	random.seed()
 	-- dt should not be to high
 	if (dt > 0.06 ) then
-	print("ops, dt too high, physics wont work, skipping  dt= " .. dt)
+		print("ops, dt too high, physics wont work, skipping  dt= " .. dt)
 	end
 
 	local len_respawn =  #game.to_be_respawned
@@ -330,11 +339,12 @@ function game.update(dt)
 
 		local total_fitness = 0
 		-- update ghosts
+		local targets = {game.player, game.bot}
 		for i=1, #game.ghosts, 1 do
 			local is_active_before_update = game.ghosts[i].is_active
 
 				game.ghosts[i]:update(
-							game.player,
+							targets,
 							game.pills,
 							average_ghost_pos,
 							dt,
@@ -369,7 +379,7 @@ function game.update(dt)
 				else
 					-- find spawning position
 					local spawn_grid_pos = {}
-					if ( game.player.grid_pos.x > (grid.grid_width_n/2) ) then
+					if ( game.player.grid_pos.x > (game.grid.grid_width_n/2) ) then
 						spawn_grid_pos = {x=7, y= 21}
 					else
 						spawn_grid_pos = {x=50, y= 21}
@@ -429,6 +439,9 @@ function game.update(dt)
 		end
 		game.player:update(dt)
 
+		-- bot
+		game.bot:update(dt)
+
 		-- check victory, should be the last thing done in this function
 		local len = #game.to_be_respawned
 		if (len == (len_ghosts -1) ) then
@@ -457,6 +470,10 @@ function game.keypressed(key, scancode, isrepeat)
 	elseif (key == "escape") then
 		-- reporter.stop()
 		gamestate.switch("menu")
+	elseif (key == "m") then
+		love.audio.setVolume(0)
+	elseif (key == "u") then
+		love.audio.setVolume(1)
 	end
 end
 

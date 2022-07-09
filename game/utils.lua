@@ -1,6 +1,8 @@
--- Guilherme Cunha Prada 2020
+-- Guilherme Cunha Prada 2020 - 2022
 
 local utils = {}
+
+local random = require "random"
 
 function utils.teste()
 	print "tested .. sure"
@@ -33,13 +35,13 @@ function utils.check_collision(x1,y1,w1,h1, x2,y2,w2,h2)
 		 	y2 < y1+h1
 end
 
-function utils.dist(p1, p2)
+function utils.distance(p1, p2)
 	return ((p1.x - p2.x)^2 + (p1.y - p2.y)^2 )^0.5
 end
 
 function utils.array_shuffler(array)
 	for i=1,#array, 1 do
-		local j = love.math.random(1, #array)
+		local j = random.random(1, #array)
 		array[i], array[j] = array[j], array[i]
 	end
 end

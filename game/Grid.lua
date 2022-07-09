@@ -28,7 +28,7 @@ function Grid.get_height(grid_types)
 end
 
 function Grid:reset(grid_types, grid_size, lookahead)
-	self.grid_types = grid_types or grid.defalt_map
+	self.grid_types = grid_types or Grid.defalt_map
 
 	self.grid_width_n = #self.grid_types[1]
 	self.grid_height_n = #self.grid_types
@@ -171,8 +171,17 @@ function Grid:is_grid_wall(pos)
 end
 
 function Grid:is_grid_way(x, y)
+	print(x, y, self.grid_types[y])
 	if 	self.grid_types[y][x] ~= 16 and
 		self.grid_types[y][x] ~= 0 then return true end
+	return false
+end
+
+function Grid:is_grid_way_absolute(x, y)
+	local grid_pos = self:get_grid_pos({x = x, y = y})
+
+	if 	self.grid_types[grid_pos.y][grid_pos.x] ~= 16 and
+		self.grid_types[grid_pos.y][grid_pos.x] ~= 0 then return true end
 	return false
 end
 

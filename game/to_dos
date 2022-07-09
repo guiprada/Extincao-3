@@ -1,3 +1,10 @@
+------------------------------ NEW todo
+- Autoplayer Collisions
+- Autoplyer population
+- NN test suite
+- utils.lua tests
+- Refactor utils.lua
+
 ------------------------------ todo
 
 - Create a GridCollider Class to be responsible for collision detection

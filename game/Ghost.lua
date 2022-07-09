@@ -1,6 +1,7 @@
 -- Guilherme Cunha Prada 2019
 
 local utils = require "utils"
+local random = require "random"
 
 local Ghost = {}
 
@@ -175,11 +176,11 @@ function Ghost.selection(in_table)
 		local best_stack = utils.get_n_best(living_stack,
 											"fitness",
 											math.ceil(#living_stack/2))
-		mom = best_stack[love.math.random(1, #best_stack)]
-		dad = living_stack[love.math.random(1, #living_stack)]
+		mom = best_stack[random.random(1, #best_stack)]
+		dad = living_stack[random.random(1, #living_stack)]
 	else
-		mom = living_stack[love.math.random(1, #living_stack)]
-		dad = living_stack[love.math.random(1, #living_stack)]
+		mom = living_stack[random.random(1, #living_stack)]
+		dad = living_stack[random.random(1, #living_stack)]
 	end
 
 	return mom, dad
@@ -192,29 +193,29 @@ function Ghost:crossover(ghosts, pills, spawn_grid_pos)
 
 	local son = {}
 	son.fear_target =  math.floor(
-		(mom.fear_target + dad.fear_target)/2 + love.math.random(-5, 5)
+		(mom.fear_target + dad.fear_target)/2 + random.random(-5, 5)
 	)
 	son.fear_group = math.floor(
-		(mom.fear_group + dad.fear_group)/2 + love.math.random(-5, 5)
+		(mom.fear_group + dad.fear_group)/2 + random.random(-5, 5)
 	)
 
-	if(son.fear_target > 50)then
+	if (son.fear_target > 50) then
 		son.fear_target = 50
-	elseif(son.fear_target < 0)then
+	elseif (son.fear_target < 0) then
 		son.fear_target = 0
 	end
 
-	if(son.fear_group > 50)then
+	if (son.fear_group > 50) then
 		son.fear_group = 50
-	elseif(son.fear_group < 0)then
+	elseif (son.fear_group < 0) then
 		son.fear_group = 0
 	end
 
 	local this_spawn_grid_pos = {}
-	local this_direction = ""
-	if (spawn_grid_pos) then
+	local this_direction
+	if spawn_grid_pos then
 		this_spawn_grid_pos = spawn_grid_pos
-		this_direction = nil
+		this_direction = random.choose("up", "down", "left", "right")
 	else -- nasce com a mae
 		this_spawn_grid_pos.x = mom.grid_pos.x
 		this_spawn_grid_pos.y = mom.grid_pos.y
@@ -222,8 +223,8 @@ function Ghost:crossover(ghosts, pills, spawn_grid_pos)
 	end
 
 	son.pos_index = math.floor((mom.pos_index + dad.pos_index)/2)
-	if (love.math.random(0, 10)<=9) then -- mutate
-		son.pos_index = son.pos_index + math.floor(love.math.random(-50, 50))
+	if (random.random(0, 10) <= 9) then -- mutate
+		son.pos_index = son.pos_index + math.floor(random.random(-50, 50))
 		if (son.pos_index < 1) then
 			son.pos_index = 1
 		elseif (son.pos_index > #Ghost.grid.valid_pos) then
@@ -234,17 +235,17 @@ function Ghost:crossover(ghosts, pills, spawn_grid_pos)
 
 	son.target_offset = math.floor((mom.target_offset + dad.target_offset)/2)
 
-	if (love.math.random(0, 10)<=3) then -- mutate
+	if (random.random(0, 10)<=3) then -- mutate
 		son.target_offset = son.target_offset +
-							math.floor(love.math.random(-2, 2))
+							math.floor(random.random(-2, 2))
 	end
 
-	son.target_offset = love.math.random(   -Ghost.ghost_target_spread,
+	son.target_offset = random.random(   -Ghost.ghost_target_spread,
 											Ghost.ghost_target_spread)
 
 	son.try_order = {} -- we should add mutation
 
-	local this_rand = love.math.random(0, 10)
+	local this_rand = random.random(0, 10)
 	if ( this_rand<=3) then
 		--print("mom")
 		for i= 1, #mom.try_order, 1 do
@@ -266,22 +267,22 @@ function Ghost:crossover(ghosts, pills, spawn_grid_pos)
 		utils.array_shuffler(son.try_order)
 	end
 
-	this_rand =  love.math.random(0, 10)
+	this_rand =  random.random(0, 10)
 	if ( this_rand<=4) then
 		son.chase_feared_gene = mom.chase_feared_gene
 	elseif ( this_rand<=8) then
 		son.chase_feared_gene = dad.chase_feared_gene
 	else
-		son.chase_feared_gene = love.math.random(1, 9)
+		son.chase_feared_gene = random.random(1, 9)
 	end
 
-	this_rand =  love.math.random(0, 10)
+	this_rand =  random.random(0, 10)
 	if ( this_rand<=4) then
 		son.scatter_feared_gene = mom.scatter_feared_gene
 	elseif ( this_rand<=8) then
 		son.scatter_feared_gene = dad.scatter_feared_gene
 	else
-		son.scatter_feared_gene = love.math.random(1, 5)
+		son.scatter_feared_gene = random.random(1, 5)
 	end
 
 	self:reset( son.pos_index,
@@ -314,9 +315,9 @@ end
 function Ghost:regen(pills, spawn_grid_pos)
 	local this_spawn_grid_pos = spawn_grid_pos or self.grid_pos
 
-	local pos_index = love.math.random(1, #Ghost.grid.valid_pos)
+	local pos_index = random.random(1, #Ghost.grid.valid_pos)
 
-	local target_offset = love.math.random( -Ghost.ghost_target_spread,
+	local target_offset = random.random( -Ghost.ghost_target_spread,
 											Ghost.ghost_target_spread)
 	-- build a valid try_order gene
 	local try_order = {}
@@ -325,11 +326,11 @@ function Ghost:regen(pills, spawn_grid_pos)
 	end
 	utils.array_shuffler(try_order)
 
-	local fear_target = love.math.random(0, ghost_fear_spread)
-	local fear_group = love.math.random(0, ghost_fear_spread)
+	local fear_target = random.random(0, ghost_fear_spread)
+	local fear_group = random.random(0, ghost_fear_spread)
 
-	local chase_feared_gene = love.math.random(1, 9)
-	local scatter_feared_gene = love.math.random(1, 5)
+	local chase_feared_gene = random.random(1, 9)
+	local scatter_feared_gene = random.random(1, 5)
 
 
 	self:reset( pos_index,
@@ -345,7 +346,7 @@ function Ghost:regen(pills, spawn_grid_pos)
 end
 
 function Ghost:draw(state)
-	if ( self.is_active ) then
+	if self.is_active then
 		if(self.target_offset <= 0)then
 			if (self.target_offset == -1) then
 				love.graphics.setColor( 0.2, 0.5, 0.8)
@@ -396,7 +397,7 @@ function Ghost:draw(state)
 								Ghost.grid_size/4)
 		--love.graphics.circle("fill", self.x, self.y, grid_size/6)
 
-		if ( self.is_feared ) then
+		if self.is_feared then
 			love.graphics.setColor(1, 0, 0)
 			love.graphics.circle("fill", midle.x, midle.y, Ghost.grid_size/5)
 			--love.graphics.line(self.x, self.y, self.front.x, self.front.y)
@@ -404,7 +405,7 @@ function Ghost:draw(state)
 	end
 end
 
-function Ghost:update(target, pills, average_ghost_pos, dt, state)
+function Ghost:update(targets, pills, average_ghost_pos, dt, state)
 	--print(value.fear_group)
 	if (self.is_active) then
 		self.n_updates = self.n_updates + 1
@@ -412,39 +413,53 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
 
 		-- updates average distance to player and group,
 		-- it is used for collision
-		self.dist_to_target = utils.dist(target, self)
-		self.dist_to_group = utils.dist(average_ghost_pos, self)
+		local target = targets[1]
+		local target_distance = utils.distance(target, self)
+		for i = 2, #targets do
+			if target.is_active then
+				local this_target = targets[i]
+				local this_target_distance = utils.distance(target, self)
+				if (this_target_distance < target_distance) then
+					target = this_target
+					target_distance = this_target_distance
+				end
+			end
+		end
+		self.dist_to_target = utils.distance(target, self)
+		self.dist_to_group = utils.distance(average_ghost_pos, self)
 
 		self.front = Ghost.grid:get_dynamic_front(self)
 
 		self.is_feared = false
-		if( Ghost.ghost_fear_on) then
+		if  (Ghost.ghost_fear_on) then
 			if (self.dist_to_target < self.fear_target*Ghost.grid_size  and
 				self.dist_to_group > self.fear_group*Ghost.grid_size
 				--dist_to_home > 10*ghost.grid_size
 				--self.direction == "idle"
-				)then
+				) then
 				self.is_feared = true
 			end
 		end
 
 		local this_grid_pos = Ghost.grid:get_grid_pos(self)
 
-		--check collision with target
-		--print(target.is_active)
-		if (target.is_active == true) then
-			if (self.dist_to_target < Ghost.lookahead) then --colidiu
-				if (state~="freightened") then
-					--print("you loose, my target is: " .. self.target_offset)
-					-- Ghost.reporter.report_catched(self.target_offset)
+		--check collision with targets
+		for i = 1, #targets do
+			local target = targets[i]
+			if (target.is_active == true) then
+				if (utils.distance(self, target) < Ghost.lookahead) then --colidiu
+					if (state~="freightened") then
+						--print("you loose, my target is: " .. self.target_offset)
+						-- Ghost.reporter.report_catched(self.target_offset)
 
-					if(Ghost.speed_boost_on) then
-						self.speed_boost = self.speed_boost  + 0.1*Ghost.grid_size
+						if(Ghost.speed_boost_on) then
+							self.speed_boost = self.speed_boost  + 0.1*Ghost.grid_size
+						end
+						self.n_catches = self.n_catches + 1
+						target.is_active = false
+					else
+						self.is_active = false
 					end
-					self.n_catches = self.n_catches + 1
-					target.is_active = false
-				else
-					self.is_active = false
 				end
 			end
 		end
@@ -452,17 +467,17 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
 		--check collision with pills
 		self.dist_to_closest_pill =  10000*Ghost.grid_size
 		self.grid_pos_closest_pill = {}
-		-- self.grid_pos_closest_pill.x = pills[1].grid_pos.x
-		-- self.grid_pos_closest_pill.y = pills[1].grid_pos.y
+		self.grid_pos_closest_pill_index = 1
 
 		--- pills
 		for i=1, #pills, 1 do
-			if (self.dist_to_closest_pill > utils.dist(pills[i], self) and
+			if (self.dist_to_closest_pill > utils.distance(pills[i], self) and
 				pills[i].is_active) then
 
-				self.dist_to_closest_pill = utils.dist(pills[i], self)
+				self.dist_to_closest_pill = utils.distance(pills[i], self)
 				self.grid_pos_closest_pill.x = pills[i].grid_pos.x
 				self.grid_pos_closest_pill.y = pills[i].grid_pos.y
+				self.grid_pos_closest_pill_index = i
 			end
 			local coliding =    (self.grid_pos.x == pills[i].grid_pos.x) and
 								(self.grid_pos.y == pills[i].grid_pos.y)
@@ -483,18 +498,21 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
 				self.pill_debounce[i] = false
 			end
 		end
-		if ( Ghost.ghost_migration_on ) then
-			if (ghost_selective_migration_on ) then
+
+		local reset_home_pill = false
+		if Ghost.ghost_migration_on then
+			if Ghost.ghost_selective_migration_on then
 				if(pills[ self.home_pill_index ].is_active == false) then
-					self.home.x = self.grid_pos_closest_pill.x
-					self.home.y = self.grid_pos_closest_pill.y
-					self.home_pill_index = i
+					reset_home_pill = true
 				end-- else maintain home
 			else
-				self.home.x = self.grid_pos_closest_pill.x
-				self.home.y = self.grid_pos_closest_pill.y
-				self.home_pill_index = i
+				reset_home_pill = true
 			end
+		end
+		if reset_home_pill then
+			self.home.x = self.grid_pos_closest_pill.x
+			self.home.y = self.grid_pos_closest_pill.y
+			self.home_pill_index = self.grid_pos_closest_pill_index
 		end
 
 		-- check collision with wall
@@ -514,7 +532,7 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
 		end
 
 		--on tile center, or close
-		local dist_grid_center = utils.dist( Ghost.grid:get_grid_center(self.grid_pos), self)
+		local dist_grid_center = utils.distance( Ghost.grid:get_grid_center(self.grid_pos), self)
 		if (dist_grid_center < Ghost.lookahead/8) then
 			if ( self.direction == "up" or self.direction== "down") then
 				Ghost.grid:center_on_grid_x(self)
@@ -745,7 +763,7 @@ end
 
 function Ghost:wander(maybe_dirs)
 	local destination = {}
-	local rand_grid = love.math.random(1, #Ghost.grid.valid_pos )
+	local rand_grid = random.random(1, #Ghost.grid.valid_pos )
 	local this_grid_pos = Ghost.grid.valid_pos[rand_grid]
 
 	destination.x = this_grid_pos.x
@@ -810,7 +828,7 @@ function Ghost:get_closest(maybe_dirs, destination)
 	local shortest = 1
 	--print(destination.x)
 	for i=1, #maybe_dirs, 1 do
-		maybe_dirs[i].dist = utils.dist(maybe_dirs[i], destination)
+		maybe_dirs[i].dist = utils.distance(maybe_dirs[i], destination)
 		if ( maybe_dirs[i].dist < maybe_dirs[shortest].dist ) then
 			shortest = i
 			--print(#maybe_dirs)
@@ -822,7 +840,7 @@ end
 function Ghost:get_furthest(maybe_dirs, destination)
 	local furthest = 1
 	for i=1, #maybe_dirs, 1 do
-		maybe_dirs[i].dist = utils.dist(maybe_dirs[i], destination)
+		maybe_dirs[i].dist = utils.distance(maybe_dirs[i], destination)
 		if ( maybe_dirs[i].dist > maybe_dirs[furthest].dist ) then
 			furthest = i
 		end
