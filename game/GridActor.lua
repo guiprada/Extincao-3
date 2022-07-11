@@ -34,6 +34,8 @@ function GridActor:new(o)
 	o.front.x = 0
 	o.front.y = 0
 
+	o.type = 0
+
 	return o
 end
 
@@ -72,7 +74,7 @@ function GridActor:update(dt)
 	--speed*dt, which is the distance travelled cant be bigger than the tile
 	--grid_size*1.5 or the physics wont work
 	if self.speed*dt > GridActor.grid.grid_size*1.5 then
-		print("physics sanity check failed, Player speed > grid_size")
+		print("physics sanity check failed, Actor speed > grid_size")
 		love.event.quit(0)
 	end
 
@@ -90,7 +92,7 @@ function GridActor:update(dt)
 
 		-- update o info
 		self.front = self:get_dynamic_front()
-		self.grid_pos = self:get_grid_pos()
+		self.grid_pos = self:get_grid_pos_absolute()
 
 		--on change tile
 		if  self.grid_pos.x ~= self.last_grid_pos.x or
@@ -138,6 +140,19 @@ function GridActor:update(dt)
 			self.next_direction = "idle"
 			GridActor.grid:center_on_grid(self)
 		end
+
+		-- relays mov for cornering
+		if self.relay_x_counter >= 1 then
+			self.x = self.x - self.relay_x/self.relay_times
+			self.relay_x_counter = self.relay_x_counter -1
+			if self.relay_x_counter == 0 then self:center_on_grid_x() end
+		end
+
+		if self.relay_y_counter >= 1 then
+			self.y = self.y - self.relay_y/self.relay_times
+			self.relay_y_counter = self.relay_y_counter -1
+			if self.relay_y_counter == 0 then self:center_on_grid_y() end
+		end
 	end
 end
 
@@ -177,12 +192,12 @@ function GridActor:get_dynamic_front()
 	return point
 end
 
-function GridActor:get_grid_pos()
-	return GridActor.grid:get_grid_pos(self)
+function GridActor:get_grid_pos_absolute()
+	return GridActor.grid:get_grid_pos_absolute(self)
 end
 
 function GridActor:get_front_grid()
-	return GridActor.grid:get_grid_pos(self.front)
+	return GridActor.grid:get_grid_pos_absolute(self.front)
 end
 
 function GridActor:get_enabled_directions()

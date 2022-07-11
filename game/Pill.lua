@@ -47,9 +47,9 @@ function Pill:reset(grid_pos)
 
 	local this_pos = Pill.grid:get_grid_center(self.grid_pos)
 	self.x = this_pos.x +
-		random.random(-Pill.grid.grid_size*0.17, Pill.grid.grid_size*0.17)
+		random.random(math.ceil(-Pill.grid.grid_size * 0.17), math.ceil(Pill.grid.grid_size * 0.17))
 	self.y = this_pos.y +
-		random.random(-Pill.grid.grid_size*0.17, Pill.grid.grid_size*0.17)
+		random.random(math.ceil(-Pill.grid.grid_size * 0.17), math.ceil(Pill.grid.grid_size * 0.17))
 	self.is_active = true
 end
 
@@ -71,8 +71,8 @@ function Pill:update(pills, target, dt)
 		elseif(self.timer.timer < 1)then
 			Pill.warn_sound:play()
 		end
-	elseif (    (Pill.pills_active) and -- if pills are active
-				(target.is_active)) then -- and the player is active
+	elseif	((Pill.pills_active) and -- if pills are active
+			(target.is_active)) then -- and the player is active
 		local dist_to_player = utils.distance(self, target)
 		if ( dist_to_player < Pill.grid.lookahead) then -- check collision
 			self.is_active = false  -- if yes, activate pill effect
@@ -103,7 +103,7 @@ function Pill:crossover(pills)
 	if (Pill.pill_precise_crossover_on) then
 		son.x = math.floor((mom.x + dad.x)/2) --+ random.random(1, 8)j
 		son.y = math.floor((mom.y + dad.y)/2) --+ random.random(1, 8)
-		local temp_grid_pos = pills.grid.get_grid_pos(son)
+		local temp_grid_pos = pills.grid.get_grid_pos_absolute(son)
 
 		son.grid_pos = {}
 		son.pos_index = {}
@@ -121,31 +121,32 @@ function Pill:crossover(pills)
 		end
 
 		-- find a valid position to spawn
-		if(Pill.grid.is_grid_way(temp_grid_pos.x, temp_grid_pos.y)) then
+		local temp_pos = {x = temp_grid_pos.x, y = temp_grid_pos.y}
+		if(Pill.grid.is_grid_way(temp_pos)) then
 			son.grid_pos.x = temp_grid_pos.x
 			son.grid_pos.y = temp_grid_pos.y
-		elseif(Pill.grid.is_grid_way(temp_grid_pos.x -1, temp_grid_pos.y)) then
+		elseif(Pill.grid.is_grid_way(temp_pos)) then
 			son.grid_pos.x = temp_grid_pos.x - 1
 			son.grid_pos.y = temp_grid_pos.y
-		elseif(Pill.grid.is_grid_way(temp_grid_pos.x +1, temp_grid_pos.y)) then
+		elseif(Pill.grid.is_grid_way(temp_pos)) then
 			son.grid_pos.x = temp_grid_pos.x + 1
 			son.grid_pos.y = temp_grid_pos.y
-		elseif(Pill.grid.is_grid_way(temp_grid_pos.x, temp_grid_pos.y -1)) then
+		elseif(Pill.grid.is_grid_way(temp_pos)) then
 			son.grid_pos.x = temp_grid_pos.x
 			son.grid_pos.y = temp_grid_pos.y - 1
-		elseif(Pill.grid.is_grid_way(temp_grid_pos.x, temp_grid_pos.y +1)) then
+		elseif(Pill.grid.is_grid_way(temp_pos)) then
 			son.grid_pos.x = temp_grid_pos.x
 			son.grid_pos.y = temp_grid_pos.y + 1
-		elseif(Pill.grid.is_grid_way(temp_grid_pos.x -1, temp_grid_pos.y -1)) then
+		elseif(Pill.grid.is_grid_way(temp_pos)) then
 			son.grid_pos.x = temp_grid_pos.x - 1
 			son.grid_pos.y = temp_grid_pos.y - 1
-		elseif(Pill.grid.is_grid_way(temp_grid_pos.x +1, temp_grid_pos.y + 1)) then
+		elseif(Pill.grid.is_grid_way(temp_pos)) then
 			son.grid_pos.x = temp_grid_pos.x + 1
 			son.grid_pos.y = temp_grid_pos.y + 1
-		elseif(Pill.grid.is_grid_way(temp_grid_pos.x +1, temp_grid_pos.y -1)) then
+		elseif(Pill.grid.is_grid_way(temp_pos)) then
 			son.grid_pos.x = temp_grid_pos.x + 1
 			son.grid_pos.y = temp_grid_pos.y - 1
-		elseif(Pill.grid.is_grid_way(temp_grid_pos.x -1, temp_grid_pos.y +1)) then
+		elseif(Pill.grid.is_grid_way(temp_pos)) then
 			son.grid_pos.x = temp_grid_pos.x - 1
 			son.grid_pos.y = temp_grid_pos.y + 1
 		else
@@ -153,7 +154,6 @@ function Pill:crossover(pills)
 			local this_grid_pos = Pill.grid.valid_pos[this_pos_index]
 			son.grid_pos.x = this_grid_pos.x
 			son.grid_pos.y = this_grid_pos.y
-			--print("error")
 		end
 	else
 		son.pos_index = math.floor((mom.pos_index + dad.pos_index)/2)

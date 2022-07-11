@@ -441,7 +441,7 @@ function Ghost:update(targets, pills, average_ghost_pos, dt, state)
 			end
 		end
 
-		local this_grid_pos = Ghost.grid:get_grid_pos(self)
+		local this_grid_pos = Ghost.grid:get_grid_pos_absolute(self)
 
 		--check collision with targets
 		for i = 1, #targets do
@@ -516,7 +516,7 @@ function Ghost:update(targets, pills, average_ghost_pos, dt, state)
 		end
 
 		-- check collision with wall
-		local front_grid_pos = Ghost.grid:get_grid_pos(self.front)
+		local front_grid_pos = Ghost.grid:get_grid_pos_absolute(self.front)
 		if(Ghost.grid:is_grid_wall(front_grid_pos)) then
 			self.direction = "idle"
 			self.next_direction = "idle"
@@ -781,7 +781,7 @@ function Ghost:go_home(maybe_dirs)
 end
 
 function Ghost:go_to_group(maybe_dirs, average_ghost_pos)
-	local this_grid_pos = Ghost.grid:get_grid_pos(average_ghost_pos)
+	local this_grid_pos = Ghost.grid:get_grid_pos_absolute(average_ghost_pos)
 
 	local destination = {}
 	destination.x =  this_grid_pos.x

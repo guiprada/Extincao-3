@@ -1,4 +1,6 @@
 ------------------------------ NEW todo
+- Grid based collision
+- Ghost based on GridActon
 - Autoplayer Collisions
 - Autoplyer population
 - NN test suite

@@ -15,6 +15,7 @@ function Grid:new(o)
 	o.grid_types = {}
 	o.enabled_directions = {}
 	o.grid_directions = {}
+	o.grid_collisions = {}
 
 	return o
 end
@@ -35,8 +36,19 @@ function Grid:reset(grid_types, grid_size, lookahead)
 
 	self.grid_size = grid_size
 	self.lookahead = lookahead
+	self:generate_grid_collisions()
 	self:generate_directions()
 	self:generate_valid_pos()
+end
+
+function Grid:generate_grid_collisions()
+	for i = 1, self.grid_width_n do
+		self.grid_collisions[i] = {}
+		for j = 1, self.grid_height_n do
+			print(j, i, self.grid_collisions, self.grid_collisions[j])
+			self.grid_collisions[i][j] = {}
+		end
+	end
 end
 
 function Grid:generate_directions()
@@ -51,9 +63,9 @@ function Grid:generate_directions()
 
 	self.grid_directions = {}
 
-	for i=1,self.grid_width_n do
+	for i = 1, self.grid_width_n do
 		self.grid_directions[i] = {}
-		for j=1,self.grid_height_n do
+		for j = 1, self.grid_height_n do
 			--print("logging")
 			local tile_type = self.grid_types[j][i] -- inverted
 			-- matrix is  [pos_x][pos_y]
@@ -91,8 +103,8 @@ end
 
 function Grid:generate_valid_pos()
 	self.valid_pos = {}
-	for i=1, self.grid_width_n do
-		for j=1,self.grid_height_n do
+	for i = 1, self.grid_width_n do
+		for j = 1, self.grid_height_n do
 			if (self.grid_types[j][i]~= 16 and self.grid_types[j][i]~= 0 and (j<=15 or j>=30)) then
 				local value = {}
 				value.x = i
@@ -113,28 +125,26 @@ end
 
 function Grid:center_on_grid(pos)
 	-- centers obj on its own grid cell
-	local grid_pos = self:get_grid_pos(pos)
+	local grid_pos = self:get_grid_pos_absolute(pos)
 	pos.x = (grid_pos.x-1)*self.grid_size + math.ceil(self.grid_size/2)
 	pos.y = (grid_pos.y-1)*self.grid_size + math.ceil(self.grid_size/2)
 end
 
 function Grid:center_on_grid_x(pos)
 	-- centers obj on its own grid cell x axis
-	local grid_pos = self:get_grid_pos(pos)
+	local grid_pos = self:get_grid_pos_absolute(pos)
 	pos.x = (grid_pos.x-1)*self.grid_size + math.ceil(self.grid_size/2)
 end
 
 function Grid:center_on_grid_y(pos)
 	-- centers obj on its own grid cell y axis
-	local grid_pos = self:get_grid_pos(pos)
+	local grid_pos = self:get_grid_pos_absolute(pos)
 	pos.y = (grid_pos.y-1)*self.grid_size + math.ceil(self.grid_size/2)
 end
 
--- DELETE
 function Grid:get_dynamic_front(obj)
 	-- returns the point that is lookahead in front of the player
 	-- it does consider the direction obj is set
-
 	local point = {}
 	-- the player has a dynamic center
 	if obj.direction == "up" then
@@ -156,9 +166,8 @@ function Grid:get_dynamic_front(obj)
 	return point
 end
 
-function Grid:get_grid_pos(pos)
+function Grid:get_grid_pos_absolute(pos)
 	local grid_pos = {}
-
 	grid_pos.x = math.floor(pos.x / self.grid_size) + 1--lua arrays start at 1
 	grid_pos.y = math.floor(pos.y / self.grid_size) + 1 --lua arrays start at 1
 	return grid_pos
@@ -170,18 +179,9 @@ function Grid:is_grid_wall(pos)
 	return false
 end
 
-function Grid:is_grid_way(x, y)
-	print(x, y, self.grid_types[y])
-	if 	self.grid_types[y][x] ~= 16 and
-		self.grid_types[y][x] ~= 0 then return true end
-	return false
-end
-
-function Grid:is_grid_way_absolute(x, y)
-	local grid_pos = self:get_grid_pos({x = x, y = y})
-
-	if 	self.grid_types[grid_pos.y][grid_pos.x] ~= 16 and
-		self.grid_types[grid_pos.y][grid_pos.x] ~= 0 then return true end
+function Grid:is_grid_way(pos)
+	if 	self.grid_types[pos.y][pos.x] ~= 16 and
+		self.grid_types[pos.y][pos.x] ~= 0 then return true end
 	return false
 end
 
@@ -200,6 +200,31 @@ function Grid:is_corridor(pos)
 		return true
 	end
 	return false
+end
+
+function Grid:register_position(obj)
+	local x = obj.grid_pos.x
+	local y = obj.grid_pos.y
+	local other_obj_list = self.grid_collisions[y][x]
+	if other_obj_list then -- has collided
+		for i = 1, #other_obj_list do
+			local other = other_obj_list[i]
+			other:has_collided(obj.type)
+			obj:has_collided(other.type)
+		end
+	end
+	table.insert(self.grid_collisions, obj)
+end
+
+function Grid:clear_grid_collisions()
+	for i = 1, #self.grid_collisions do
+		local position = self.grid_collisions[i]
+		if position then
+			for j = #position, 1, -1 do
+				position[j] = nil
+			end
+		end
+	end
 end
 
 function Grid:count_enabled_directions(pos)

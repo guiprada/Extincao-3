@@ -32,6 +32,7 @@ function AutoPlayer:new(o)
 	o.relay_x = 0
 	o.relay_y = 0
 	o.relay_times = 3 -- controls how many gameloops it takes to relay
+	o.fitness = 0
 
 	o:getNN()
 
@@ -50,6 +51,9 @@ function AutoPlayer:reset(grid_pos, speed)
 	self.relay_x = 0
 	self.relay_y = 0
 	self.relay_times = 3 -- controls how many gameloops it takes to relay
+
+	self:getNN()
+	self.is_active = true
 end
 
 function AutoPlayer:draw()
@@ -75,45 +79,28 @@ function AutoPlayer:draw()
 end
 
 function AutoPlayer:update(dt)
-	local inputs = {
-		GridActor.grid:is_grid_way_absolute(self.x + 1, self.y) and 1 or 0,
-		GridActor.grid:is_grid_way_absolute(self.x - 1, self.y) and 1 or 0,
-		GridActor.grid:is_grid_way_absolute(self.x, self.y + 1) and 1 or 0,
-		GridActor.grid:is_grid_way_absolute(self.x, self.y - 1) and 1 or 0,
-	}
-	local outputs = self.NN:get_outputs(inputs)
-	local greatest_index = 1
-	local greatest_value = outputs[greatest_index].value
-	for i = 2, #outputs do
-		local this_value = outputs[i].value
-
-		if this_value >= greatest_value then
-			greatest_value = this_value
-			greatest_index = i
-		end
-	end
-
-	self.next_direction = outputs_to_next_direction[greatest_index]
-
 	if (self.is_active) then
+		local inputs = {
+			GridActor.grid:is_grid_way({x = self.grid_pos.x + 1, y = self.grid_pos.y}) and 1 or 0,
+			GridActor.grid:is_grid_way({x = self.grid_pos.x - 1, y = self.grid_pos.y}) and 1 or 0,
+			GridActor.grid:is_grid_way({x = self.grid_pos.x, y = self.grid_pos.y + 1}) and 1 or 0,
+			GridActor.grid:is_grid_way({x = self.grid_pos.x, y = self.grid_pos.y - 1}) and 1 or 0,
+		}
+		local outputs = self.NN:get_outputs(inputs)
+		local greatest_index = 1
+		local greatest_value = outputs[greatest_index].value
+		for i = 2, #outputs do
+			local this_value = outputs[i].value
+
+			if this_value >= greatest_value then
+				greatest_value = this_value
+				greatest_index = i
+			end
+		end
+
+		self.next_direction = outputs_to_next_direction[greatest_index]
+
 		GridActor.update(self,dt)
-		-- relays mov for cornering
-		if self.relay_x_counter >= 1 then
-			self.x = self.x - self.relay_x/self.relay_times
-			self.relay_x_counter = self.relay_x_counter -1
-			if self.relay_x_counter == 0 then self:center_on_grid_x() end
-		end
-
-		if self.relay_y_counter >= 1 then
-			self.y = self.y - self.relay_y/self.relay_times
-			self.relay_y_counter = self.relay_y_counter -1
-			if self.relay_y_counter == 0 then self:center_on_grid_y() end
-		end
-	end
-
-	if self.is_active == false then
-		self:getNN()
-		self.is_active = true
 	end
 end
 

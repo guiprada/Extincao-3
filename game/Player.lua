@@ -59,20 +59,7 @@ end
 
 function Player:update(dt)
 	if (self.is_active) then
-		GridActor.update(self,dt)
-		-- relays mov for cornering
-		if self.relay_x_counter >= 1 then
-			self.x = self.x - self.relay_x/self.relay_times
-			self.relay_x_counter = self.relay_x_counter -1
-			if self.relay_x_counter == 0 then self:center_on_grid_x() end
-		end
-
-		if self.relay_y_counter >= 1 then
-			self.y = self.y - self.relay_y/self.relay_times
-			self.relay_y_counter = self.relay_y_counter -1
-			if self.relay_y_counter == 0 then self:center_on_grid_y() end
-		end
-
+		GridActor.update(self, dt)
 		if self.changed_tile == true then
 			Player.plip_sound:play()
 		end
