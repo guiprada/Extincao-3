@@ -13,12 +13,16 @@ local outputs_to_next_direction = {
 	"right",
 }
 
+local autoplayer_type_name = "player"
+
 function AutoPlayer.init(grid, AutoPlayer_click)
 	GridActor.init(grid)
 
 	AutoPlayer.plip_sound = AutoPlayer_click
 	AutoPlayer.plip_sound:setVolume(0.3)
 	AutoPlayer.plip_sound:setPitch(0.9)
+
+	GridActor.register_type(autoplayer_type_name)
 end
 
 function AutoPlayer:new(o)
@@ -33,7 +37,7 @@ function AutoPlayer:new(o)
 	o.relay_y = 0
 	o.relay_times = 3 -- controls how many gameloops it takes to relay
 	o.fitness = 0
-	o.type = GridActor.get_type_by_name("player")
+	o._type = GridActor.get_type_by_name(autoplayer_type_name)
 
 	o:getNN()
 

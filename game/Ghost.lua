@@ -4,6 +4,7 @@ local utils = require "utils"
 local random = require "random"
 local GridActor = require "GridActor"
 
+local ghost_type_name = "ghost"
 local Ghost = {}
 
 Ghost.state = "none"
@@ -25,7 +26,7 @@ function Ghost.init(Grid,
 					ghost_scatter_feared_gene_on,
 					grid_size,
 					lookahead,
-					state)
+					initial_state)
 	Ghost.grid = Grid
 	Ghost.ghost_fitness_on = ghost_fitness_on
 	Ghost.ghost_target_spread = ghost_target_spread
@@ -40,9 +41,9 @@ function Ghost.init(Grid,
 	Ghost.ghost_chase_feared_gene_on = ghost_chase_feared_gene_on
 	Ghost.grid_size = grid_size
 	Ghost.lookahead = lookahead
-	Ghost.set_state(state)
+	Ghost.set_state(initial_state)
 
-	GridActor.register_type("ghost")
+	GridActor.register_type(ghost_type_name)
 end
 
 function Ghost:new( pos_index,
@@ -67,7 +68,7 @@ function Ghost:new( pos_index,
 	o.enabled_dir = {}
 	o.last_grid_pos = {}
 	o.front = {}
-	o.type = GridActor.get_type_by_name("ghost")
+	o._type = GridActor.get_type_by_name(ghost_type_name)
 	o:reset(pos_index,
 			target_offset,
 			try_order,
@@ -171,6 +172,14 @@ function Ghost:reset(   pos_index,
 
 
 	self.front = Ghost.grid:get_dynamic_front(self)
+end
+
+function Ghost:is_type(type_name)
+	if type_name == ghost_type_name then
+		return true
+	else
+		return false
+	end
 end
 
 function Ghost.selection(in_table)
@@ -417,8 +426,8 @@ function Ghost:draw(state)
 	end
 end
 
-function  Ghost:collided(other)
-	if other.type == GridActor.get_type_by_name("player") then
+function Ghost:collided(other)
+	if other:is_type("player") then
 		if (Ghost.state ~= "freightened") then
 			--print("you loose, my target is: " .. self.target_offset)
 			-- Ghost.reporter.report_catched(self.target_offset)

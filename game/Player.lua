@@ -2,6 +2,8 @@
 local GridActor = require "GridActor"
 local Player = GridActor:new()
 
+local player_type_name = "player"
+
 function Player.init(grid, player_click)
 	GridActor.init(grid)
 
@@ -9,7 +11,7 @@ function Player.init(grid, player_click)
 	Player.plip_sound:setVolume(0.3)
 	Player.plip_sound:setPitch(0.9)
 
-	GridActor.register_type("player")
+	GridActor.register_type(player_type_name)
 end
 
 function Player:new(o)
@@ -23,7 +25,7 @@ function Player:new(o)
 	o.relay_x = 0
 	o.relay_y = 0
 	o.relay_times = 3 -- controls how many gameloops it takes to relay
-	o.type = GridActor.get_type_by_name("player")
+	o._type = GridActor.get_type_by_name(player_type_name)
 
 	return o
 end

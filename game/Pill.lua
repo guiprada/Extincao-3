@@ -7,6 +7,8 @@ local utils = require "utils"
 local random = require "random"
 local GridActor = require "GridActor"
 
+local pill_type_name = "pill"
+
 function Pill.init(grid, pill_genetic_on, pill_precise_crossover_on, warn_sound)
 	Pill.pills_active = true
 	Pill.pill_genetic_on = pill_genetic_on
@@ -14,7 +16,7 @@ function Pill.init(grid, pill_genetic_on, pill_precise_crossover_on, warn_sound)
 	Pill.warn_sound = warn_sound
 	Pill.grid = grid
 
-	GridActor.register_type("pill")
+	GridActor.register_type(pill_type_name)
 end
 
 function Pill:new(pos_index, pill_time, o)
@@ -26,11 +28,19 @@ function Pill:new(pos_index, pill_time, o)
 	o.grid_pos = Pill.grid.valid_pos[pos_index]
 	o.timer = Timer:new(pill_time)
 
-	o.type = GridActor.get_type_by_name("pill")
+	o._type = GridActor.get_type_by_name(pill_type_name)
 
 	o:reset()
 
 	return o
+end
+
+function Pill:is_type(type_name)
+	if type_name == pill_type_name then
+		return true
+	else
+		return false
+	end
 end
 
 function Pill:draw()
@@ -60,7 +70,7 @@ function Pill:reset(grid_pos)
 end
 
 function Pill:collided(other)
-	if (other.type == GridActor.get_type_by_name("player")) then
+	if other:is_type("player") then
 		self.is_active = false  -- if yes, activate pill effect
 		self.effect = true
 		Pill.pills_active = false -- deactivate other pills

@@ -1,10 +1,12 @@
 -- Guilherme Cunha Prada 2020
 local GridActor = {}
 
-local registered_types = {
-	generic = 1,
+local registered_types_list = {
+	"generic",
 }
-local registered_types_count = 1
+local registered_types = {
+	[registered_types_list[1]] = 1,
+}
 
 function GridActor.init(grid)
 	GridActor.grid = grid
@@ -21,8 +23,10 @@ function GridActor.get_type_by_name(type_name)
 end
 
 function GridActor.register_type(type_name)
-	registered_types_count = registered_types_count + 1
-	registered_types[type_name] = registered_types_count
+	if not registered_types[type_name] then
+		table.insert(registered_types_list, type_name)
+		registered_types[type_name] = #registered_types_list
+	end
 end
 
 function GridActor:new(o)
@@ -54,7 +58,7 @@ function GridActor:new(o)
 	o.front.x = 0
 	o.front.y = 0
 
-	o.type = GridActor.get_type_by_name("generic")
+	o._type = GridActor.get_type_by_name("generic")
 
 	return o
 end
@@ -78,6 +82,14 @@ function GridActor:reset(grid_pos, speed)
 	self.last_grid_pos.y = -1
 
 	self.front = self:get_dynamic_front()
+end
+
+function GridActor:is_type(type_name)
+	if type_name == registered_types_list[self._type] then
+		return true
+	else
+		return false
+	end
 end
 
 function GridActor:draw()
