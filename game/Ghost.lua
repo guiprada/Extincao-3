@@ -2,8 +2,15 @@
 
 local utils = require "utils"
 local random = require "random"
+local GridActor = require "GridActor"
 
 local Ghost = {}
+
+Ghost.state = "none"
+
+function Ghost.set_state(new_state)
+	Ghost.state = new_state
+end
 
 function Ghost.init(Grid,
 					ghost_fitness_on,
@@ -17,7 +24,8 @@ function Ghost.init(Grid,
 					ghost_chase_feared_gene_on,
 					ghost_scatter_feared_gene_on,
 					grid_size,
-					lookahead)
+					lookahead,
+					state)
 	Ghost.grid = Grid
 	Ghost.ghost_fitness_on = ghost_fitness_on
 	Ghost.ghost_target_spread = ghost_target_spread
@@ -32,6 +40,9 @@ function Ghost.init(Grid,
 	Ghost.ghost_chase_feared_gene_on = ghost_chase_feared_gene_on
 	Ghost.grid_size = grid_size
 	Ghost.lookahead = lookahead
+	Ghost.set_state(state)
+
+	GridActor.register_type("ghost")
 end
 
 function Ghost:new( pos_index,
@@ -56,6 +67,7 @@ function Ghost:new( pos_index,
 	o.enabled_dir = {}
 	o.last_grid_pos = {}
 	o.front = {}
+	o.type = GridActor.get_type_by_name("ghost")
 	o:reset(pos_index,
 			target_offset,
 			try_order,
@@ -240,8 +252,8 @@ function Ghost:crossover(ghosts, pills, spawn_grid_pos)
 							math.floor(random.random(-2, 2))
 	end
 
-	son.target_offset = random.random(   -Ghost.ghost_target_spread,
-											Ghost.ghost_target_spread)
+	son.target_offset = random.random(	-Ghost.ghost_target_spread,
+										Ghost.ghost_target_spread)
 
 	son.try_order = {} -- we should add mutation
 
@@ -405,9 +417,28 @@ function Ghost:draw(state)
 	end
 end
 
-function Ghost:update(targets, pills, average_ghost_pos, dt, state)
+function  Ghost:collided(other)
+	if other.type == GridActor.get_type_by_name("player") then
+		if (Ghost.state ~= "freightened") then
+			--print("you loose, my target is: " .. self.target_offset)
+			-- Ghost.reporter.report_catched(self.target_offset)
+
+			if(Ghost.speed_boost_on) then
+				self.speed_boost = self.speed_boost  + 0.1*Ghost.grid_size
+			end
+			self.n_catches = self.n_catches + 1
+			other.is_active = false
+		else
+			self.is_active = false
+		end
+	end
+end
+
+function Ghost:update(targets, pills, average_ghost_pos, dt)
 	--print(value.fear_group)
 	if (self.is_active) then
+		Ghost.grid:update_position(self)
+
 		self.n_updates = self.n_updates + 1
 		self.fitness = self.n_catches + (self.n_pills*0.001)/self.n_updates
 
@@ -442,27 +473,6 @@ function Ghost:update(targets, pills, average_ghost_pos, dt, state)
 		end
 
 		local this_grid_pos = Ghost.grid:get_grid_pos_absolute(self)
-
-		--check collision with targets
-		for i = 1, #targets do
-			local target = targets[i]
-			if (target.is_active == true) then
-				if (utils.distance(self, target) < Ghost.lookahead) then --colidiu
-					if (state~="freightened") then
-						--print("you loose, my target is: " .. self.target_offset)
-						-- Ghost.reporter.report_catched(self.target_offset)
-
-						if(Ghost.speed_boost_on) then
-							self.speed_boost = self.speed_boost  + 0.1*Ghost.grid_size
-						end
-						self.n_catches = self.n_catches + 1
-						target.is_active = false
-					else
-						self.is_active = false
-					end
-				end
-			end
-		end
 
 		--check collision with pills
 		self.dist_to_closest_pill =  10000*Ghost.grid_size
@@ -539,7 +549,7 @@ function Ghost:update(targets, pills, average_ghost_pos, dt, state)
 			elseif ( self.direction == "left" or self.direction== "right") then
 				Ghost.grid:center_on_grid_y(self)
 			end
-			self:find_next_dir(target, state, average_ghost_pos)
+			self:find_next_dir(target, average_ghost_pos)
 		end
 
 		-- checks if the ghost has exceeded max speed
@@ -561,7 +571,7 @@ function Ghost:update(targets, pills, average_ghost_pos, dt, state)
 	end
 end
 
-function Ghost:find_next_dir(target, state, average_ghost_pos)
+function Ghost:find_next_dir(target, average_ghost_pos)
 	self.enabled_dir = Ghost.grid:get_enabled_directions(self.grid_pos)
 
 	--count = grid.count_enabled_directions(self.grid_pos)
@@ -611,7 +621,7 @@ function Ghost:find_next_dir(target, state, average_ghost_pos)
 
 		if (target.is_active) then
 			--io.output()
-			if ( state == "chasing" ) then
+			if ( Ghost.state == "chasing" ) then
 				if(self.fear)then
 					if(Ghost.ghost_chase_feared_gene_on)then
 						if(self.chase_feared_gene == 1)then
@@ -639,7 +649,7 @@ function Ghost:find_next_dir(target, state, average_ghost_pos)
 				else
 					self:go_to_target(target, maybe_dirs)
 				end
-			elseif ( state == "scattering") then
+			elseif ( Ghost.state == "scattering") then
 				if(self.fear)then
 					--print("feared")
 					if( Ghost.ghost_scatter_feared_gene_on ) then
@@ -667,7 +677,7 @@ function Ghost:find_next_dir(target, state, average_ghost_pos)
 					end
 				end
 
-			elseif ( state == "freightened") then
+			elseif ( Ghost.state == "freightened") then
 				self:wander(maybe_dirs)
 				--ghost.run_from_target(self, target, maybe_dirs)
 				--ghost.go_home(self, maybe_dirs)

@@ -1,8 +1,28 @@
 -- Guilherme Cunha Prada 2020
 local GridActor = {}
 
+local registered_types = {
+	generic = 1,
+}
+local registered_types_count = 1
+
 function GridActor.init(grid)
 	GridActor.grid = grid
+end
+
+function GridActor.get_type_by_name(type_name)
+	local type = registered_types[type_name]
+	if type then
+		return type
+	else
+		print("[ERROR] - GridActor.get_type() - unkwnown type:", type_name)
+		return nil
+	end
+end
+
+function GridActor.register_type(type_name)
+	registered_types_count = registered_types_count + 1
+	registered_types[type_name] = registered_types_count
 end
 
 function GridActor:new(o)
@@ -34,7 +54,7 @@ function GridActor:new(o)
 	o.front.x = 0
 	o.front.y = 0
 
-	o.type = 0
+	o.type = GridActor.get_type_by_name("generic")
 
 	return o
 end
@@ -80,9 +100,10 @@ function GridActor:update(dt)
 
 	-- print(self.speed)
 	if (self.is_active) then
+		GridActor.grid:update_position(self)
+
 		self.changed_tile = false
 		if self.direction ~= "idle" then
-			--print("X: ", self.x, "Y:", self.y)
 			if self.direction == "up" then self.y = self.y -self.speed*dt
 			elseif self.direction == "down" then self.y = self.y +self.speed*dt
 			elseif self.direction == "left" then self.x = self.x -self.speed*dt

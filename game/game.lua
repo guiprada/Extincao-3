@@ -82,12 +82,14 @@ function game.load(args)
 				args.ghost_scatter_feared_gene_on or
 					settings.ghost_scatter_feared_gene_on,
 				game.grid_size,
-				game.lookahead)
+				game.lookahead,
+				"scattering")
 	Pill.init(	game.grid,
 				args.pill_genetic_on or settings.pill_genetic_on,
 				args.pill_precise_crossover_on or
 					settings.pill_precise_crossover_on,
 				args.pill_warn_sound or settings.pill_warn_sound)
+	game.got_pill = false
 
 	--start player
 	local grid_pos = {}
@@ -283,11 +285,12 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 function game.update(dt)
-	random.seed()
 	-- dt should not be to high
 	if (dt > 0.06 ) then
 		print("ops, dt too high, physics wont work, skipping  dt= " .. dt)
 	end
+
+	game.grid:clear_grid_collisions()
 
 	local len_respawn =  #game.to_be_respawned
 	local len_ghosts = #game.ghosts
@@ -307,7 +310,7 @@ function game.update(dt)
 
 		-- game.ghost_state controller
 		-- game.ghost_state is also modified by the pills update
-		if (game.ghost_state_timer:update(dt)== true) then
+		if (game.ghost_state_timer:update(dt) == true) then
 			if ( game.ghost_state == "scattering") then
 			-- if game.ghost_state == "freightened" do nothing
 				game.ghost_state = "chasing"
@@ -339,6 +342,7 @@ function game.update(dt)
 
 		local total_fitness = 0
 		-- update ghosts
+		Ghost.set_state(game.ghost_state)
 		local targets = {game.player, game.bot}
 		for i=1, #game.ghosts, 1 do
 			local is_active_before_update = game.ghosts[i].is_active
@@ -347,8 +351,7 @@ function game.update(dt)
 							targets,
 							game.pills,
 							average_ghost_pos,
-							dt,
-							game.ghost_state)
+							dt)
 
 			total_fitness = total_fitness + game.ghosts[i].fitness
 
@@ -393,25 +396,24 @@ function game.update(dt)
 
 		--pill
 		for i=1, #game.pills, 1 do
-			local is_active_before_update = game.pills[i].is_active
-			game.pills[i]:update(game.pills,
-						game.player,
-						dt)
+			game.pills[i]:update(game.pills, dt)
 			if(game.pills[i].is_active) then
 				active_pill_count = active_pill_count + 1
 				total_pill_fitness = total_pill_fitness + game.pills[i].fitness
 			end
-			if (is_active_before_update == true and
-					game.pills[i].is_active == false ) then
-				game.ghost_state =  "freightened"
+			if (game.got_pill == false) and (game.pills[i].effect == true) then
+				game.got_pill = i
+				game.ghost_state = "freightened"
+				print("pill")
 				for i=1, #game.ghosts, 1 do
 					game.ghosts[i]:flip_direction()
 					game.ghost_flip_sound:play()
 				end
 				Ghost.ghost_speed = game.ghost_speed / 1.5
 				game.player.speed = game.speed * 1.1
-			elseif (is_active_before_update== false and
-					game.pills[i].is_active == true ) then
+			elseif (game.got_pill == i) and (game.pills[i].effect == false) then
+				print("not pill")
+				game.got_pill = false
 				game.ghost_state = "scattering"
 
 				Ghost.ghost_speed = game.ghost_speed

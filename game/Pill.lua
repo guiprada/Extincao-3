@@ -5,6 +5,7 @@ local Pill = {}
 local Timer = require "Timer"
 local utils = require "utils"
 local random = require "random"
+local GridActor = require "GridActor"
 
 function Pill.init(grid, pill_genetic_on, pill_precise_crossover_on, warn_sound)
 	Pill.pills_active = true
@@ -12,6 +13,8 @@ function Pill.init(grid, pill_genetic_on, pill_precise_crossover_on, warn_sound)
 	Pill.pill_precise_crossover_on = pill_precise_crossover_on
 	Pill.warn_sound = warn_sound
 	Pill.grid = grid
+
+	GridActor.register_type("pill")
 end
 
 function Pill:new(pos_index, pill_time, o)
@@ -22,6 +25,8 @@ function Pill:new(pos_index, pill_time, o)
 	o.pos_index = pos_index
 	o.grid_pos = Pill.grid.valid_pos[pos_index]
 	o.timer = Timer:new(pill_time)
+
+	o.type = GridActor.get_type_by_name("pill")
 
 	o:reset()
 
@@ -51,15 +56,25 @@ function Pill:reset(grid_pos)
 	self.y = this_pos.y +
 		random.random(math.ceil(-Pill.grid.grid_size * 0.17), math.ceil(Pill.grid.grid_size * 0.17))
 	self.is_active = true
+	self.effect = false
 end
 
-function Pill:update(pills, target, dt)
+function Pill:collided(other)
+	if (other.type == GridActor.get_type_by_name("player")) then
+		self.is_active = false  -- if yes, activate pill effect
+		self.effect = true
+		Pill.pills_active = false -- deactivate other pills
+		self.timer:reset() -- and start pill timer
+	end
+end
+
+function Pill:update(pills, dt)
 	self.n_updates = self.n_updates + 1
 	self.fitness = self.n_ghost_pass/self.n_updates
 	if (self.is_active == false) then -- if pill is inactive(it is under effect)
 		if (self.timer:update(dt)) then -- update timers
 			if(Pill.pill_genetic_on)then
-				self:crossover( pills)
+				self:crossover(pills)
 			else
 				local this_pos_index =
 								random.random(1, #Pill.grid.valid_pos)
@@ -71,14 +86,8 @@ function Pill:update(pills, target, dt)
 		elseif(self.timer.timer < 1)then
 			Pill.warn_sound:play()
 		end
-	elseif	((Pill.pills_active) and -- if pills are active
-			(target.is_active)) then -- and the player is active
-		local dist_to_player = utils.distance(self, target)
-		if ( dist_to_player < Pill.grid.lookahead) then -- check collision
-			self.is_active = false  -- if yes, activate pill effect
-			Pill.pills_active = false -- deactivate other pills
-			self.timer:reset() -- and start pill timer
-		end
+	elseif (Pill.pills_active) then -- and the player is active
+		Pill.grid:update_position(self)
 	end
 end
 

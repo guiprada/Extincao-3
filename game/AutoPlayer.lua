@@ -33,6 +33,7 @@ function AutoPlayer:new(o)
 	o.relay_y = 0
 	o.relay_times = 3 -- controls how many gameloops it takes to relay
 	o.fitness = 0
+	o.type = GridActor.get_type_by_name("player")
 
 	o:getNN()
 
@@ -76,6 +77,10 @@ function AutoPlayer:draw()
 		-- love.graphics.setColor(1, 0, 1)
 		love.graphics.line(self.x, self.y, self.front.x, self.front.y)
 	end
+end
+
+function AutoPlayer:collided(other)
+
 end
 
 function AutoPlayer:update(dt)

@@ -8,6 +8,8 @@ function Player.init(grid, player_click)
 	Player.plip_sound = player_click
 	Player.plip_sound:setVolume(0.3)
 	Player.plip_sound:setPitch(0.9)
+
+	GridActor.register_type("player")
 end
 
 function Player:new(o)
@@ -21,6 +23,7 @@ function Player:new(o)
 	o.relay_x = 0
 	o.relay_y = 0
 	o.relay_times = 3 -- controls how many gameloops it takes to relay
+	o.type = GridActor.get_type_by_name("player")
 
 	return o
 end
@@ -33,6 +36,10 @@ function Player:reset(grid_pos, speed)
 	self.relay_x = 0
 	self.relay_y = 0
 	self.relay_times = 3 -- controls how many gameloops it takes to relay
+end
+
+function Player:collided(other)
+
 end
 
 function Player:draw()
@@ -60,6 +67,7 @@ end
 function Player:update(dt)
 	if (self.is_active) then
 		GridActor.update(self, dt)
+
 		if self.changed_tile == true then
 			Player.plip_sound:play()
 		end
