@@ -15,12 +15,8 @@ local outputs_to_next_direction = {
 
 local autoplayer_type_name = "player"
 
-function AutoPlayer.init(grid, AutoPlayer_click)
+function AutoPlayer.init(grid)
 	GridActor.init(grid)
-
-	AutoPlayer.plip_sound = AutoPlayer_click
-	AutoPlayer.plip_sound:setVolume(0.3)
-	AutoPlayer.plip_sound:setPitch(0.9)
 
 	GridActor.register_type(autoplayer_type_name)
 end
@@ -38,7 +34,7 @@ function AutoPlayer:new(o)
 end
 
 function AutoPlayer:getAnn()
-	self._ann = NN:new(4, 4, 3, 10)
+	self._ann = NN:new(6, 4, 3, 10)
 end
 
 function AutoPlayer:reset(grid_pos, speed)
@@ -83,6 +79,8 @@ function AutoPlayer:update(dt)
 		GridActor.update(self,dt)
 
 		local inputs = {
+			1, -- ghosts freightned
+			1, -- ghosts chasing
 			GridActor.grid:is_grid_way({x = self.grid_pos.x + 1, y = self.grid_pos.y}) and 1 or 0,
 			GridActor.grid:is_grid_way({x = self.grid_pos.x - 1, y = self.grid_pos.y}) and 1 or 0,
 			GridActor.grid:is_grid_way({x = self.grid_pos.x, y = self.grid_pos.y + 1}) and 1 or 0,

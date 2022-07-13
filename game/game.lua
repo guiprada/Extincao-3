@@ -28,6 +28,9 @@ function game.load(args)
 	game.resets = 0
 	game.pause_text = args.pause_text or settings.pause_text
 
+	-- pill state
+	game.got_pill = false
+
 	-- respawn timer
 	local ghost_respawn_time = 	args.ghost_respawn_time or
 								settings.ghost_respawn_time
@@ -90,7 +93,7 @@ function game.load(args)
 				args.pill_precise_crossover_on or
 					settings.pill_precise_crossover_on,
 				args.pill_warn_sound or settings.pill_warn_sound)
-	game.got_pill = false
+	AutoPlayer.init(game.grid)
 
 	--start player
 	game.grid_pos = {}
@@ -105,7 +108,7 @@ function game.load(args)
 	game.player:reset(game.grid_pos, game.speed)
 
 	--start AutoPlayer population
-	game.AutoPlayerPopulation = Population:new(AutoPlayer, {game.grid_pos, game.speed}, 100)
+	game.AutoPlayerPopulation = Population:new(AutoPlayer, {game.grid_pos, game.speed}, 1)
 
 	-- create freightened on restart timer, it is not a pill
 	game.freightened_on_restart_timer = Timer:new(	args.restart_pill_time or
