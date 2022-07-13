@@ -345,7 +345,7 @@ function game.update(dt)
 		local total_fitness = 0
 		-- update ghosts
 		Ghost.set_state(game.ghost_state)
-		local targets = {game.player, unpack(game.AutoPlayerPopulation.get_active_population())}
+		local targets = {game.player, unpack(game.AutoPlayerPopulation:get_active_population())}
 		for i=1, #game.ghosts, 1 do
 			local is_active_before_update = game.ghosts[i].is_active
 
