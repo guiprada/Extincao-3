@@ -459,9 +459,9 @@ function Ghost:update(targets, pills, average_ghost_pos, dt)
 		local target = targets[1]
 		local target_distance = utils.distance(target, self)
 		for i = 2, #targets do
-			if target.is_active then
-				local this_target = targets[i]
-				local this_target_distance = utils.distance(target, self)
+			local this_target = targets[i]
+			if this_target.is_active then
+				local this_target_distance = utils.distance(this_target, self)
 				if (this_target_distance < target_distance) then
 					target = this_target
 					target_distance = this_target_distance
