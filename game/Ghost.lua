@@ -412,7 +412,7 @@ function Ghost:draw(state)
 		local midle = utils.midle_point(self, self.front)
 		local midle_midle = utils.midle_point(self, midle)
 		local midle_midle_midle = utils.midle_point(self, midle_midle)
-		love.graphics.circle(   "fill",
+		love.graphics.circle(	"fill",
 								midle_midle_midle.x,
 								midle_midle_midle.y,
 								Ghost.grid_size/4)
@@ -438,6 +438,9 @@ function Ghost:collided(other)
 			self.n_catches = self.n_catches + 1
 			other.is_active = false
 		else
+			if self.got_ghost then
+				self:got_ghost()
+			end
 			self.is_active = false
 		end
 	end

@@ -204,12 +204,19 @@ end
 function Grid:update_position(obj)
 	local x = obj.grid_pos.x
 	local y = obj.grid_pos.y
+	if not self.grid_collisions[x] or not self.grid_collisions[y] then
+		print(x, y)
+	end
 	local other_obj_list = self.grid_collisions[x][y]
 	if (#other_obj_list > 0) then -- has collided
 		for i = 1, #other_obj_list do
 			local other = other_obj_list[i]
-			other:collided(obj)
-			obj:collided(other)
+			if other.collided then
+				other:collided(obj)
+			end
+			if obj.collided then
+				obj:collided(other)
+			end
 		end
 	end
 	table.insert(self.grid_collisions[x][y], obj)

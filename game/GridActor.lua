@@ -39,7 +39,7 @@ function GridActor:new(o)
 	o.front = {}
 	o.last_grid_pos = {}
 
-	o.is_active = true
+	o.is_active = false
 	o.changed_tile = false
 	o.speed = 0
 	o.direction = "idle"
@@ -58,13 +58,18 @@ function GridActor:new(o)
 	o.front.x = 0
 	o.front.y = 0
 
+	o.relay_x_counter = 0
+	o.relay_y_counter = 0
+	o.relay_x = 0
+	o.relay_y = 0
+	o.relay_times = 3 -- controls how many gameloops it takes to relay
+
 	o._type = GridActor.get_type_by_name("generic")
 
 	return o
 end
 
 function GridActor:reset(grid_pos, speed)
-	self.is_active = true
 	self.changed_tile = false
 	self.speed = speed
 	self.direction = "idle"
@@ -74,6 +79,7 @@ function GridActor:reset(grid_pos, speed)
 	self.grid_pos.y = grid_pos.y
 
 	local pos = self:get_grid_center()
+
 	self.x = pos.x
 	self.y = pos.y
 
@@ -81,7 +87,15 @@ function GridActor:reset(grid_pos, speed)
 	self.last_grid_pos.x = -1
 	self.last_grid_pos.y = -1
 
-	self.front = self:get_dynamic_front()
+	self.relay_x_counter = 0
+	self.relay_y_counter = 0
+	self.relay_x = 0
+	self.relay_y = 0
+	self.relay_times = 3 -- controls how many gameloops it takes to relay
+
+	self:update_dynamic_front()
+
+	self.is_active = true
 end
 
 function GridActor:is_type(type_name)
@@ -112,8 +126,6 @@ function GridActor:update(dt)
 
 	-- print(self.speed)
 	if (self.is_active) then
-		GridActor.grid:update_position(self)
-
 		self.changed_tile = false
 		if self.direction ~= "idle" then
 			if self.direction == "up" then self.y = self.y -self.speed*dt
@@ -124,8 +136,8 @@ function GridActor:update(dt)
 		end
 
 		-- update o info
-		self.front = self:get_dynamic_front()
-		self.grid_pos = self:get_grid_pos_absolute()
+		self:update_dynamic_front()
+		self:update_grid_pos()
 
 		--on change tile
 		if  self.grid_pos.x ~= self.last_grid_pos.x or
@@ -133,7 +145,8 @@ function GridActor:update(dt)
 
 			self.changed_tile = true
 			self.enabled_directions = self:get_enabled_directions()
-			self.last_grid_pos = self.grid_pos
+			self.last_grid_pos.x = self.grid_pos.x
+			self.last_grid_pos.y = self.grid_pos.y
 		end
 
 		-- apply next_direction
@@ -186,6 +199,8 @@ function GridActor:update(dt)
 			self.relay_y_counter = self.relay_y_counter -1
 			if self.relay_y_counter == 0 then self:center_on_grid_y() end
 		end
+
+		GridActor.grid:update_position(self)
 	end
 end
 
@@ -197,11 +212,7 @@ function GridActor:center_on_grid_y()
 	GridActor.grid:center_on_grid_y(self)
 end
 
-function GridActor:get_grid_center()
-	return GridActor.grid:get_grid_center(self.grid_pos)
-end
-
-function GridActor:get_dynamic_front()
+function GridActor:update_dynamic_front()
 	-- returns the point that is lookahead in front of the player
 	-- it does consider the direction obj is set
 	local point = {}
@@ -222,11 +233,16 @@ function GridActor:get_dynamic_front()
 		point.y = self.y
 		point.x = self.x
 	end
-	return point
+
+	self.front = point
 end
 
-function GridActor:get_grid_pos_absolute()
-	return GridActor.grid:get_grid_pos_absolute(self)
+function GridActor:update_grid_pos()
+	self.grid_pos = GridActor.grid:get_grid_pos_absolute(self)
+end
+
+function GridActor:get_grid_center()
+	return GridActor.grid:get_grid_center(self.grid_pos)
 end
 
 function GridActor:get_front_grid()

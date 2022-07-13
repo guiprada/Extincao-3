@@ -16,6 +16,7 @@ local settings = require "settings"
 local shaders = require "shaders"
 local Particle = require "Particle"
 local random = require "random"
+local Population = require "Population"
 
 -----------------------------------------------------------------------callbacks
 function game.load(args)
@@ -92,21 +93,19 @@ function game.load(args)
 	game.got_pill = false
 
 	--start player
-	local grid_pos = {}
+	game.grid_pos = {}
 	if(args.player_start_grid)then
-		grid_pos.x =  args.player_start_grid.x
-		grid_pos.y =  args.player_start_grid.y
+		game.grid_pos.x =  args.player_start_grid.x
+		game.grid_pos.y =  args.player_start_grid.y
 	else
-		grid_pos.x = settings.player_start_grid.x
-		grid_pos.y = settings.player_start_grid.y
+		game.grid_pos.x = settings.player_start_grid.x
+		game.grid_pos.y = settings.player_start_grid.y
 	end
 	game.player = Player:new()
-	game.player:reset(grid_pos, game.speed)
+	game.player:reset(game.grid_pos, game.speed)
 
-	--start bot
-	game.bot = AutoPlayer:new()
-	game.bot:reset(grid_pos, game.speed)
-
+	--start AutoPlayer population
+	game.AutoPlayerPopulation = Population:new(AutoPlayer, {game.grid_pos, game.speed}, 100)
 
 	-- create freightened on restart timer, it is not a pill
 	game.freightened_on_restart_timer = Timer:new(	args.restart_pill_time or
@@ -244,7 +243,7 @@ function game.draw()
 	game.player:draw()
 
 	-- draw bot
-	game.bot:draw()
+	game.AutoPlayerPopulation:draw()
 
 	-- hud
 
@@ -404,7 +403,6 @@ function game.update(dt)
 			if (game.got_pill == false) and (game.pills[i].effect == true) then
 				game.got_pill = i
 				game.ghost_state = "freightened"
-				print("pill")
 				for i=1, #game.ghosts, 1 do
 					game.ghosts[i]:flip_direction()
 					game.ghost_flip_sound:play()
@@ -412,7 +410,6 @@ function game.update(dt)
 				Ghost.ghost_speed = game.ghost_speed / 1.5
 				game.player.speed = game.speed * 1.1
 			elseif (game.got_pill == i) and (game.pills[i].effect == false) then
-				print("not pill")
 				game.got_pill = false
 				game.ghost_state = "scattering"
 
@@ -442,7 +439,7 @@ function game.update(dt)
 		game.player:update(dt)
 
 		-- bot
-		game.bot:update(dt)
+		game.AutoPlayerPopulation:update(dt)
 
 		-- check victory, should be the last thing done in this function
 		local len = #game.to_be_respawned
@@ -463,9 +460,8 @@ function game.keypressed(key, scancode, isrepeat)
 			game.freightened_on_restart_timer:reset()
 			game.just_restarted = true
 			Pill.pills_active = false
-			local grid_pos = {	x=settings.player_start_grid.x,
-							y=settings.player_start_grid.y}
-			game.player:reset(grid_pos, game.speed, game.grid_size, game.lookahead)
+
+			game.player:reset(game.grid_pos, game.speed)
 		else
 			game.paused = not game.paused
 		end
@@ -481,30 +477,6 @@ end
 
 function game.unload()
 	game = {}
-	-- game.text_font = nil
-	-- game.n_particles = nil
-	-- game.grid_size = nil
-	-- game.lookahead = nil
-	-- game.font_size = nil
-	-- game.ghost_speed = nil
-	-- game.speed = nil
-	-- game.player = nil
-	-- game.ghosts = nil
-	-- game.pills = nil
-	-- game.particles = nil
-	-- game.freightened_on_restart_timer = nil
-	-- game.just_restarted = nil
-	-- game.ghost_state = nil
-	-- game.paused = nil
-	-- game.resets = nil
-	-- game.to_be_respawned = nil
-	-- game.ghost_state_timer = nil
-	-- game.ghost_respawn_timer = nil
-	-- game.maze_canvas = nil
-	-- game.ghost_flip_sound = nil
-	-- game.pause_text = nil
-	-- game.font_size = nil
-	-- game.maze_canvas = nil
 end
 
 return game

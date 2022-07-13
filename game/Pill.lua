@@ -71,6 +71,9 @@ end
 
 function Pill:collided(other)
 	if other:is_type("player") then
+		if self.got_pill then
+			self:got_pill()
+		end
 		self.is_active = false  -- if yes, activate pill effect
 		self.effect = true
 		Pill.pills_active = false -- deactivate other pills

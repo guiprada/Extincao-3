@@ -19,12 +19,6 @@ function Player:new(o)
 	setmetatable(o, self)
 	self.__index = self
 
-	-- new vars
-	o.relay_x_counter = 0
-	o.relay_y_counter = 0
-	o.relay_x = 0
-	o.relay_y = 0
-	o.relay_times = 3 -- controls how many gameloops it takes to relay
 	o._type = GridActor.get_type_by_name(player_type_name)
 
 	return o
@@ -32,12 +26,6 @@ end
 
 function Player:reset(grid_pos, speed)
 	GridActor.reset(self, grid_pos, speed)
-
-	self.relay_x_counter = 0
-	self.relay_y_counter = 0
-	self.relay_x = 0
-	self.relay_y = 0
-	self.relay_times = 3 -- controls how many gameloops it takes to relay
 end
 
 function Player:collided(other)
