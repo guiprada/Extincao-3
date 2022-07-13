@@ -428,7 +428,7 @@ end
 
 function Ghost:collided(other)
 	if other:is_type("player") then
-		if (Ghost.state ~= "freightened") then
+		if (Ghost.state ~= "frightened") then
 			--print("you loose, my target is: " .. self.target_offset)
 			-- Ghost.reporter.report_catched(self.target_offset)
 
@@ -689,7 +689,7 @@ function Ghost:find_next_dir(target, average_ghost_pos)
 					end
 				end
 
-			elseif ( Ghost.state == "freightened") then
+			elseif ( Ghost.state == "frightened") then
 				self:wander(maybe_dirs)
 				--ghost.run_from_target(self, target, maybe_dirs)
 				--ghost.go_home(self, maybe_dirs)

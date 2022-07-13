@@ -2,6 +2,8 @@
 
 local Grid = {}
 
+local random = require "random"
+
 function Grid:new(o)
 	local o = o or {}
 	setmetatable(o, self)
@@ -249,6 +251,10 @@ function Grid:get_enabled_directions(grid_pos)
 	local value = {}
 	value = self.grid_directions[grid_pos.x][grid_pos.y]
 	return value
+end
+
+function Grid:get_valid_pos()
+	return self.valid_pos[random.random(1, #self.valid_pos)]
 end
 
 Grid.defalt_map = 	{

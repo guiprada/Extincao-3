@@ -1,5 +1,7 @@
 -- Guilherme Cunha Prada 2022
 local NN = {}
+NN.__index = NN
+
 local random = require "random"
 
 -- Internal Classes
@@ -20,7 +22,7 @@ function _Neuron:new(inputs, bias, o)
 		n_inputs = #inputs
 	elseif this_type == "number" then
 		for i = 1, inputs, 1 do
-			o[i] = random.random()
+			o[i] = random.random() * random.choose(1, -1)
 		end
 		n_inputs = inputs
 	else
@@ -44,7 +46,7 @@ function _Neuron:print()
 	print("")
 end
 
-function _Neuron:update(inputs)
+function _Neuron:update(inputs, output_layer)
 	local this_type = type(inputs)
 
 	if this_type == "table" then
@@ -55,10 +57,14 @@ function _Neuron:update(inputs)
 			sum = sum + weight * input
 		end
 
-		if sum > self.bias then
-			self.value = 1
+		if not output_layer then
+			if sum > self.bias then
+				self.value = 1
+			else
+				self.value = 0
+			end
 		else
-			self.value = 0
+			self.value = sum + self.bias
 		end
 	elseif this_type == "number" then
 		local input = self[1] * inputs
@@ -103,10 +109,10 @@ function _NeuronLayer:print()
 	print("-----------------------------------")
 end
 
-function _NeuronLayer:update(inputs)
+function _NeuronLayer:update(inputs, output_layer)
 	for i = 1, #self do
 		local neuron = self[i]
-		neuron:update(inputs)
+		neuron:update(inputs, output_layer)
 	end
 end
 
@@ -122,7 +128,6 @@ end
 function NN:new(inputs, outputs, hidden_layers, neurons_per_hidden_layer, o)
 	local o = o or {}
 	setmetatable(o, self)
-	self.__index = self
 
 	o[1] = _NeuronLayer:new(inputs, 1)
 	local last_layer_count = inputs
@@ -146,24 +151,41 @@ function NN:get_outputs(inputs)
 	self[1]:update_entry_layer(inputs)
 	local last_layer = self[1]
 
-	for i = 2, #self do
+	for i = 2, #self - 1 do
 		local neuron_layer = self[i]
 		neuron_layer:update(last_layer)
 		last_layer = neuron_layer
 	end
 
+	--output layer
+	self[#self]:update(last_layer, true)
+
 	local output_layer_index = #self
 	return self[output_layer_index]
+end
 
-	-- local last_layer = inputs
-	-- for i = 1, #self do
-	-- 	local neuron_layer = self[i]
-	-- 	print(inputs)
-	-- 	neuron_layer:update(last_layer)
-	-- 	last_layer = neuron_layer
-	-- end
-	-- local output_layer_index = #self
-	-- return self[output_layer_index]
+function NN:crossover(mom, dad)
+	local son = {}
+	setmetatable(son, NN)
+
+	for i = 1, #mom do
+		local layer = mom[i]
+		local new_layer = {}
+		for j = 1, #layer do
+			local inputs = {}
+			for k = 1, #layer[j] do
+				inputs[k] = random.choose(mom[i][j][k], dad[i][j][k], mom[i][j][k] + dad[i][j][k] /2) + random.choose(-0.05, 0.05) * random.random()
+			end
+			local bias = random.choose(mom[i][j].bias, dad[i][j].bias, mom[i][j].bias + dad[i][j].bias /2) + random.choose(-0.05, 0.05) * random.random()
+			print("called new")
+			new_layer[j] = _Neuron:new(inputs, bias)
+		end
+
+		son[i] = _NeuronLayer:new(new_layer)
+	end
+
+	print("crossover")
+	return son
 end
 
 return NN

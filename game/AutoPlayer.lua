@@ -2,11 +2,12 @@
 local GridActor = require "GridActor"
 local AutoPlayer = GridActor:new()
 
-local NN = require "NN"
+local ANN = require "ANN"
 local utils = require "utils"
 local random = require "random"
 
 local outputs_to_next_direction = {
+	"do_nothing",
 	"up",
 	"down",
 	"left",
@@ -28,20 +29,16 @@ function AutoPlayer:new(o)
 
 	o._type = GridActor.get_type_by_name(autoplayer_type_name)
 
-	o:getAnn()
-
 	return o
 end
 
-function AutoPlayer:getAnn()
-	self._ann = NN:new(6, 4, 3, 10)
-end
-
-function AutoPlayer:reset(grid_pos, speed)
+function AutoPlayer:reset(ann, speed, grid_pos)
+	local grid_pos = grid_pos or AutoPlayer.grid:get_valid_pos()
 	GridActor.reset(self, grid_pos, speed)
 
 	self.fitness = 0
-	self:getAnn()
+
+	self._ann = ann or ANN:new(6, 5, 3, 10)
 end
 
 function AutoPlayer:draw()
@@ -66,27 +63,24 @@ function AutoPlayer:draw()
 	end
 end
 
-function AutoPlayer:got_ghost()
-	self.fitness = self.fitness + 1
-end
-
-function AutoPlayer:got_pill()
-	self.fitness = self.fitness + 1
-end
-
-function AutoPlayer:update(dt)
+function AutoPlayer:update(dt, ghost_state)
 	if (self.is_active) then
 		GridActor.update(self,dt)
 
 		local inputs = {
-			1, -- ghosts freightned
-			1, -- ghosts chasing
+			(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
+			(ghost_state == "scattering") and 1 or 0, -- ghosts scattering
 			GridActor.grid:is_grid_way({x = self.grid_pos.x + 1, y = self.grid_pos.y}) and 1 or 0,
 			GridActor.grid:is_grid_way({x = self.grid_pos.x - 1, y = self.grid_pos.y}) and 1 or 0,
 			GridActor.grid:is_grid_way({x = self.grid_pos.x, y = self.grid_pos.y + 1}) and 1 or 0,
 			GridActor.grid:is_grid_way({x = self.grid_pos.x, y = self.grid_pos.y - 1}) and 1 or 0,
 		}
 		local outputs = self._ann:get_outputs(inputs)
+		-- for i = 1, #outputs do
+		-- 	io.write(tostring(outputs[i].value), " : ")
+		-- end
+		-- print("--")
+
 		local greatest_index = 1
 		local greatest_value = outputs[greatest_index].value
 		for i = 2, #outputs do
@@ -98,12 +92,27 @@ function AutoPlayer:update(dt)
 			end
 		end
 
-		self.next_direction = outputs_to_next_direction[greatest_index]
+		if not (greatest_index == 1) then
+			self.next_direction = outputs_to_next_direction[greatest_index]
+		end
 
 		if self.changed_tile == true then
 			self.fitness = self.fitness + 0.001
 		end
 	end
+end
+
+
+function AutoPlayer:got_ghost()
+	self.fitness = self.fitness + 1
+end
+
+function AutoPlayer:got_pill()
+	self.fitness = self.fitness + 1
+end
+
+function AutoPlayer:get_ann()
+	return self._ann
 end
 
 return AutoPlayer

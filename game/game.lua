@@ -105,10 +105,10 @@ function game.load(args)
 		game.grid_pos.y = settings.player_start_grid.y
 	end
 	game.player = Player:new()
-	game.player:reset(game.grid_pos, game.speed)
+	-- game.player:reset(game.grid_pos, game.speed)
 
 	--start AutoPlayer population
-	game.AutoPlayerPopulation = Population:new(AutoPlayer, {game.grid_pos, game.speed}, 1)
+	game.AutoPlayerPopulation = Population:new(AutoPlayer, game.speed, 20, 100)
 
 	-- create freightened on restart timer, it is not a pill
 	game.freightened_on_restart_timer = Timer:new(	args.restart_pill_time or
@@ -230,7 +230,7 @@ function game.draw()
 
 	if(game.ghost_state == "chasing") then
 		love.graphics.setShader(shaders.red)
-	elseif(game.ghost_state == "freightened") then
+	elseif(game.ghost_state == "frightened") then
 		love.graphics.setShader(shaders.blue)
 	end
 	--game.ghosts
@@ -314,7 +314,7 @@ function game.update(dt)
 		-- game.ghost_state is also modified by the pills update
 		if (game.ghost_state_timer:update(dt) == true) then
 			if ( game.ghost_state == "scattering") then
-			-- if game.ghost_state == "freightened" do nothing
+			-- if game.ghost_state == "frightened" do nothing
 				game.ghost_state = "chasing"
 				for i=1, #game.ghosts, 1 do
 					game.ghosts[i]:flip_direction()
@@ -345,7 +345,7 @@ function game.update(dt)
 		local total_fitness = 0
 		-- update ghosts
 		Ghost.set_state(game.ghost_state)
-		local targets = {game.player, game.bot}
+		local targets = {game.player, unpack(game.AutoPlayerPopulation.get_active_population())}
 		for i=1, #game.ghosts, 1 do
 			local is_active_before_update = game.ghosts[i].is_active
 
@@ -405,7 +405,7 @@ function game.update(dt)
 			end
 			if (game.got_pill == false) and (game.pills[i].effect == true) then
 				game.got_pill = i
-				game.ghost_state = "freightened"
+				game.ghost_state = "frightened"
 				for i=1, #game.ghosts, 1 do
 					game.ghosts[i]:flip_direction()
 					game.ghost_flip_sound:play()
@@ -442,7 +442,7 @@ function game.update(dt)
 		game.player:update(dt)
 
 		-- bot
-		game.AutoPlayerPopulation:update(dt)
+		game.AutoPlayerPopulation:update(dt, game.ghost_state)
 
 		-- check victory, should be the last thing done in this function
 		local len = #game.to_be_respawned
@@ -459,7 +459,7 @@ function game.keypressed(key, scancode, isrepeat)
 		game.paused = not game.paused
 	elseif	(key == "return") then
 		if (game.player.is_active == false) then
-			game.ghost_state = "freightened"
+			game.ghost_state = "frightened"
 			game.freightened_on_restart_timer:reset()
 			game.just_restarted = true
 			Pill.pills_active = false

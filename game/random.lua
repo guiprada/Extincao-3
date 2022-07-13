@@ -14,6 +14,11 @@ function random.choose(...)
 	return choices[choice]
 end
 
+function random.choose_list(choices_list)
+	local choice = math.random(1, #choices_list)
+	return choices_list[choice]
+end
+
 function random.zero_or_one()
 	return random.choose(0, 1)
 end
