@@ -30,7 +30,7 @@ function _Neuron:new(inputs, bias, o)
 		return nil
 	end
 
-	o.bias = bias or (-1 * n_inputs * random.random())
+	o.bias = bias or (-2 * n_inputs * random.random())
 
 	o.value = nil
 
@@ -174,17 +174,15 @@ function NN:crossover(mom, dad)
 		for j = 1, #layer do
 			local inputs = {}
 			for k = 1, #layer[j] do
-				inputs[k] = random.choose(mom[i][j][k], dad[i][j][k], mom[i][j][k] + dad[i][j][k] /2) + random.choose(-0.05, 0.05) * random.random()
+				inputs[k] = random.choose(mom[i][j][k], dad[i][j][k], mom[i][j][k] + dad[i][j][k] /2) + random.choose(-0.01, 0.01) * random.random()
 			end
-			local bias = random.choose(mom[i][j].bias, dad[i][j].bias, mom[i][j].bias + dad[i][j].bias /2) + random.choose(-0.05, 0.05) * random.random()
-			print("called new")
+			local bias = random.choose(mom[i][j].bias, dad[i][j].bias, mom[i][j].bias + dad[i][j].bias /2) + random.choose(-0.01, 0.01) * random.random()
 			new_layer[j] = _Neuron:new(inputs, bias)
 		end
 
 		son[i] = _NeuronLayer:new(new_layer)
 	end
 
-	print("crossover")
 	return son
 end
 

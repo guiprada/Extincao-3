@@ -82,7 +82,7 @@ function Ghost:new( pos_index,
 	return  o
 end
 
-function Ghost:reset(   pos_index,
+function Ghost:reset(	pos_index,
 						target_offset,
 						try_order,
 						fear_target,
@@ -469,6 +469,9 @@ function Ghost:update(targets, pills, average_ghost_pos, dt)
 			end
 		end
 		self.dist_to_target = utils.distance(target, self)
+		if self.dist_to_target < Ghost.grid_size then
+			self:collided(target)
+		end
 		self.dist_to_group = utils.distance(average_ghost_pos, self)
 
 		self.front = Ghost.grid:get_dynamic_front(self)
@@ -587,12 +590,11 @@ function Ghost:find_next_dir(target, average_ghost_pos)
 	self.enabled_dir = Ghost.grid:get_enabled_directions(self.grid_pos)
 
 	--count = grid.count_enabled_directions(self.grid_pos)
-	if ( 	Ghost.grid.grid_types[self.grid_pos.y][self.grid_pos.x]~=3 and-- invertido
-			Ghost.grid.grid_types[self.grid_pos.y][self.grid_pos.x]~=12 ) then
+	if 	(Ghost.grid.grid_types[self.grid_pos.y][self.grid_pos.x]~=3 and-- invertido
+		Ghost.grid.grid_types[self.grid_pos.y][self.grid_pos.x]~=12 ) then
 		--check which one is closer to the target
 		-- make a table to contain the posible destinations
 		local maybe_dirs = {}
-
 		for i=1, #self.try_order, 1 do
 			if (self.enabled_dir[self.try_order[i]]==true ) then --up
 				local pos = {}
@@ -643,7 +645,7 @@ function Ghost:find_next_dir(target, average_ghost_pos)
 						elseif(self.chase_feared_gene == 3)then
 							self:go_to_group(maybe_dirs, average_ghost_pos)
 						elseif(self.chase_feared_gene == 4)then
-							self:run_from_target(self, target, maybe_dirs)
+							self:run_from_target(target, maybe_dirs)
 						elseif(self.chase_feared_gene == 5)then
 							self:wander(maybe_dirs)
 						elseif(self.chase_feared_gene == 6)then
@@ -848,12 +850,12 @@ end
 
 function Ghost:get_closest(maybe_dirs, destination)
 	local shortest = 1
-	--print(destination.x)
-	for i=1, #maybe_dirs, 1 do
-		maybe_dirs[i].dist = utils.distance(maybe_dirs[i], destination)
-		if ( maybe_dirs[i].dist < maybe_dirs[shortest].dist ) then
+	local shortest_distance = utils.distance(maybe_dirs[1], destination)
+	for i = 2, #maybe_dirs, 1 do
+		local dist = utils.distance(maybe_dirs[i], destination)
+		if (dist < shortest_distance) then
 			shortest = i
-			--print(#maybe_dirs)
+			shortest_distance = dist
 		end
 	end
 	self.direction = maybe_dirs[shortest].direction

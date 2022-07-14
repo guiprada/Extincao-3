@@ -36,9 +36,9 @@ function AutoPlayer:reset(ann, speed, grid_pos)
 	local grid_pos = grid_pos or AutoPlayer.grid:get_valid_pos()
 	GridActor.reset(self, grid_pos, speed)
 
-	self.fitness = 0
+	self._fitness = 0
 
-	self._ann = ann or ANN:new(6, 5, 3, 10)
+	self._ann = ann or ANN:new(6, 5, 1, 5)
 end
 
 function AutoPlayer:draw()
@@ -65,15 +65,13 @@ end
 
 function AutoPlayer:update(dt, ghost_state)
 	if (self.is_active) then
-		GridActor.update(self,dt)
-
 		local inputs = {
-			(ghost_state == "frightened") and 1 or 0, -- ghosts freightned
-			(ghost_state == "scattering") and 1 or 0, -- ghosts scattering
-			GridActor.grid:is_grid_way({x = self.grid_pos.x + 1, y = self.grid_pos.y}) and 1 or 0,
-			GridActor.grid:is_grid_way({x = self.grid_pos.x - 1, y = self.grid_pos.y}) and 1 or 0,
-			GridActor.grid:is_grid_way({x = self.grid_pos.x, y = self.grid_pos.y + 1}) and 1 or 0,
-			GridActor.grid:is_grid_way({x = self.grid_pos.x, y = self.grid_pos.y - 1}) and 1 or 0,
+			(ghost_state == "frightened") and 0 or 1, -- ghosts freightned
+			(ghost_state == "scattering") and 0 or 1, -- ghosts scattering
+			GridActor.grid:is_grid_way({x = self.grid_pos.x + 1, y = self.grid_pos.y}) and 0 or 1,
+			GridActor.grid:is_grid_way({x = self.grid_pos.x - 1, y = self.grid_pos.y}) and 0 or 1,
+			GridActor.grid:is_grid_way({x = self.grid_pos.x, y = self.grid_pos.y + 1}) and 0 or 1,
+			GridActor.grid:is_grid_way({x = self.grid_pos.x, y = self.grid_pos.y - 1}) and 0 or 1,
 		}
 		local outputs = self._ann:get_outputs(inputs)
 		-- for i = 1, #outputs do
@@ -96,23 +94,50 @@ function AutoPlayer:update(dt, ghost_state)
 			self.next_direction = outputs_to_next_direction[greatest_index]
 		end
 
+		-- kill if choose invalid next_direction
+		-- if self:is_front_wall() then
+		-- 	self.is_active = false
+		-- if  self.next_direction == "up" and
+		-- 	self.enabled_directions[1] ~= true then
+		-- 	self.is_active = false
+		-- elseif  self.next_direction == "down" and
+		-- 	self.enabled_directions[2] ~= true then
+		-- 	self.is_active = false
+		-- elseif  self.next_direction == "left" and
+		-- 	self.enabled_directions[3] ~= true then
+		-- 	self.is_active = false
+		-- elseif  self.next_direction == "right" and
+		-- 	self.enabled_directions[4] ~= true then
+		-- 	self.is_active = false
+		-- end
+
+		GridActor.update(self,dt)
 		if self.changed_tile == true then
-			self.fitness = self.fitness + 0.001
+			self._fitness = self._fitness + 0.001
 		end
+
+		-- if self.direction == "idle" and greatest_index == 1 then
+		-- 	self._is_active = false
+		-- end
+		--
 	end
 end
 
 
 function AutoPlayer:got_ghost()
-	self.fitness = self.fitness + 1
+	-- self._fitness = self._fitness + 1
 end
 
 function AutoPlayer:got_pill()
-	self.fitness = self.fitness + 1
+	-- self._fitness = self._fitness + 1
 end
 
 function AutoPlayer:get_ann()
 	return self._ann
+end
+
+function AutoPlayer:get_fitness()
+	return self._fitness
 end
 
 return AutoPlayer

@@ -3,9 +3,9 @@
 local settings = {}
 
 -- general game settings
--- settings.screen_width = 1920
--- settings.screen_height = 1080
-settings.fullscreen = true
+settings.screen_width = 1920
+settings.screen_height = 1080
+settings.fullscreen = false
 
 -- player settings
 settings.player_start_grid = {}
@@ -55,7 +55,7 @@ settings.pill_genetic_on = false
 settings.pill_precise_crossover_on = false
 
 -- gameplay settings
-settings.n_ghosts = 20 --at least 3
+settings.n_ghosts = 100 --at least 3
 settings.n_pills = 6	-- at least 2
 settings.n_particles = 250
 
@@ -64,10 +64,9 @@ settings.restart_pill_time = 3
 
 settings.ghost_chase_time = 12
 settings.ghost_scatter_time = 7
-settings.ghost_respawn_time = 30
 
 settings.speed_boost_on = true
 settings.ghost_speed_max_factor = 1.1
-settings.player_speed_factor = 5
+settings.player_speed_factor = 20
 
 return settings

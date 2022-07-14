@@ -32,10 +32,6 @@ function game.load(args)
 	game.got_pill = false
 
 	-- respawn timer
-	local ghost_respawn_time = 	args.ghost_respawn_time or
-								settings.ghost_respawn_time
-	game.ghost_respawn_timer = Timer:new(ghost_respawn_time)
-
 	-- game.ghost_state timer
 	local ghost_scatter_time = 	args.ghost_scatter_time or
 								settings.ghost_scatter_time
@@ -108,7 +104,7 @@ function game.load(args)
 	-- game.player:reset(game.grid_pos, game.speed)
 
 	--start AutoPlayer population
-	game.AutoPlayerPopulation = Population:new(AutoPlayer, game.speed, 20, 100)
+	game.AutoPlayerPopulation = Population:new(AutoPlayer, game.speed, 20, 1000)
 
 	-- create freightened on restart timer, it is not a pill
 	game.freightened_on_restart_timer = Timer:new(	args.restart_pill_time or
@@ -125,8 +121,6 @@ function game.load(args)
 
 	-- ghosts
 	game.ghost_state = "scattering"
-	-- stack for ghosts to be respawned
-	game.to_be_respawned = {}
 	-- game.ghosts array
 	local n_ghosts = args.n_ghosts or settings.n_ghosts
 	game.ghosts = {}
@@ -294,8 +288,6 @@ function game.update(dt)
 
 	game.grid:clear_grid_collisions()
 
-	local len_respawn =  #game.to_be_respawned
-	local len_ghosts = #game.ghosts
 
 	if ( not game.paused and (dt<0.06)) then
 		for i=1,game.n_particles,1 do
@@ -342,57 +334,17 @@ function game.update(dt)
 			end
 		end
 
-		local total_fitness = 0
 		-- update ghosts
 		Ghost.set_state(game.ghost_state)
-		local targets = {game.player, unpack(game.AutoPlayerPopulation:get_active_population())}
+		local targets = {game.player, unpack(game.AutoPlayerPopulation:get_population())}
 		for i=1, #game.ghosts, 1 do
-			local is_active_before_update = game.ghosts[i].is_active
-
 				game.ghosts[i]:update(
 							targets,
 							game.pills,
 							average_ghost_pos,
 							dt)
-
-			total_fitness = total_fitness + game.ghosts[i].fitness
-
-			if (is_active_before_update==true and
-				game.ghosts[i].is_active == false)
-				then -- foi pego
-				-- reporter.report_catch(game.ghosts[i], game.ghosts)
-
-				if ( len_respawn ==0 ) then
-					table.insert(game.to_be_respawned, i)
-					game.ghost_respawn_timer:reset()
-				elseif ( len_respawn < len_ghosts ) then
-					table.insert(game.to_be_respawned, i)
-				end
-			end
-		end
-
-		--respawns, it respaws even without player
-		if ( game.ghost_respawn_timer:update(dt) )
-			then
-			if (#game.to_be_respawned > 0) then
-
-				-- and spawns
-				local i = table.remove(game.to_be_respawned, 1)
-				if ( settings.ghost_genetic_on) then
-					game.ghosts[i]:crossover(game.ghosts,
-									game.pills)
-				else
-					-- find spawning position
-					local spawn_grid_pos = {}
-					if ( game.player.grid_pos.x > (game.grid.grid_width_n/2) ) then
-						spawn_grid_pos = {x=7, y= 21}
-					else
-						spawn_grid_pos = {x=50, y= 21}
-					end
-
-					game.ghosts[i]:regen(game.pills, spawn_grid_pos)
-				end
-
+			if not game.ghosts[i].is_active then
+				game.ghosts[i]:crossover(game.ghosts, game.pills)
 			end
 		end
 
@@ -444,11 +396,6 @@ function game.update(dt)
 		-- bot
 		game.AutoPlayerPopulation:update(dt, game.ghost_state)
 
-		-- check victory, should be the last thing done in this function
-		local len = #game.to_be_respawned
-		if (len == (len_ghosts -1) ) then
-			gamestate.switch("victory")
-		end
 	end
 end
 --------------------------------------------------------------------------------
