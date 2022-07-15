@@ -203,6 +203,10 @@ function Grid:is_corridor(pos)
 	return false
 end
 
+function Grid:get_grid_actors_in_position(pos)
+	return self.grid_collisions[pos.x][pos.y]
+end
+
 function Grid:update_position(obj)
 	local x = obj.grid_pos.x
 	local y = obj.grid_pos.y

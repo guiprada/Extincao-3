@@ -1,6 +1,7 @@
 -- Guilherme Cunha Prada 2020
 local GridActor = require "GridActor"
 local Player = GridActor:new()
+Player.__index = Player
 
 local player_type_name = "player"
 
@@ -17,7 +18,6 @@ end
 function Player:new(o)
 	local o = GridActor:new(o or {})
 	setmetatable(o, self)
-	self.__index = self
 
 	o._type = GridActor.get_type_by_name(player_type_name)
 

@@ -39,23 +39,13 @@ settings.player_click = love.audio.newSource("audio/plip.wav", "static")
 settings.pill_warn_sound = love.audio.newSource("audio/warn.wav", "static")
 
 -- ghost module settings
-settings.ghost_genetic_on = true
-settings.ghost_fitness_on = true
-settings.ghost_migration_on = true
-settings.ghost_selective_migration_on = false
-settings.ghost_fear_on = true
-settings.ghost_go_home_on_scatter = true
-settings.ghost_chase_feared_gene_on = true
-settings.ghost_scatter_feared_gene_on = true
 settings.ghost_target_spread = 15
 settings.ghost_fear_spread = 50
 
 -- pill module settings
-settings.pill_genetic_on = false
-settings.pill_precise_crossover_on = false
 
 -- gameplay settings
-settings.n_ghosts = 100 --at least 3
+settings.n_ghosts = 200 --at least 3
 settings.n_pills = 6	-- at least 2
 settings.n_particles = 250
 
@@ -65,8 +55,6 @@ settings.restart_pill_time = 3
 settings.ghost_chase_time = 12
 settings.ghost_scatter_time = 7
 
-settings.speed_boost_on = true
-settings.ghost_speed_max_factor = 1.1
 settings.player_speed_factor = 20
 
 return settings

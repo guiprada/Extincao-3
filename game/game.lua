@@ -61,35 +61,15 @@ function game.load(args)
 	local player_speed_factor = args.player_speed_factor or
 										settings.player_speed_factor
 	game.speed = player_speed_factor * game.grid_size
+
 	game.ghost_speed = game.speed * 1
+	local ghost_target_spread = 15
 
 	-- start subsystems
 	Player.init(game.grid, args.player_click or settings.player_click)
-	Ghost.init(	game.grid,
-				args.ghost_fitness_on or settings.ghost_fitness_on,
-				args.ghost_target_spread or settings.ghost_target_spread,
-				args.ghost_migration_on or settings.ghost_migration_on,
-				args.ghost_selective_migration_on or
-					settings.ghost_selective_migration_on,
-				game.ghost_speed,
-				args.speed_boost_on or settings.speed_boost_on,
-				args.ghost_speed_max_factor or settings.ghost_speed_max_factor,
-				args.ghost_fear_on or settings.ghost_fear_on,
-				args.ghost_go_home_on_scatter or
-					settings.ghost_go_home_on_scatter,
-				args.ghost_chase_feared_gene_on or
-					settings.ghost_chase_feared_gene_on,
-				args.ghost_scatter_feared_gene_on or
-					settings.ghost_scatter_feared_gene_on,
-				game.grid_size,
-				game.lookahead,
-				"scattering")
-	Pill.init(	game.grid,
-				args.pill_genetic_on or settings.pill_genetic_on,
-				args.pill_precise_crossover_on or
-					settings.pill_precise_crossover_on,
-				args.pill_warn_sound or settings.pill_warn_sound)
-	AutoPlayer.init(game.grid)
+	Ghost.init(game.grid, game.grid_size, game.lookahead, game.ghost_speed, "scattering", ghost_target_spread)
+	Pill.init(game.grid, args.pill_warn_sound or settings.pill_warn_sound)
+	AutoPlayer.init(game.grid, 5)
 
 	--start player
 	game.grid_pos = {}
@@ -104,7 +84,7 @@ function game.load(args)
 	-- game.player:reset(game.grid_pos, game.speed)
 
 	--start AutoPlayer population
-	game.AutoPlayerPopulation = Population:new(AutoPlayer, game.speed, 20, 1000)
+	game.AutoPlayerPopulation = Population:new(AutoPlayer, game.speed, 10, 10000)
 
 	-- create freightened on restart timer, it is not a pill
 	game.freightened_on_restart_timer = Timer:new(	args.restart_pill_time or
@@ -128,8 +108,7 @@ function game.load(args)
 		-- find a valid position
 		local pos_index = random.random(1, #game.grid.valid_pos)
 
-		local target_offset = random.random(	-settings.ghost_target_spread,
-												settings.ghost_target_spread)
+		local target_offset = random.random(-settings.ghost_target_spread, settings.ghost_target_spread)
 
 		-- build a valid try_order gene
 		local try_order = {}
@@ -138,22 +117,7 @@ function game.load(args)
 		end
 		utils.array_shuffler(try_order)
 
-		-- creates fear genes
-		local fear_target = random.random(0, settings.ghost_fear_spread)
-		local fear_group = random.random(0, settings.ghost_fear_spread)
-
-		local chase_feared_gene = random.random(1, 9)
-		local scatter_feared_gene = random.random(1, 5)
-
-		game.ghosts[i] = Ghost:new(	pos_index,
-								target_offset,
-								try_order,
-								fear_target,
-								fear_group,
-								chase_feared_gene,
-								scatter_feared_gene,
-								game.ghost_speed,
-								game.pills)
+		game.ghosts[i] = Ghost:new(	pos_index, target_offset, try_order, game.ghost_speed)
 	end
 
 	-- render the game.maze_canvas
@@ -194,6 +158,9 @@ function game.load(args)
 	for i=1, game.n_particles,1 do
 		game.particles[i] = Particle:new()
 	end
+
+	-- max dt, for physics sanity
+	game.max_dt = (game.grid_size / 4) / utils.max(game.speed, game.ghost_speed)
 end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -282,8 +249,9 @@ end
 --------------------------------------------------------------------------------
 function game.update(dt)
 	-- dt should not be to high
-	if (dt > 0.06 ) then
-		print("ops, dt too high, physics wont work, skipping  dt= " .. dt)
+	local dt = dt < game.max_dt and dt or game.max_dt
+	if (dt > game.max_dt ) then
+		print("ops, dt too high, physics wont work, skipping dt= " .. dt)
 	end
 
 	game.grid:clear_grid_collisions()
@@ -298,9 +266,6 @@ function game.update(dt)
 		local average_ghost_pos = {}
 		average_ghost_pos.x = utils.average(game.ghosts, "x")
 		average_ghost_pos.y = utils.average(game.ghosts, "y")
-
-		local total_pill_fitness = 0
-		local active_pill_count = 0
 
 		-- game.ghost_state controller
 		-- game.ghost_state is also modified by the pills update
@@ -344,17 +309,13 @@ function game.update(dt)
 							average_ghost_pos,
 							dt)
 			if not game.ghosts[i].is_active then
-				game.ghosts[i]:crossover(game.ghosts, game.pills)
+				game.ghosts[i]:crossover(game.ghosts)
 			end
 		end
 
 		--pill
 		for i=1, #game.pills, 1 do
-			game.pills[i]:update(game.pills, dt)
-			if(game.pills[i].is_active) then
-				active_pill_count = active_pill_count + 1
-				total_pill_fitness = total_pill_fitness + game.pills[i].fitness
-			end
+			game.pills[i]:update(dt)
 			if (game.got_pill == false) and (game.pills[i].effect == true) then
 				game.got_pill = i
 				game.ghost_state = "frightened"
@@ -362,13 +323,13 @@ function game.update(dt)
 					game.ghosts[i]:flip_direction()
 					game.ghost_flip_sound:play()
 				end
-				Ghost.ghost_speed = game.ghost_speed / 1.5
+				Ghost.set_speed(game.ghost_speed / 1.5)
 				game.player.speed = game.speed * 1.1
 			elseif (game.got_pill == i) and (game.pills[i].effect == false) then
 				game.got_pill = false
 				game.ghost_state = "scattering"
 
-				Ghost.ghost_speed = game.ghost_speed
+				Ghost.set_speed(game.ghost_speed)
 				game.player.speed = game.speed
 				game.ghost_state_timer:reset()
 			end

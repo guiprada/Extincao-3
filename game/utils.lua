@@ -48,19 +48,28 @@ end
 
 function utils.average(tables, indexer)
 	-- returns the average of parameter indexer of a list of tables
-	local lenght = #tables
+	local length = #tables
 	local average = 0
-	for  i=1, lenght, 1 do
-		average = average + tables[i][indexer]/lenght
+	for  i=1, length, 1 do
+		average = average + tables[i][indexer]/length
 	end
 	return average
 end
 
+function utils.sum(table, indexer)
+	local sum = 0
+	for i = 1, #table do
+		sum = sum + table[i][indexer]
+	end
+
+	return sum
+end
+
 function utils.std_deviation(tables, indexer)
-	local lenght = #tables
+	local length = #tables
 	local sum = 0
 	local average = utils.average( tables, indexer )
-	for  i=1, lenght, 1 do
+	for  i=1, length, 1 do
 		sum = sum + ( tables[i][indexer] - average )^2
 	end
 	local std_dev = sum^(1/2)
@@ -68,31 +77,37 @@ function utils.std_deviation(tables, indexer)
 end
 
 function utils.get_highest(tables, indexer)
-	local lenght = #tables
-	local highest = 1
-	for i=1, lenght, 1 do
-		if(tables[i][indexer]> tables[highest][indexer])then
-			highest = i
+	local length = #tables
+	local highest_index = 1
+	local highest = tables[highest_index][indexer]
+
+	for i = 2, length, 1 do
+		if (tables[i][indexer] > highest) then
+			highest_index = i
+			highest = tables[highest_index][indexer]
 		end
 	end
-	return tables[highest]
+	return tables[highest_index], highest_index
 end
 
 function utils.get_lowest(tables, indexer)
-	local lenght = #tables
-	local lowest = 1
-	for i=1, lenght, 1 do
-		if(tables[i][indexer] < tables[lowest][indexer])then
-			lowest = i
+	local length = #tables
+	local lowest_index = 1
+	local lowest = tables[lowest_index][indexer]
+
+	for  i = 2, length, 1 do
+		if (tables[i][indexer] < lowest) then
+			lowest_index = i
+			lowest = tables[lowest_index][indexer]
 		end
 	end
-	return tables[lowest]
+	return tables[lowest_index], lowest_index
 end
 
 function utils.get_highest_index(tables, indexer)
-	local lenght = #tables
+	local length = #tables
 	local highest = 1
-	for i=1, lenght, 1 do
+	for i=1, length, 1 do
 		if(tables[i][indexer]> tables[highest][indexer])then
 			highest = i
 		end
@@ -133,6 +148,18 @@ function utils.midle_point(p1, p2)
 	midle.x = (p1.x + p2.x)/2
 	midle.y = (p1.y +p2.y)/2
 	return midle
+end
+
+function utils.max(...)
+	local choices = {...}
+	local max = choices[1]
+	for i = 2, #choices do
+		if choices[i] > max then
+			max = choices[i]
+		end
+	end
+
+	return max
 end
 
 return utils

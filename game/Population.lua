@@ -16,6 +16,7 @@ function Population:new(class, speed, active_size, population_size, o)
 
 	o._population = {}
 	o._history = {}
+	o._history_fitness_sum = 0
 	o._count = 0
 
 	for i = 1, active_size do
@@ -34,10 +35,43 @@ function Population:draw()
 end
 
 function Population:add_to_history(this)
-	table.insert(self._history, {ann = this:get_ann(), fitness = this:get_fitness()})
-	if #self._history > (2 * self._population_size) then
-		self._history = utils.get_n_best(self._history, "fitness", self._population_size)
+	local this = {ann = this:get_ann(), fitness = this:get_fitness()}
+
+	if #self._history == self._population_size then
+		local lowest, lowest_index = utils.get_lowest(self._history, "fitness")
+		self._history_fitness_sum = self._history_fitness_sum - lowest.fitness
+
+		self._history[lowest_index] = this
+		self._history_fitness_sum = self._history_fitness_sum + this.fitness
+	else
+		table.insert(self._history, this)
+		self._history_fitness_sum = self._history_fitness_sum + this.fitness
 	end
+end
+
+function Population:selection()
+	local randFloatMom = self._history_fitness_sum * random.random()
+	local randFloatDad = self._history_fitness_sum * random.random()
+
+	local sum = 0
+	local mom, dad
+	for i = 1, #self._history do
+		local this = self._history[i]
+		sum = sum + this.fitness
+		if (not mom) and (sum > randFloatMom) then
+			mom = this
+		elseif (not dad) and (sum > randFloatDad) then
+			dad = this
+		end
+		if mom and dad then
+			return mom, dad
+		end
+	end
+
+	print("Error in population selection!")
+	mom = mom or self._history[#self._history]
+	dad = dad or self._history[#self._history]
+	return mom, dad
 end
 
 function Population:replace(i)
@@ -50,9 +84,7 @@ function Population:replace(i)
 		self._population[i]:reset(nil, self._speed)
 	else
 		-- find parents
-		local best_halth = utils.get_n_best(self._history, "fitness", self._population_size/30)
-		local mom = random.choose_list(best_halth)
-		local dad = random.choose_list(best_halth)
+		local mom, dad = self:selection()
 
 		-- cross
 		local newAnn = ANN:crossover(mom.ann, dad.ann)

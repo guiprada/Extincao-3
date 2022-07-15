@@ -1,5 +1,6 @@
 -- Guilherme Cunha Prada 2020
 local GridActor = {}
+GridActor.__index = GridActor
 
 local registered_types_list = {
 	"generic",
@@ -32,7 +33,6 @@ end
 function GridActor:new(o)
 	local o = o or {}
 	setmetatable(o, self)
-	self.__index = self
 
 	o.grid_pos = {}
 	o.enabled_directions = {}
@@ -71,7 +71,7 @@ end
 
 function GridActor:reset(grid_pos, speed)
 	self.changed_tile = false
-	self.speed = speed
+	self.speed = speed or 0
 	self.direction = "idle"
 	self.next_direction = "idle"
 
@@ -119,9 +119,8 @@ end
 function GridActor:update(dt)
 	--speed*dt, which is the distance travelled cant be bigger than the tile
 	--grid_size*1.5 or the physics wont work
-	if self.speed*dt > GridActor.grid.grid_size*1.5 then
-		print("physics sanity check failed, Actor speed > grid_size")
-		love.event.quit(0)
+	if self.speed*dt > (GridActor.grid.grid_size/2) then
+		print("physics sanity check failed, Actor traveled distance > grid_size")
 	end
 
 	-- print(self.speed)

@@ -30,7 +30,7 @@ function _Neuron:new(inputs, bias, o)
 		return nil
 	end
 
-	o.bias = bias or (-2 * n_inputs * random.random())
+	o.bias = bias or random.random() * random.choose(1, -1) * n_inputs
 
 	o.value = nil
 
