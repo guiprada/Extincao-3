@@ -39,9 +39,9 @@ function AutoPlayer:reset(ann, speed, grid_pos)
 	GridActor.reset(self, grid_pos, speed)
 
 	self._fitness = 0
-	self._stuck = 0
+	-- self._stuck = 0
 
-	self._ann = ann or ANN:new(6, 5, 4, 6)
+	self._ann = ann or ANN:new(4, 5, 2, 6)
 end
 
 function AutoPlayer:draw()
@@ -117,12 +117,12 @@ end
 function AutoPlayer:update(dt, ghost_state)
 	if (self.is_active) then
 		local inputs = {
-			(ghost_state == "frightened") and 0 or 1, -- ghosts freightned
-			(ghost_state == "scattering") and 0 or 1, -- ghosts scattering
 			self:find_in_path_x(1),
 			self:find_in_path_x(-1),
 			self:find_in_path_y(1),
 			self:find_in_path_y(-1),
+			-- (ghost_state == "frightened") and 0 or 1, -- ghosts freightned
+			-- (ghost_state == "scattering") and 0 or 1, -- ghosts scattering
 		}
 		local outputs = self._ann:get_outputs(inputs)
 		-- for i = 1, #outputs do
@@ -141,7 +141,7 @@ function AutoPlayer:update(dt, ghost_state)
 			end
 		end
 
-		if not (greatest_index == 1) then
+		if not (greatest_index == 5) then
 			self.next_direction = outputs_to_next_direction[greatest_index]
 		end
 
@@ -150,15 +150,15 @@ function AutoPlayer:update(dt, ghost_state)
 			self._fitness = self._fitness + 0.001
 		end
 
-		if self.direction == "idle" then
-			if self._stuck > 5 then
-				self.is_active = false
-			else
-				self._stuck = self._stuck + 1
-			end
-		else
-			self._stuck = 0
-		end
+		-- if self.direction == "idle" then
+		-- 	if self._stuck > 5 then
+		-- 		self.is_active = false
+		-- 	else
+		-- 		self._stuck = self._stuck + 1
+		-- 	end
+		-- else
+		-- 	self._stuck = 0
+		-- end
 	end
 end
 
