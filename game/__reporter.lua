@@ -80,7 +80,7 @@ function reporter.report_catch(this_ghost, ghosts)
         end
 
         for i=1, #ghosts, 1 do
-            if( ghosts[i].is_active == true) then -- para criar novos valores
+            if( ghosts[i]._is_active == true) then -- para criar novos valores
                 if ( distrib[ ghosts[i][parameter] ] ~= nil ) then
                     distrib[ ghosts[i][parameter] ] = distrib[ ghosts[i][parameter] ] + 1
                 else

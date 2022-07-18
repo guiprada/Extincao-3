@@ -34,7 +34,7 @@ end
 
 function Player:draw()
 	--player body :)
-	if (self.is_active) then
+	if (self._is_active) then
 		love.graphics.setColor(1, 1, 0)
 		love.graphics.circle(	"fill",
 								self.x,
@@ -55,7 +55,7 @@ function Player:draw()
 end
 
 function Player:update(dt)
-	if (self.is_active) then
+	if (self._is_active) then
 		GridActor.update(self, dt)
 
 		if self.changed_tile == true then

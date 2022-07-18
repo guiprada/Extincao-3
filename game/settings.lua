@@ -45,7 +45,7 @@ settings.ghost_fear_spread = 50
 -- pill module settings
 
 -- gameplay settings
-settings.n_ghosts = 200 --at least 3
+settings.n_ghosts = 500 --at least 3
 settings.n_pills = 6	-- at least 2
 settings.n_particles = 250
 

@@ -8,42 +8,47 @@ local utils = require "utils"
 local random = require "random"
 local pill_type_name = "pill"
 
-function Pill.init(grid, warn_sound)
+function Pill.init(grid, warn_sound, got_pill_update_callback, time_left_update_callback)
 	GridActor.init(grid)
 
 	Pill.pills_active = true
 	Pill.warn_sound = warn_sound
 	Pill.grid = grid
+	Pill.got_pill_update = got_pill_update_callback
+	Pill.time_left_update = time_left_update_callback
 
 	GridActor.register_type(pill_type_name)
 end
 
-function Pill:new(pos_index, pill_time, o)
+local function pill_warning()
+	Pill.warn_sound:play()
+end
+
+function Pill:new(new_table, o)
 	local o = GridActor:new(o or {})
 	setmetatable(o, self)
 
-	o.timer = Timer:new(pill_time)
+	o._timer = Timer:new(new_table.pill_time)
 
 	o._type = GridActor.get_type_by_name(pill_type_name)
 
-	o:reset(Pill.grid.valid_pos[pos_index])
+	o:reset(Pill.grid.valid_pos[new_table.pos_index])
 
 	return o
 end
 
-function Pill:reset(grid_pos)
-	GridActor.reset(self, grid_pos)
+function Pill:reset()
+	GridActor.reset(self, Pill.grid:get_valid_pos())
 
-	self.timer:reset()
-	self.is_active = true
-	self.effect = false
+	self._timer:reset()
+
+	self._in_effect = false
 
 	local this_pos = Pill.grid:get_grid_center(self.grid_pos)
 	self.x = this_pos.x +
 		random.random(math.ceil(-Pill.grid.grid_size * 0.17), math.ceil(Pill.grid.grid_size * 0.17))
 	self.y = this_pos.y +
 		random.random(math.ceil(-Pill.grid.grid_size * 0.17), math.ceil(Pill.grid.grid_size * 0.17))
-
 end
 
 function Pill:is_type(type_name)
@@ -55,39 +60,64 @@ function Pill:is_type(type_name)
 end
 
 function Pill:draw()
-	if (self.is_active) then
+	if (Pill.pills_active) then
 		love.graphics.setColor(138/255,43/255,226/255, 0.9)
 		love.graphics.circle("fill", self.x, self.y, Pill.grid.grid_size*0.3)
 	end
 end
 
 function Pill:collided(other)
-	if other:is_type("player") then
-		if self.got_pill then
-			self:got_pill()
+	if (Pill.pills_active) then
+		if other:is_type("player") then
+			self:effect_on()
+			-- if other.got_pill then
+			-- 	other:got_pill()
+			-- end
 		end
-		self.is_active = false  -- if yes, activate pill effect
-		self.effect = true
-		Pill.pills_active = false -- deactivate other pills
-		self.timer:reset() -- and start pill timer
 	end
 end
 
 function Pill:update(dt)
 	GridActor.update(self, dt)
-	if (self.is_active == false) then -- if pill is inactive(it is under effect)
-		if (self.timer:update(dt)) then -- update timers
-			local this_pos_index = random.random(1, #Pill.grid.valid_pos)
-			local this_pos = Pill.grid.valid_pos[this_pos_index]
-			self:reset(this_pos)
-
-			Pill.pills_active = true
-		elseif(self.timer.timer < 1)then
-			Pill.warn_sound:play()
-		end
-	elseif (Pill.pills_active) then -- and the player is active
+	if Pill.pills_active then
 		Pill.grid:update_position(self)
+	else
+		if self:is_in_effect() then
+			if self._timer:update(dt) then
+				self:effect_off()
+			elseif (self._timer:time_left() < 1) then
+				pill_warning()
+			end
+			Pill.time_left_update(self._timer:time_left())
+		end
 	end
+end
+
+function Pill:time_left()
+	return self._timer:time_left()
+end
+
+function Pill:is_in_effect()
+	return self._in_effect
+end
+
+function Pill:effect_on()
+	Pill.pills_active = false
+	Pill.got_pill_update(true)
+	self._in_effect = true
+	self._timer:start()
+end
+
+function Pill:effect_off()
+	Pill.pills_active = true
+	Pill.got_pill_update(false)
+	self._in_effect = false
+	self:reset()
+	Pill.time_left_update(self._timer:time_left())
+end
+
+function Pill:is_active()
+	return self._is_active
 end
 
 return Pill

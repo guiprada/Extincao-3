@@ -194,7 +194,7 @@ function Ghost.selection(in_table)
 end
 
 function Ghost:draw(state)
-	if self.is_active then
+	if self._is_active then
 		if(self.target_offset <= 0)then
 			if (self.target_offset == -1) then
 				love.graphics.setColor( 0.2, 0.5, 0.8)
@@ -254,18 +254,18 @@ function Ghost:collided(other)
 			-- Ghost.reporter.report_catched(self.target_offset)
 
 			self.n_catches = self.n_catches + 1
-			other.is_active = false
+			other._is_active = false
 		else
 			if self.got_ghost then
 				self:got_ghost()
 			end
-			self.is_active = false
+			self._is_active = false
 		end
 	end
 end
 
 function Ghost:update(targets, pills, average_ghost_pos, dt)
-	if (self.is_active) then
+	if (self._is_active) then
 		Ghost._grid:update_position(self)
 
 		self.fitness = self.n_catches
@@ -276,7 +276,7 @@ function Ghost:update(targets, pills, average_ghost_pos, dt)
 		local target_distance = utils.distance(target, self)
 		for i = 2, #targets do
 			local this_target = targets[i]
-			if this_target.is_active then
+			if this_target._is_active then
 				local this_target_distance = utils.distance(this_target, self)
 				if (this_target_distance < target_distance) then
 					target = this_target
@@ -377,7 +377,7 @@ function Ghost:find_next_dir(target, average_ghost_pos)
 			end
 		end
 
-		if (target.is_active) then
+		if (target._is_active) then
 			if ( Ghost.state == "chasing" ) then
 				self:go_to_target(target, possible_next_moves)
 			elseif ( Ghost.state == "scattering") then
@@ -569,7 +569,7 @@ function Ghost:get_furthest(possible_next_moves, destination)
 end
 
 function Ghost:flip_direction()
-	if (self.is_active == false) then return end
+	if (self._is_active == false) then return end
 	if(self.direction == "up") then self.direction = "down"
 	elseif(self.direction == "down") then self.direction = "up"
 	elseif(self.direction == "left") then self.direction = "right"

@@ -39,7 +39,7 @@ function GridActor:new(o)
 	o.front = {}
 	o.last_grid_pos = {}
 
-	o.is_active = false
+	o._is_active = false
 	o.changed_tile = false
 	o.speed = 0
 	o.direction = "idle"
@@ -95,7 +95,7 @@ function GridActor:reset(grid_pos, speed)
 
 	self:update_dynamic_front()
 
-	self.is_active = true
+	self._is_active = true
 end
 
 function GridActor:is_type(type_name)
@@ -107,7 +107,7 @@ function GridActor:is_type(type_name)
 end
 
 function GridActor:draw()
-	if (self.is_active) then
+	if (self._is_active) then
 		love.graphics.setColor(1, 1, 0)
 		love.graphics.circle(	"fill",
 								self.x,
@@ -124,7 +124,7 @@ function GridActor:update(dt)
 	end
 
 	-- print(self.speed)
-	if (self.is_active) then
+	if (self._is_active) then
 		self.changed_tile = false
 		if self.direction ~= "idle" then
 			if self.direction == "up" then self.y = self.y -self.speed*dt
