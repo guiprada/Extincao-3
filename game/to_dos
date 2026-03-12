@@ -29,7 +29,6 @@
 - grid creating blocks and combining functions
 
 -- ghosts overhaul
-    - population saving and restoring system
     - fix reporter
     - Player bot based on evolutionary neural network
     - new action based ghost( depends on automatic player for testing)
@@ -58,6 +57,7 @@
 - two pills species, one rarer and stronger and are born further
 
 ------------------------------ done
++- population saving and restoring system ('s' to save, 'l' to load)
 +- fix fps on game.lua
 +- separated assets folder
 +- update to love 11.3

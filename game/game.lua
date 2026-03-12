@@ -15,6 +15,7 @@ local settings = require "settings"
 local reporter = require "reporter"
 local shaders = require "shaders"
 local Particle = require "Particle"
+local population_save = require "population_save"
 
 -----------------------------------------------------------------------callbacks
 function game.load(args)
@@ -25,6 +26,8 @@ function game.load(args)
 	game.just_restarted = true
 	game.resets = 0
 	game.pause_text = args.pause_text or settings.pause_text
+	game.notification = nil
+	game.notification_timer = 0
 
 	-- respawn timer
 	local ghost_respawn_time = 	args.ghost_respawn_time or
@@ -256,6 +259,12 @@ function game.draw()
 		love.graphics.print("'enter' para ir de novo", 3*w/4 -5, 0)
 	end
 
+	-- population save/load notification
+	if game.notification and game.notification_timer > 0 then
+		love.graphics.setColor(0, 1, 0)
+		love.graphics.printf(game.notification, game.text_font_small, 0, h - 40, w, "center")
+	end
+
 	-- pause screen
 	if (game.paused) then
 			love.graphics.setColor(0, 0, 0, 0.8)
@@ -286,6 +295,11 @@ function game.update(dt)
 
 	local len_respawn =  #game.to_be_respawned
 	local len_ghosts = #game.ghosts
+
+	-- notification countdown
+	if game.notification_timer > 0 then
+		game.notification_timer = game.notification_timer - dt
+	end
 
 	if ( not game.paused and (dt<0.06)) then
 		for i=1,game.n_particles,1 do
@@ -451,6 +465,20 @@ function game.keypressed(key, scancode, isrepeat)
 		has_shown_menu = true
 	   	if (game.paused) then game.paused = false
 	   	else game.paused = true end
+	elseif (key == "s") then
+		if population_save.save(game.ghosts) then
+			game.notification = "population saved"
+		else
+			game.notification = "save failed"
+		end
+		game.notification_timer = 3
+	elseif (key == "l") then
+		if population_save.load(game.ghosts, game.pills) then
+			game.notification = "population loaded"
+		else
+			game.notification = "no save found"
+		end
+		game.notification_timer = 3
 	elseif (key == "return" and
 			game.player.is_active==false and
 			(not game.paused)) then
@@ -495,6 +523,8 @@ function game.unload()
 	game.pause_text = nil
 	game.font_size = nil
 	game.maze_canvas = nil
+	game.notification = nil
+	game.notification_timer = nil
 end
 
 return  game

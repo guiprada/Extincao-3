@@ -29,6 +29,8 @@ settings.font = "fonts/PressStart2P-Regular.ttf"
 settings.pause_text = "\n\n'enter' try again \n\n"
 						.. "'esc' to exit\n\n"
 						.. "'spacebar' to pause\n\n"
+						.. "'s' save population\n\n"
+						.. "'l' load population\n\n"
 settings.font_size = 36
 settings.font_size_small = 20
 settings.font_size_big = 56
