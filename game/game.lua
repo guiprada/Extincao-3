@@ -474,6 +474,7 @@ function game.keypressed(key, scancode, isrepeat)
 		game.notification_timer = 3
 	elseif (key == "l") then
 		if population_save.load(game.ghosts, game.pills) then
+			game.to_be_respawned = {}  -- loaded ghosts are all alive; clear respawn queue
 			game.notification = "population loaded"
 		else
 			game.notification = "no save found"

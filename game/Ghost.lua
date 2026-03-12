@@ -486,7 +486,7 @@ function Ghost:update(target, pills, average_ghost_pos, dt, state)
             end
         end
         if ( Ghost.ghost_migration_on ) then
-            if (ghost_selective_migration_on ) then
+            if (Ghost.ghost_selective_migration_on ) then
                 if(pills[ self.home_pill_index ].is_active == false) then
                     self.home.x = self.grid_pos_closest_pill.x
                     self.home.y = self.grid_pos_closest_pill.y
